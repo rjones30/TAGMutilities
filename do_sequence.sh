@@ -48,33 +48,30 @@ tracefile=/tmp/ether_trace.log
 cat /dev/null >$tracefile
 
 cd ~halld/online/TAGMutilities
+bin/setVbias $opts -c 1-102 -r 1-5 $row -V 0 >/dev/null
 
 if [[ $byrow != "" ]]; then
     for row in 1 2 3 4 5; do
-	echo "loading Vbias setting $row"
-	./setVbias $opts -c 1-102 -r $row -g $gain_pC >> $tracefile
+	echo "lighting up row $row"
+	bin/setVbias $opts -c 1-102 -r $row -g $gain_pC >> $tracefile
 	ssh halld@halldtrg5 mqwrite /Vbias 0x0$row
-./readVbias 0x9f
 	sleep $delay
 	ssh halld@halldtrg5 mqwrite /Vbias 0xff
-	./setVbias $opts -c 1-102 -r $row -V 0
+	bin/setVbias $opts -c 1-102 -r 1-5 $row -V 0 >/dev/null
     done
 else
     for col in 1 2 3 4 5 6; do
 	for row in 1 2 3 4 5; do
 	    sipm=`echo $row $col | awk '{printf("%2.2x", 1+($1-1)+($2-1)*5)}'`
 	    echo "selecting sipm $sipm"
-	    ./setVbias $opts -c $col -r $row -g $gain_pC >> $tracefile
+	    bin/setVbias $opts -c $col -r $row -g $gain_pC >> $tracefile
 	    ssh halld@halldtrg5 mqwrite /Vbias 0x01$sipm
 	    sleep $delay
-	    ssh halld@halldtrg5 mqwrite /Vbias 0xff
-	    ./setVbias $opts -c $col -r $row -V 0
+	    ssh halld@halldtrg5 mqwrite /Vbias 0xff 
+	    bin/setVbias $opts -c 1-102 -r 1-5 $row -V 0 >/dev/null
 	done
     done
 fi
-
-ssh halld@halldtrg5 mqwrite /Vbias 0xff
-./setVbias -r 1-5 -c 1-102 -V 0 >> $tracefile
 
 echo "Trace of query packets during above sequences was:"
 cat $tracefile
