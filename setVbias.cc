@@ -200,6 +200,8 @@ int main(int argc, char *argv[])
    // assign default pathname to config file
    configfile = (char*)malloc(strlen(argv[0]) + 9);
    sprintf(configfile, "%s.conf", argv[0]);
+   char *base = strstr(configfile, "setVbias");
+   sprintf(base, "../setVbias.conf", argv[0]);
 
    // parse command line arguments
    char opt;
