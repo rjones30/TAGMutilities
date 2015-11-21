@@ -8,11 +8,11 @@
 
 The GlueX tagger microscope consists of 510 scintillating fibers arranged in 102 columns x 5 rows. Each scintillator is read out by an individual silicon photomultiplier (sipm), each with its own independent Vbias level.  Communication from a user on a linux workstation to the frontend controller takes place over ethernet. The TAGMcontroller class in this toolkit provides the low-level functionality for setting voltage levels in the frontend controller, and for reading back set levels and other conditions on the frontend such as power supply levels and operating temperatures.  User-level control is intended to take place through the following command line utilities.
 
-1. probeVbias - broadcasts a query to all frontend controllers on the local ethernet segment, used to find out which boards are alive and reachable on the local segment.
-2. readVbias - reads the current set points of all Vbias levels on a particular board#, and also reports any available supply levels and temperatures that the controller sends back.
-3. setVbias - used to set Vbias levels on individual or sets of sipms, selected by row,column or by board#,channel#; also used to select between high/low gain setting on the preamplifiers.
-4. resetVbias - sends a soft reset to a particular board#, or all boards if board# = 0xff; reboots the controller firmware, setVbias is a more gentle way to turn off voltages as it uses a slow ramp whereas reset is an abrupt way to cut bias voltage to all channels.
-5. sendpack - low-level tests using pcap library to diagnose problems communicating with frontend boards, experts only!
+1. **probeVbias** - broadcasts a query to all frontend controllers on the local ethernet segment, used to find out which boards are alive and reachable on the local segment.
+2. **readVbias** - reads the current set points of all Vbias levels on a particular board#, and also reports any available supply levels and temperatures that the controller sends back.
+3. **setVbias** - used to set Vbias levels on individual or sets of sipms, selected by row,column or by board#,channel#; also used to select between high/low gain setting on the preamplifiers.
+4. **resetVbias** - sends a soft reset to a particular board#, or all boards if board# = 0xff; reboots the controller firmware, setVbias is a more gentle way to turn off voltages as it uses a slow ramp whereas reset is an abrupt way to cut bias voltage to all channels.
+5. **sendpack** - low-level tests using pcap library to diagnose problems communicating with frontend boards, experts only!
 
 ## History
 
