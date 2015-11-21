@@ -1,0 +1,9 @@
+/archive
+/old
+/tmp
+/bin
+/test
+*-orig
+*.pyc
+*.o
+*.so
