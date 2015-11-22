@@ -69,7 +69,7 @@
 
 #define MAX_ROWS 5
 #define MAX_COLUMNS 102
-#define DEFAULT_GAIN_PC 0.200
+#define DEFAULT_GAIN_PC 0.50
 #define DEFAULT_HEALTH_V 13.0
 
 #include <stdlib.h>
