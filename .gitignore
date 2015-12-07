@@ -1,7 +1,7 @@
 /archive
 /old
 /tmp
-/bin
+/bin/*
 /test
 *-orig
 *.pyc
