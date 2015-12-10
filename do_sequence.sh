@@ -76,4 +76,4 @@ fi
 echo "Trace of query packets during above sequences was:"
 cat $tracefile
 echo "End of query packets"
-cat /dev/null >$tracefile
+rm -f $tracefile
