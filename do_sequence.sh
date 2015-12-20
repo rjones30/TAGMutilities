@@ -68,7 +68,7 @@ else
 	    ssh halld@halldtrg5 mqwrite /Vbias 0x01$sipm
 	    sleep $delay
 	    ssh halld@halldtrg5 mqwrite /Vbias 0xff 
-	    bin/setVbias $opts -c 1-102 -r 1-5 $row -V 0 >/dev/null
+	    bin/setVbias $opts -c 1-102 -r 1-5 -V 0 >/dev/null
 	done
     done
 fi
