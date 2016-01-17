@@ -1,4 +1,5 @@
-EXES = bin/sendpack bin/setVbias bin/resetVbias bin/probeVbias bin/readVbias
+EXES = bin/sendpack bin/setVbias bin/resetVbias bin/probeVbias bin/readVbias \
+       bin/TAGMremotectrl
 OBJS = TAGMcontroller.o sendpack.o setVbias.o resetVbias.o \
        probeVbias.o readVbias.o
 LIBS = -lpcap
@@ -37,7 +38,12 @@ bin/sendpack: sendpack.c
 	ssh root@gryphn chown root `pwd`/$@
 	ssh root@gryphn chmod u+s `pwd`/$@
 
+bin/TAGMremotectrl: TAGMremotectrl.cc TAGMcontroller.o
+	mkdir -p bin
+	${CXX} ${CFLAGS} -o $@ $^ ${LIBS}
+
 clean:
 	rm -f ${OBJS} ${EXES} 
 
 TAGMcontroller.cc: TAGMcontroller.h
+
