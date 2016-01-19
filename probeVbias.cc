@@ -11,17 +11,48 @@
 #include <stdexcept>
 
 #include <TAGMcontroller.h>
+#include <TAGMcommunicator.h>
+
+void usage()
+{
+   std::cerr << "Usage: probeVbias -l [remote_host[:port]::][netdev]"
+             << std::endl
+             << " where netdev is the name of an ethernet port, eg. eth0"
+             << std::endl
+             << " which may optionally be located on remote_host, served"
+             << std::endl
+             << " by a TAGMremotectrl daemon listening on port."
+             << std::endl;
+   exit(1);
+}
 
 int main(int argc, char *argv[])
 {
-   if (argc < 2 || (strcmp(argv[1], "-l") != 0)) {
-      std::cerr << "Usage: probeVbias -l" << std::endl;
-      exit(1);
+   std::string server;
+   char *netdev = 0;
+   if (argc < 2) {
+      usage();
+   }
+   else if (strcmp(argv[1], "-l") != 0) {
+      usage();
+   }
+   else if (argc > 3) {
+      usage();
+   }
+   else if (argc == 3) {
+      server = argv[2];
+      if (server.find(":") == server.npos) {
+         netdev = argv[2];
+         server = "";
+      }
    }
 
    std::map<unsigned char, std::string> catalog;
    try {
-      catalog = TAGMcontroller::probe();
+      if (server.size()) 
+         catalog = TAGMcommunicator::probe(server);
+      else
+         catalog = TAGMcontroller::probe(netdev);
    }
    catch (const std::runtime_error &err) {
       std::cerr << err.what() << std::endl;

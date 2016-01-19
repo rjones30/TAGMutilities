@@ -89,6 +89,10 @@
 
 
 #include <TAGMcontroller.h>
+#include <TAGMcommunicator.h>
+
+std::string server;
+const char *netdev = 0;
 
 void version()
 {
@@ -97,18 +101,25 @@ void version()
 
 void usage()
 {
-   std::cout << "Usage: setVbias -f <input_text_file>" << std::endl
+   std::cerr << "Usage: setVbias -f <input_text_file> [<dest>]" << std::endl
              << "   or: setVbias [-H | -L] [-h <level>] [-C <config_file>] \\"
              << std::endl
              << "                -r <rows> -c <columns> "
-             << "[-g <gain> | -V <level>]"
+             << "[-g <gain> | -V <level>] [<dest>]"
+             << " where <dest> is a string indicating how to reach the network"
+             << std::endl
+             << " where the TAGM frontend resides, formatted as follows."
+             << std::endl
+             << "   <dest> := [<hostname>[:<port>]::][netdev]]" << std::endl
+             << " where <netdev> is the network device (eg. eth0)" << std::endl
+             << " that communicates with the TAGM frontend." << std::endl
+             << " If <netdev> is on a remote host that is" << std::endl
+             << " running the TAGMremotectrl daemon then that" << std::endl
+             << " is specified by including the <hostname>" << std::endl
+             << " and <port> fields as shown, otherwise it" << std::endl
+             << " is assumed to reside on the local host." << std::endl
              << std::endl;
-}
-
-void help()
-{
-   usage();
-   std::cout << "where the meaning of the options is as follows:"
+   std::cerr << "Options:"
              << std::endl
              << " -f <data_file>: reads voltage levels from a version 1 style"
              << std::endl
@@ -155,6 +166,12 @@ void help()
              << "Row and column numbers start with 1, not 0."
              << std::endl
              << std::endl;
+   exit(1);
+}
+
+void help()
+{
+   usage();
 }
 
 char cmdline_opts[] = "f:HLh:C:r:c:g:V:?v";
@@ -194,7 +211,6 @@ int main(int argc, char *argv[])
 {
    if (argc < 2) {
       usage();
-      exit(1);
    }
 
    // assign default pathname to config file
@@ -257,7 +273,18 @@ int main(int argc, char *argv[])
       }
       else {
          usage();
-         exit(1);
+      }
+   }
+
+   // decode the path to frontend network
+   std::string arglast(argv[argc - 1]);
+   if (arglast[0] != '-') {
+      if (arglast.find(":") == arglast.npos) {
+         if (arglast.size() > 0)
+            netdev = arglast.c_str();
+      }
+      else {
+         server = arglast;
       }
    }
 
@@ -314,7 +341,12 @@ void load_from_textfile()
       if (sscanf(line, " %x %d %lf", &geoaddr, &chan, &voltage) == 3) {
          if (boards.find(geoaddr) == boards.end()) {
             try {
-               boards[geoaddr] = new TAGMcontroller(geoaddr);
+               if (server.size() > 0) {
+                  boards[geoaddr] = new TAGMcommunicator(geoaddr, server);
+               }
+               else {
+                  boards[geoaddr] = new TAGMcontroller(geoaddr, netdev);
+               }
             }
             catch (const std::runtime_error &err) {
                std::cerr << err.what() << std::endl;
@@ -356,7 +388,12 @@ void load_from_config()
             continue;
          if (boards.find(geoaddr) == boards.end()) {
             try {
-               boards[geoaddr] = new TAGMcontroller(geoaddr);
+               if (server.size() > 0) {
+                  boards[geoaddr] = new TAGMcommunicator(geoaddr, server);
+               }
+               else {
+                  boards[geoaddr] = new TAGMcontroller(geoaddr, netdev);
+               }
                boards[geoaddr]->setV(31, health_V);
                boards[geoaddr]->setV(30, (gainmode < 2)? 5.0 : 10.);
             }

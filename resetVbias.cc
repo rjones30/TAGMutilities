@@ -10,6 +10,23 @@
 #include <stdexcept>
 
 #include <TAGMcontroller.h>
+#include <TAGMcommunicator.h>
+
+void usage()
+{
+   std::cerr << "Usage: resetVbias <0xHH>[@[<hostname>[:<port>]::][netdev]]" 
+             << std::endl
+             << " where <0xHH> is the 8-bit geographic address" << std::endl
+             << " of the desired Vbias card in hex notation, " << std::endl
+             << " (or the broadcast value 0xff to reset all cards)" << std::endl
+             << " and <netdev> is the network device (eg. eth0)" << std::endl
+             << " that communicates with the TAGM frontend." << std::endl
+             << " If <netdev> is on another machine that is" << std::endl
+             << " running the TAGMremotectrl daemon then that" << std::endl
+             << " can be specified by including the <hostname>" << std::endl
+             << " and <port> fields on the command line as shown." << std::endl;
+   exit(1);
+}
 
 int main(int argc, char *argv[])
 {
@@ -18,19 +35,35 @@ int main(int argc, char *argv[])
        strstr(argv[1], "-h") == argv[1] ||
        strstr(argv[1], "--help") == argv[1])
    {
-      std::cerr << "Usage: resetVbias <0xHH>" << std::endl
-                << " where <0xHH> is the 8-bit geographic address" << std::endl
-                << " of the desired Vbias card in hex notation, "
-                << "or 0xff to reset all cards."
-                << std::endl;
-      exit(1);
+      usage();
    }
    int geoaddr;
-   sscanf(argv[1],"%x", &geoaddr);
+   std::string arg1(argv[1]);
+   std::size_t delim = arg1.find("@");
+   if (sscanf(arg1.substr(0, delim).c_str(), "%x", &geoaddr) != 1) {
+      usage();
+   }
+   std::string server;
+   const char *netdev = 0;
+   if (delim != arg1.npos) {
+      arg1 = arg1.substr(delim + 1);
+      if (arg1.find(":") == server.npos) {
+         if (arg1.size() > 0)
+            netdev = arg1.c_str();
+      }
+      else {
+         server = arg1;
+      }
+   }
 
    TAGMcontroller *ctrl;
    try {
-      ctrl = new TAGMcontroller((unsigned char)geoaddr);
+      if (server.size() == 0) {
+         ctrl = new TAGMcontroller((unsigned char)geoaddr, netdev);
+      }
+      else {
+         ctrl = new TAGMcommunicator((unsigned char)geoaddr, server);
+      }
    }
    catch (const std::runtime_error &err) {
       std::cerr << err.what() << std::endl;
