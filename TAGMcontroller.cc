@@ -19,7 +19,6 @@
 #include <stdexcept>
 
 #define RETRY_COUNT 2
-#define DEFAULT_NETWORK_DEVICE "eth1"
 #define RESPONSE_TIMEOUT_MS 2000
 #define RAMP_DELAY_US 0
 
@@ -41,6 +40,10 @@ double TAGMcontroller::fTcoef_therm[5] = {142.973,
                                             2.62172,
                                            -0.167948,
                                             0.00531447};
+
+TAGMcontroller::TAGMcontroller() {
+   fInitialized = false;
+}
 
 TAGMcontroller::TAGMcontroller(unsigned char geoaddr, const char *netdev) {
    fEthernet_timeout = RESPONSE_TIMEOUT_MS;
@@ -141,8 +144,10 @@ TAGMcontroller::TAGMcontroller(unsigned char MACaddr[6], const char *netdev) {
 }
 
 TAGMcontroller::~TAGMcontroller() {
-   delete [] fEthernet_device;
-   pcap_close(fEthernet_fp);   
+   if (fInitialized) {
+      delete [] fEthernet_device;
+      pcap_close(fEthernet_fp);   
+   }
 }
 
 void TAGMcontroller::open_network_device(const char *netdev) {

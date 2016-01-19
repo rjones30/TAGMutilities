@@ -17,6 +17,8 @@
 #ifndef TAGMCONTROLLER_H
 #define TAGMCONTROLLER_H
 
+#define DEFAULT_NETWORK_DEVICE "eth1"
+
 extern "C" {
 #include <pcap.h>
 }
@@ -30,46 +32,46 @@ class TAGMcontroller {
  public:
    TAGMcontroller(unsigned char geoaddr, const char *netdev=0);
    TAGMcontroller(unsigned char MACaddr[6], const char *netdev=0);
-   ~TAGMcontroller();
+   virtual ~TAGMcontroller();
 
    static std::map<unsigned char, std::string> probe(const char *netdev=0);  // retrieve a list of all Vbias boards that respond to a broadcast query
    static const std::string  get_hostMACaddr(const char *netdev=0);  // get the ethernet MAC address of host interface
-   const unsigned char get_Geoaddr();   // get the backplane slot address of this board
-   const unsigned char *get_MACaddr();  // get the ethernet MAC address of this board
+   virtual const unsigned char get_Geoaddr();   // get the backplane slot address of this board
+   virtual const unsigned char *get_MACaddr();  // get the ethernet MAC address of this board
 
-   double get_Tchip();         // board temperature from T sensor chip (C)
-   double get_pos5Vpower();    // +5V power level (V)
-   double get_neg5Vpower();    // -5V power level (V)
-   double get_pos3_3Vpower();  // +3.3V power level (V)
-   double get_pos1_2Vpower();  // +1.2V power level (V)
-   double get_Vsumref_1();     // SUMREF from preamp 1 (V)
-   double get_Vsumref_2();     // SUMREF from preamp 2 (V)
-   double get_Vgainmode();     // GAINMODE shared by both preamps (V)
-   int get_gainmode();         // =0 (low) or =1 (high) or =-1 (undefined)
-   double get_Vtherm_1();      // thermister voltage on preamp 1 (V)
-   double get_Vtherm_2();      // thermister voltage on preamp 2 (V)
-   double get_Tpreamp_1();     // thermister temperature on preamp 1 (C)
-   double get_Tpreamp_2();     // thermister temperature on preamp 2 (C)
-   double get_VDAChealth();    // DAC channel 31 read-back level (V)
-   double get_VDACdiode();     // DAC temperature diode voltage (V)
-   double get_TDAC();          // DAC internal temperature reading (C)
+   virtual double get_Tchip();         // board temperature from T sensor chip (C)
+   virtual double get_pos5Vpower();    // +5V power level (V)
+   virtual double get_neg5Vpower();    // -5V power level (V)
+   virtual double get_pos3_3Vpower();  // +3.3V power level (V)
+   virtual double get_pos1_2Vpower();  // +1.2V power level (V)
+   virtual double get_Vsumref_1();     // SUMREF from preamp 1 (V)
+   virtual double get_Vsumref_2();     // SUMREF from preamp 2 (V)
+   virtual double get_Vgainmode();     // GAINMODE shared by both preamps (V)
+   virtual int get_gainmode();         // =0 (low) or =1 (high) or =-1 (undefined)
+   virtual double get_Vtherm_1();      // thermister voltage on preamp 1 (V)
+   virtual double get_Vtherm_2();      // thermister voltage on preamp 2 (V)
+   virtual double get_Tpreamp_1();     // thermister temperature on preamp 1 (C)
+   virtual double get_Tpreamp_2();     // thermister temperature on preamp 2 (C)
+   virtual double get_VDAChealth();    // DAC channel 31 read-back level (V)
+   virtual double get_VDACdiode();     // DAC temperature diode voltage (V)
+   virtual double get_TDAC();          // DAC internal temperature reading (C)
 
-   void latch_status();        // capture board status in state variables
-                               // and return captured data in response to get_XXX()
-   void passthru_status();     // reset saved state from last latch_levels()
-                               // and have each get_XXX() request fresh data from board
-   void latch_voltages();      // capture board's demand voltages in state variables
-                               // and return captured data in response to getV()
-   void passthru_voltages();   // reset saved voltages from last latch_voltages()
-                               // and have each getV() request fresh data from board
+   virtual void latch_status();        // capture board status in state variables
+                                       // and return captured data in response to get_XXX()
+   virtual void passthru_status();     // reset saved state from last latch_levels()
+                                       // and have each get_XXX() request fresh data from board
+   virtual void latch_voltages();      // capture board's demand voltages in state variables
+                                       // and return captured data in response to getV()
+   virtual void passthru_voltages();   // reset saved voltages from last latch_voltages()
+                                       // and have each getV() request fresh data from board
 
-   double getV(unsigned int chan);          // voltage of channel reported by board (V)
-   double getVnew(unsigned int chan);       // voltage of channel to be set in next ramp (V)
-   void setV(unsigned int chan, double V);  // assign voltage of channel to be set in next ramp (V)
-   const unsigned char *get_last_packet();  // return a pointer to a read-only buffer containing the last packet received from the board
+   virtual double getV(unsigned int chan);          // voltage of channel reported by board (V)
+   virtual double getVnew(unsigned int chan);       // voltage of channel to be set in next ramp (V)
+   virtual void setV(unsigned int chan, double V);  // assign voltage of channel to be set in next ramp (V)
+   virtual const unsigned char *get_last_packet();  // return a pointer to a read-only buffer containing the last packet received from the board
 
-   bool ramp();                // push the new voltages to the board, if any
-   bool reset();               // send a hard reset to the board
+   virtual bool ramp();                // push the new voltages to the board, if any
+   virtual bool reset();               // send a hard reset to the board
 
  protected:
    unsigned char fGeoaddr;
@@ -85,6 +87,8 @@ class TAGMcontroller {
    int fetch_status();
    bool fVoltages_latched;
    bool fStatus_latched;
+
+   TAGMcontroller();               // stripped down protected constructor for derived classes
 
  private:
    bool fInitialized;              // flag set after ethernet link is set up

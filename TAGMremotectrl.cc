@@ -96,6 +96,21 @@ std::string process_request(const char* request)
       }
       return response.str();
    }
+   else if (strcmp(req, "get_hostMACaddr") == 0) {
+      const char *netdev = strtok(0, " ");
+      if (strlen(netdev) == 0)
+         netdev = 0;
+      TAGMcontroller *ctrl = Vboard;
+      if (ctrl == 0) {
+         try {
+            ctrl = new TAGMcontroller((unsigned char)0xff, netdev);
+         }
+         catch (const std::runtime_error &err) {
+            return std::string(err.what()) + "\n";
+         }
+      }
+      return ctrl->get_hostMACaddr(netdev);
+   }
    else if (strcmp(req, "reset") == 0) {
       TAGMcontroller *ctrl = Vboard;
       if (ctrl == 0) {
