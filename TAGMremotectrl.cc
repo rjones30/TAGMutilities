@@ -18,10 +18,13 @@
 //
 //    *) "probe" - responds with a list of all Vbias boards that respond
 //       to a broadcast query.
-//    *) "select <address>" - selects a particular front-end board by its
-//       hardware address. The string <address> can either be a single byte
-//       value in hexadecimal notation (eg. 0x9f) or it can be a full
+//    *) "select <address> [<netdev>]" - selects a particular front-end board
+//       by its hardware address. The string <address> can either be a single
+//       byte value in hexadecimal notation (eg. 0x9f) or it can be a full
 //       ethernet address in dot notation (eg. 192.168.1.40).
+//    *) "get_hostMACaddr [<netdev>]" - reports the ethernet MAC address of
+//       the host running the TAGMremotectrl daemon on the network facing
+//       the TAGM frontend.
 //    *) "get_MACaddr" - reports the ethernet MAC address of the currently
 //       selected board, or "none" if select has not been issued yet.
 //    *) "get_Geoaddr" - reports the geographical address of the currently
@@ -77,15 +80,19 @@
 int listener_port = 5692;  // default listener port, you choose!
 int listener_socket;
 int listener_fd;
-const char *netdev;
+char *netdev = 0;
 TAGMcontroller *Vboard;
+std::map<std::string, TAGMcontroller*> Vboards;
 
 std::string process_request(const char* request)
 {
    char mesg[strlen(request) + 2];
    strcpy(mesg, request);
    char *req = strtok(mesg, " ");
-   if (strcmp(req, "probe") == 0) {
+   if (req && strcmp(req, "probe") == 0) {
+      const char *netdev = strtok(0, " ");
+      if (netdev && strlen(netdev) == 0)
+         netdev = 0;
       std::map<unsigned char, std::string> boardlist;
       boardlist = TAGMcontroller::probe(netdev);
       std::map<unsigned char, std::string>::iterator iter;
@@ -98,7 +105,7 @@ std::string process_request(const char* request)
    }
    else if (strcmp(req, "get_hostMACaddr") == 0) {
       const char *netdev = strtok(0, " ");
-      if (strlen(netdev) == 0)
+      if (netdev && strlen(netdev) == 0)
          netdev = 0;
       TAGMcontroller *ctrl = Vboard;
       if (ctrl == 0) {
@@ -123,8 +130,9 @@ std::string process_request(const char* request)
       }
       if (! ctrl->reset()) {
          std::stringstream response;
-         response << "Error returned by reset() method for board at "
-                  <<  std::hex << (unsigned int)ctrl->get_Geoaddr()
+         response << "TAGMremotectrl error - "
+                  << "reset() method failed for board at "
+                  << std::hex << (unsigned int)ctrl->get_Geoaddr()
                   << std::endl;
          return response.str();
       }
@@ -133,14 +141,29 @@ std::string process_request(const char* request)
       return std::string("ok\n");
    }
    else if (strcmp(req, "select") == 0) {
-      if (Vboard != 0) {
-         delete Vboard;
-         Vboard = 0;
-      }
       unsigned char geoaddr;
       unsigned char macaddr[6];
       char *addr = strtok(0, " ");
-      if (sscanf(addr, "0x%2x", &geoaddr) == 1) {
+      char *dev = strtok(0, " ");
+      if (dev && strlen(dev) > 0) {
+         if (netdev != 0) 
+            free(netdev);
+         netdev = (char*)malloc(strlen(dev));
+         strcpy(netdev, dev);
+      }
+      else if (netdev == 0) {
+         netdev = (char*)malloc(strlen(DEFAULT_NETWORK_DEVICE));
+         strcpy(netdev, DEFAULT_NETWORK_DEVICE);
+      }
+      std::string boardId(addr);
+      if (netdev != 0) {
+         boardId += "::";
+         boardId += netdev;
+      }
+      if (Vboards.find(boardId) != Vboards.end()) {
+         Vboard = Vboards[boardId];
+      }
+      else if (sscanf(addr, "0x%2hhx", &geoaddr) == 1) {
          try {
             Vboard = new TAGMcontroller(geoaddr, netdev);
          }
@@ -149,7 +172,7 @@ std::string process_request(const char* request)
             return std::string(err.what()) + "\n";
          }
       }
-      else if (sscanf(addr, "%2.2x.%2.2x.%2.2x.%2.2x.%2.2x.%2.2x", 
+      else if (sscanf(addr, "%2.2hhx.%2.2hhx.%2.2hhx.%2.2hhx.%2.2hhx.%2.2hhx", 
                       &macaddr[0], &macaddr[1], &macaddr[2],
                       &macaddr[3], &macaddr[4], &macaddr[5]) == 6)
       {
@@ -163,13 +186,15 @@ std::string process_request(const char* request)
       }
       else {
          std::stringstream response;
-         response << "Error - invalid address " << addr << std::endl;
+         response << "TAGMremotectrl error - "
+                  << "invalid address " << addr << std::endl;
          return response.str();
       }
+      Vboards[boardId] = Vboard;
       return std::string("ok\n");
    }
    else if (Vboard == 0) {
-      return std::string("Error - no board selected\n");
+      return std::string("TAGMremotectrl error - no board selected\n");
    }
    else if (strcmp(req, "get_MACaddr") == 0) {
       const unsigned char *macaddr = Vboard->get_MACaddr();
@@ -220,79 +245,80 @@ std::string process_request(const char* request)
    }
    else if (strcmp(req, "get_Vsumref_2") == 0) {
       std::stringstream response;
-      response << Vboard->get_Vsumref_2();
+      response << Vboard->get_Vsumref_2() << std::endl;
       return response.str();
    }
    else if (strcmp(req, "get_Vgainmode") == 0) {
       std::stringstream response;
-      response << Vboard->get_Vgainmode();
+      response << Vboard->get_Vgainmode() << std::endl;
       return response.str();
    }
    else if (strcmp(req, "get_gainmode") == 0) {
       std::stringstream response;
-      response << Vboard->get_gainmode();
+      response << Vboard->get_gainmode() << std::endl;
       return response.str();
    }
    else if (strcmp(req, "get_Vtherm_1") == 0) {
       std::stringstream response;
-      response << Vboard->get_Vtherm_1();
+      response << Vboard->get_Vtherm_1() << std::endl;
       return response.str();
    }
    else if (strcmp(req, "get_Vtherm_2") == 0) {
       std::stringstream response;
-      response << Vboard->get_Vtherm_2();
+      response << Vboard->get_Vtherm_2() << std::endl;
       return response.str();
    }
    else if (strcmp(req, "get_Tpreamp_1") == 0) {
       std::stringstream response;
-      response << Vboard->get_Tpreamp_1();
+      response << Vboard->get_Tpreamp_1() << std::endl;
       return response.str();
    }
    else if (strcmp(req, "get_Tpreamp_2") == 0) {
       std::stringstream response;
-      response << Vboard->get_Tpreamp_2();
+      response << Vboard->get_Tpreamp_2() << std::endl;
       return response.str();
    }
    else if (strcmp(req, "get_VDAChealth") == 0) {
       std::stringstream response;
-      response << Vboard->get_VDAChealth();
+      response << Vboard->get_VDAChealth() << std::endl;
       return response.str();
    }
    else if (strcmp(req, "get_VDACdiode") == 0) {
       std::stringstream response;
-      response << Vboard->get_VDACdiode();
+      response << Vboard->get_VDACdiode() << std::endl;
       return response.str();
    }
    else if (strcmp(req, "get_TDAC") == 0) {
       std::stringstream response;
-      response << Vboard->get_TDAC();
+      response << Vboard->get_TDAC() << std::endl;
       return response.str();
    }
    else if (strcmp(req, "latch_status") == 0) {
       Vboard->latch_status();
-      return std::string("ok");
+      return std::string("ok\n");
    }
    else if (strcmp(req, "passthru_status") == 0) {
       Vboard->passthru_status();
-      return std::string("ok");
+      return std::string("ok\n");
    }
    else if (strcmp(req, "latch_voltages") == 0) {
       Vboard->latch_voltages();
-      return std::string("ok");
+      return std::string("ok\n");
    }
    else if (strcmp(req, "passthru_voltages") == 0) {
       Vboard->passthru_voltages();
-      return std::string("ok");
+      return std::string("ok\n");
    }
    else if (strcmp(req, "getV") == 0) {
       std::stringstream response;
       unsigned int chan;
       const char *arg = strtok(0, " ");
-      if (sscanf(arg, "%u", &chan) == 1) {
-         response << Vboard->getV(chan);
+      if (arg && sscanf(arg, "%u", &chan) == 1) {
+         response << Vboard->getV(chan) << std::endl;
       }
       else {
-         response << "Error - invalid channel " << arg;
+         response << "TAGMremotectrl error - "
+                  << "invalid channel " << arg << std::endl;
       }
       return response.str();
    }
@@ -300,11 +326,12 @@ std::string process_request(const char* request)
       std::stringstream response;
       unsigned int chan;
       const char *arg = strtok(0, " ");
-      if (sscanf(arg, "%u", &chan) == 1) {
-         response << Vboard->getVnew(chan);
+      if (arg && sscanf(arg, "%u", &chan) == 1) {
+         response << Vboard->getVnew(chan) << std::endl;
       }
       else {
-         response << "Error - invalid channel " << arg;
+         response << "TAGMremotectrl error - "
+                  << "invalid channel " << arg << std::endl;
       }
       return response.str();
    }
@@ -314,15 +341,17 @@ std::string process_request(const char* request)
       double V;
       const char *arg1 = strtok(0, " ");
       const char *arg2 = strtok(0, " ");
-      if (sscanf(arg1, "%u", &chan) != 1) {
-         response << "Error - invalid channel " << arg1;
+      if (arg1 == 0 || sscanf(arg1, "%u", &chan) != 1) {
+         response << "TAGMremotectrl error - "
+                  << "invalid channel " << arg1 << std::endl;
       }
-      else if (sscanf(arg2, "%lf", &V) != 1) {
-         response << "Error - invalid voltage " << arg2;
+      else if (arg2 == 0 || sscanf(arg2, "%lf", &V) != 1) {
+         response << "TAGMremotectrl error - "
+                  << "invalid voltage " << arg2 << std::endl;
       }
       else {
          Vboard->setV(chan, V);
-         response << "ok";
+         response << "ok\n";
       }
       return response.str();
    }
@@ -334,6 +363,7 @@ std::string process_request(const char* request)
          sprintf(hexb, "2.2x", pkt[i]);
          response << ((i>0)? " " : "") << hexb;
       }
+      response << std::endl;
       return response.str();
    }
    else if (strcmp(req, "ramp") == 0) {
@@ -342,12 +372,13 @@ std::string process_request(const char* request)
       }
       else {
          std::stringstream response;
-         response << "Error returned by ramp() method for board at "
-                  << std::hex << Vboard->get_Geoaddr();
+         response << "TAGMremotectrl error - "
+                  << "error returned by ramp() method for board at "
+                  << std::hex << Vboard->get_Geoaddr() << std::endl;
          return response.str();
       }
    }
-   return std::string("unbelievable!");
+   return std::string("unbelievable!\n");
 }
 
 int main(int argc, char *argv[])
@@ -375,7 +406,8 @@ int main(int argc, char *argv[])
          exit(1);
       }
       else {
-         netdev = argv[iarg];
+         netdev = (char *)malloc(strlen(argv[iarg]) + 1);
+         strcpy(netdev, argv[iarg]);
       }
    }
    Vboard = 0;
@@ -444,7 +476,7 @@ int main(int argc, char *argv[])
          }
          else {
             std::string response = process_request(request);
-            write(listener_fd, response.c_str(), response.size());
+            write(listener_fd, response.c_str(), response.size() + 1);
          }
       }
    }
