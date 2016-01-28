@@ -106,6 +106,7 @@ void usage()
              << std::endl
              << "                -r <rows> -c <columns> "
              << "[-g <gain> | -V <level>] [<dest>]"
+             << std::endl
              << " where <dest> is a string indicating how to reach the network"
              << std::endl
              << " where the TAGM frontend resides, formatted as follows."
@@ -189,6 +190,7 @@ struct option cmdline_longopts[] = {
    {0,0,0,0}
 };
 extern char *optarg;
+extern int optind, opterr, optopt;
 
 char *textfile = 0;
 char *configfile = 0;
@@ -277,8 +279,8 @@ int main(int argc, char *argv[])
    }
 
    // decode the path to frontend network
-   std::string arglast(argv[argc - 1]);
-   if (arglast[0] != '-') {
+   if (optind < argc) {
+      std::string arglast(argv[optind]);
       if (arglast.find(":") == arglast.npos) {
          if (arglast.size() > 0)
             netdev = arglast.c_str();
