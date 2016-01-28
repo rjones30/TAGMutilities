@@ -444,6 +444,7 @@ void dump_last_packet(const unsigned char *packet) {
       std::cerr << "dump_last_packet warning: The last packet returned"
                 << " by the frontend boards was garbled or null."
                 << std::endl;
+      return;
    }
    int packet_len = (unsigned int)packet[13] + 14;
    for (int n=0; n < packet_len; n += 2) {
