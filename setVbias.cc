@@ -440,7 +440,7 @@ int decode_sequence(const char *seq, unsigned char *arr, int max)
 }
 
 void dump_last_packet(const unsigned char *packet) {
-   if (packet == 0 || strlen((const char*)packet) < 15) {
+   if (packet == 0) {
       std::cerr << "dump_last_packet warning: The last packet returned"
                 << " by the frontend boards was garbled or null."
                 << std::endl;
