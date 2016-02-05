@@ -513,6 +513,7 @@ const unsigned char *TAGMcommunicator::get_last_packet()
       sresp >> byte;
       fPacket[n++] = byte;
    }
+   return fPacket;
 }
 
 std::string TAGMcommunicator::get_netdev(std::string server)

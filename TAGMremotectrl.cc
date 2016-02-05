@@ -358,9 +358,10 @@ std::string process_request(const char* request)
    else if (strcmp(req, "get_last_packet") == 0) {
       std::stringstream response;
       const unsigned char *pkt = Vboard->get_last_packet();
-      for (int i=0; pkt[i] != 0; ++i) {
+      int pktlen = pkt[13] + 14;
+      for (int i=0; i < pktlen; ++i) {
          char hexb[3];
-         sprintf(hexb, "2.2x", pkt[i]);
+         sprintf(hexb, "%2.2x", pkt[i]);
          response << ((i>0)? " " : "") << hexb;
       }
       response << std::endl;
