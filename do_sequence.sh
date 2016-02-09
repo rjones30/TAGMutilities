@@ -12,7 +12,9 @@
 
 opts=-L
 delay=20
-gain_pC=0.5
+gain_pC=0.45
+V0=50
+netdev=gluon2.phys.uconn.edu:
 
 while [[ $# -gt 0 ]]; do
     if `echo $1 | grep -q -- -d`; then
@@ -39,7 +41,7 @@ while [[ $# -gt 0 ]]; do
 	opts=-L
         shift
     else
-	echo "Usage: do_sequence [-r] [-d <delay_sec>] [-g <gain_pC>]"
+	echo "Usage: do_sequence [-r] [-H | -L] [-d <delay_sec>] [-g <gain_pC>]"
 	exit 0
     fi
 done
@@ -48,27 +50,28 @@ tracefile=/tmp/ether_trace.log
 cat /dev/null >$tracefile
 
 cd ~halld/online/TAGMutilities
-bin/setVbias $opts -c 1-102 -r 1-5 $row -V 0 >/dev/null
+bin/setVbias $opts -c 1-102 -r 1-5 -V $V0 $netdev >/dev/null
 
 if [[ $byrow != "" ]]; then
     for row in 1 2 3 4 5; do
 	echo "lighting up row $row"
-	bin/setVbias $opts -c 1-102 -r $row -g $gain_pC >> $tracefile
+	bin/setVbias $opts -c 1-102 -r $row -g $gain_pC $netdev >> $tracefile
 	ssh halld@halldtrg5 mqwrite /Vbias 0x0$row
 	sleep $delay
 	ssh halld@halldtrg5 mqwrite /Vbias 0xff
-	bin/setVbias $opts -c 1-102 -r 1-5 $row -V 0 >/dev/null
+	bin/setVbias $opts -c 1-102 -r 1-5 -V $V0 $netdev >/dev/null
     done
 else
-    for col in 1 2 3 4 5 6; do
+    for col in 1 2 3; do
 	for row in 1 2 3 4 5; do
-	    sipm=`echo $row $col | awk '{printf("%2.2x", 1+($1-1)+($2-1)*5)}'`
-	    echo "selecting sipm $sipm"
-	    bin/setVbias $opts -c $col -r $row -g $gain_pC >> $tracefile
-	    ssh halld@halldtrg5 mqwrite /Vbias 0x01$sipm
+	    chan=`echo $row $col | awk '{printf("%2.2x", 1+($1-1)+($2-1)*5)}'`
+            cols=`echo $col | awk '{printf("%d,%d", $1, $1+3)}'`
+	    echo "selecting channel $chan"
+	    bin/setVbias $opts -c $cols -r $row -g $gain_pC $netdev >>$tracefile
+	    ssh halld@halldtrg5 mqwrite /Vbias 0x01$chan
 	    sleep $delay
 	    ssh halld@halldtrg5 mqwrite /Vbias 0xff 
-	    bin/setVbias $opts -c 1-102 -r 1-5 -V 0 >/dev/null
+	    bin/setVbias $opts -c 1-102 -r 1-5 -V $V0 $netdev >/dev/null
 	done
     done
 fi

@@ -481,4 +481,5 @@ int main(int argc, char *argv[])
          }
       }
    }
+   close(listener_fd);
 }
