@@ -508,9 +508,9 @@ const unsigned char *TAGMcommunicator::get_last_packet()
    std::stringstream sresp(resp);
    memset(fPacket, 0, sizeof(fPacket));
    int n = 0;
-   while (sresp.rdbuf()->in_avail() > 0) {
-      unsigned char byte;
-      sresp >> byte;
+   while (n < (resp.size() + 1) / 3) {
+      unsigned int byte;
+      sresp >> std::hex >> byte;
       fPacket[n++] = byte;
    }
    return fPacket;
