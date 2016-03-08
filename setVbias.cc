@@ -27,7 +27,7 @@
 //    Usage:
 //     $ setVbias -f <data_file>
 //     $ setVbias [-H | -L] [-h <level>] [-C <config_file>] \
-//                -r <rows> -c <columns> [-g <gain> | -V <level>]
+//                -r <rows> -c <columns> [-g <gain> [-p <peak>] | -V <level>]
 //    where the meaning of the options is as follows.
 //       -f <data_file>: reads voltage levels from a version 1 style
 //                       input text file (see note 1 above).
@@ -42,6 +42,8 @@
 //                        default is to leave it unchanged.
 //       -g <gain_pC>: set the Vbias levels to the level corresponding
 //                        to gain_pC in pC per pixel.
+//       -p <peak_pC>: set the Vbias levels to the level corresponding
+//                        to average charge peak_pC hit for axial MIPS.
 //       -h <health_V>: set the DAQHealth voltage to health_V, default
 //                        is the standard value of 13V.
 //       -V <fixed_V>: set all channels selected in this command to the
@@ -50,7 +52,13 @@
 //                        in the same directory as the executable is default.
 //    and a row_sequence or column_sequence is a comma-separated list of
 //    row and column index values or ranges as in 2,5,6,8-14,21 or 1-100.
-//    Row and column numbers start with 1, not 0.
+//    Row and column numbers start with 1, not 0. If both -g and -p options
+//    are given then the -p option overrides the standard behavior with -g,
+//    except that the Vbias level will not exceed that specified by gain_pC.
+//    If achieving the specified peak_pC value would require a Vbias level
+//    greater than the gain_pC value specifies then that channel will be
+//    effectively disabled by setting the Vbias level to less than its
+//    threshold value.
 //
 // 3) To look up the board addresses that go with row,column pairs, and
 //    to compute the Vbias levels corresponding with a stated single-pixel
@@ -70,6 +78,7 @@
 #define MAX_ROWS 5
 #define MAX_COLUMNS 102
 #define DEFAULT_GAIN_PC 0.50
+#define DEFAULT_PEAK_PC 0.00
 #define DEFAULT_HEALTH_V 13.0
 
 #include <stdlib.h>
@@ -77,6 +86,14 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
+
+#if UPDATE_STATUS_IN_EPICS
+#include <cadef.h> /* Structures and data types used by epics CA */
+int epics_status;
+chid epics_channelId[2];
+int TAGM_bias_state;
+double TAGM_gain_pC;
+#endif
 
 #include <iostream>
 #include <fstream>
@@ -104,8 +121,11 @@ void usage()
    std::cerr << "Usage: setVbias -f <input_text_file> [<dest>]" << std::endl
              << "   or: setVbias [-H | -L] [-h <level>] [-C <config_file>] \\"
              << std::endl
-             << "                -r <rows> -c <columns> "
-             << "[-g <gain> | -V <level>] [<dest>]"
+             << "                -r <rows> -c <columns> \\"
+             << std::endl
+             << "                [-g <gain_pC> [-p <peak_pC>] <| -V <level>] \\"
+             << std::endl
+             << "                [<dest>]"
              << std::endl
              << " where <dest> is a string indicating how to reach the network"
              << std::endl
@@ -148,6 +168,10 @@ void usage()
              << std::endl
              << "                  to gain_pC in pC per pixel."
              << std::endl
+             << " -p <peak_pC>: set the Vbias levels to the level corresponding"
+             << std::endl
+             << "                  to peak_pC in pC per axial electron."
+             << std::endl
              << " -h <health_V>: set the DAQHealth voltage to health_V, default"
              << std::endl
              << "                  is the standard value of 13V."
@@ -175,12 +199,13 @@ void help()
    usage();
 }
 
-char cmdline_opts[] = "f:HLh:C:r:c:g:V:?v";
+char cmdline_opts[] = "f:HLh:C:r:c:g:p:V:?v";
 struct option cmdline_longopts[] = {
    {"--help", no_argument, 0, '?'},
    {"--version", no_argument, 0, 'v'},
    {"--config", required_argument, 0, 'C'},
    {"--gain_pC", required_argument, 0, 'g'},
+   {"--peak_pC", required_argument, 0, 'p'},
    {"--highgain", required_argument, 0, 'H'},
    {"--lowgain", required_argument, 0, 'L'},
    {"--health_V", required_argument, 0, 'h'},
@@ -195,6 +220,7 @@ extern int optind, opterr, optopt;
 char *textfile = 0;
 char *configfile = 0;
 double gain_pC = DEFAULT_GAIN_PC;
+double peak_pC = DEFAULT_PEAK_PC;
 int gainmode = 0;
 double health_V = DEFAULT_HEALTH_V;
 double level_V = -1;
@@ -246,6 +272,9 @@ int main(int argc, char *argv[])
       }
       else if (opt == 'g') {
          sscanf(optarg, "%lf", &gain_pC);
+      }
+      else if (opt == 'p') {
+         sscanf(optarg, "%lf", &peak_pC);
       }
       else if (opt == 'H') {
          if (gainmode == 1) {
@@ -302,6 +331,64 @@ int main(int argc, char *argv[])
       load_from_config();
    }
 
+#if UPDATE_STATUS_IN_EPICS
+
+   // The following variables are maintained in epics
+   // regarding the state of the TAGM frontend:
+   //   *) TAGM:bias:state
+   //   *) TAGM:gain:pC
+   // The following notes are copied verbatim from HDLOG entry 
+   // 3383180 submitted by aebarnes on Tue, 02/23/2016 - 11:46.
+   //
+   // These are used to keep track of the bias setting and gain setting
+   // of the microscope which will be particularly useful when looking at
+   // the alignment of the electron plane. TAGM:bias:state is a 16-bit word.
+   // Starting with the least significant bit, the bits correspond to row 1,
+   // row 2, row 3, row 4, row 5, high/low gain, status change, and the extra
+   // bits are for future development.
+   //
+   // The values are as follows:
+   // (1) 0 = row 1 is off, 1 = row 1 is on
+   // (2) 0 = row 2 is off, 1 = row 2 is on
+   // (3) 0 = row 3 is off, 1 = row 3 is on
+   // (4) 0 = row 4 is off, 1 = row 4 is on
+   // (5) 0 = row 5 is off, 1 = row 5 is on
+   // (6) 0 = low gain, 1 = high gain
+   // (7) 0 = not changing, 1 = changing
+   // The convention for changing the state is to set the 7th bit to 1 and 
+   // set the remaining bits to the values they are being set to. Once the
+   // microscope is set the 7th bit is turned to 0 leaving the other bits
+   // unchanged.
+   //
+   // Examples in binary (decimal):
+   // The microscope is off would read 0000000 (0)
+   // The microscope is turning on row 1 in high gain: 1100001 (97)
+   // The microscope is in high gain for row 1 only: 0100001 (33)
+   // The microscope is changing to low gain for all 5 rows: 1011111 (95)
+   // The microscope is in low gain for all 5 rows: 0011111 (31)
+   //
+   // TAGM:gain:pC is a double. When any SiPM is biased this PV will have 
+   // a value of the gain used which is nominally 0.45 pC/pixel. When all
+   // SiPMs are off this PV will have a value of 0 pC/pixel.
+
+   epics_status = ca_task_initialize();
+   SEVCHK(epics_status, "1");
+   epics_status = ca_search("TAGM:bias:state", &epics_channelId[0]);
+   SEVCHK(epics_status, "2");
+   epics_status = ca_search("TAGM:gain:pC", &epics_channelId[1]);
+   SEVCHK(epics_status, "3");
+   epics_status = ca_get(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
+   SEVCHK(epics_status, "4");
+   epics_status = ca_get(DBR_DOUBLE, epics_channelId[1], &TAGM_gain_pC);
+   SEVCHK(epics_status, "5");
+   epics_status = ca_pend_io(0.0);
+   SEVCHK(epics_status, "6");
+   TAGM_bias_state |= (1 << 6);
+   epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
+   SEVCHK(status, "7");
+
+#endif
+
    // send commands to frontend
    std::map<unsigned char, TAGMcontroller*>::iterator iter;
    for (iter = boards.begin(); iter != boards.end(); ++iter) {
@@ -318,6 +405,57 @@ int main(int argc, char *argv[])
 #endif
       delete iter->second;
    }
+
+#if UPDATE_STATUS_IN_EPICS
+
+   // write the final status to epics
+   if (level_V >= 0)
+      TAGM_gain_pC = -level_V;
+   else if (peak_pC > 0)
+      TAGM_gain_pC = peak_pC;
+   else
+      TAGM_gain_pC = gain_pC;
+   epics_status = ca_put(DBR_DOUBLE, epics_channelId[1], &TAGM_gain_pC);
+   SEVCHK(epics_status, "90");
+
+   TAGM_bias_state &= 0x3f;
+   if (gainmode == 1)
+      TAGM_bias_state &= ~(1 << 5);
+   else if (gainmode == 2)
+      TAGM_bias_state |= (1 << 5);
+   for (int r=0; r < 5; ++r)
+      if (rowselect[r+1] == 0)
+         TAGM_bias_state &= ~(1 << r);
+      else
+         TAGM_bias_state |= (1 << r);
+   int allcolumns = 1;
+   for (int c=0; c < 100; ++c) {
+      if (colselect[c+1] == 0) {
+         allcolumns = 0;
+         break;
+      }
+   }
+   if (allcolumns) {
+      epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
+      SEVCHK(epics_status, "91");
+      epics_status = ca_pend_io(0.0);
+      SEVCHK(epics_status, "92");
+   }
+   else {
+      for (int c=0; c < 100; ++c) {
+         if (colselect[c+1] != 0) {
+            TAGM_bias_state &= 0x3f;
+            TAGM_bias_state |= ((c + 1) << 7);
+            epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
+            SEVCHK(epics_status, "93");
+            epics_status = ca_pend_io(0.0);
+            SEVCHK(epics_status, "94");
+         }
+      }
+   }
+
+#endif
+
    exit(0);
 }
 
@@ -382,9 +520,11 @@ void load_from_config()
       unsigned char geoaddr;
       unsigned int chan;
       unsigned int row, col;
-      double thresh_V, pixelcap_pF;
-      if (sscanf(line, " %x %d %d %d %lf %lf", &geoaddr, &chan,
-                 &col, &row, &thresh_V, &pixelcap_pF) == 6)
+      double thresh_V;
+      double pixelcap_pF;
+      double meanyield_pix;
+      if (sscanf(line, " %x %d %d %d %lf %lf %lf", &geoaddr, &chan,
+                 &col, &row, &thresh_V, &pixelcap_pF, &meanyield_pix) == 6)
       {
          if (rowselect[row] == 0 || colselect[col] == 0)
             continue;
@@ -404,10 +544,19 @@ void load_from_config()
                exit(5);
             }
          }
-         if (level_V < 0)
-            boards[geoaddr]->setV(chan, thresh_V + gain_pC / pixelcap_pF);
-         else
+         if (level_V < 0) {
+            double Vg = thresh_V + gain_pC / pixelcap_pF;
+            if (peak_pC > 0) {
+               double Vp = thresh_V + peak_pC / (pixelcap_pF * meanyield_pix);
+               boards[geoaddr]->setV(chan, (Vg > Vp)? Vp : 0); 
+            }
+            else {
+               boards[geoaddr]->setV(chan, Vg);
+            }
+         }
+         else {
             boards[geoaddr]->setV(chan, level_V);
+         }
       }
    }
    fin.close();
