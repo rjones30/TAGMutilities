@@ -294,6 +294,7 @@ std::string process_request(const char* request)
       return response.str();
    }
    else if (strcmp(req, "latch_status") == 0) {
+      Vboard->passthru_status();
       Vboard->latch_status();
       return std::string("ok\n");
    }
@@ -302,6 +303,7 @@ std::string process_request(const char* request)
       return std::string("ok\n");
    }
    else if (strcmp(req, "latch_voltages") == 0) {
+      Vboard->passthru_voltages();
       Vboard->latch_voltages();
       return std::string("ok\n");
    }
@@ -375,7 +377,8 @@ std::string process_request(const char* request)
          std::stringstream response;
          response << "TAGMremotectrl error - "
                   << "error returned by ramp() method for board at "
-                  << std::hex << Vboard->get_Geoaddr() << std::endl;
+                  << std::hex << (unsigned int)Vboard->get_Geoaddr()
+                  << std::endl;
          return response.str();
       }
    }
