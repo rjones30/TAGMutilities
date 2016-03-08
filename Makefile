@@ -1,48 +1,58 @@
+EPICS = /cs/certified/apps/epics/v3.13.10-j1
+BUILD = rhel-6-x86_64
+
 EXES = bin/sendpack bin/setVbias bin/resetVbias bin/probeVbias bin/readVbias \
        bin/TAGMremotectrl
 OBJS = TAGMcommunicator.o TAGMcontroller.o sendpack.o setVbias.o resetVbias.o \
        probeVbias.o readVbias.o
-LIBS = -lpcap
+LIBS = -lpcap 
 
-CFLAGS = -g -I. -O0
+CFLAGS = -g -I. -O0 
+
+# comment out this section if epics is not available on the build host
+#EPICS_CFLAGS = -DUPDATE_STATUS_IN_EPICS=1 -I$(EPICS)/include \
+#               -L$(EPICS)/lib/$(BUILD) -lca
+
+# replace "ssh" with "true" below if root access is not available on the build host
+SSH := ssh
 
 all: $(EXES)
 
 bin/setVbias: setVbias.cc TAGMcontroller.cc TAGMcommunicator.cc
 	mkdir -p bin
-	${CXX} ${CFLAGS} -o $@ $^ ${LIBS}
-	ssh root@gryphn chown root `pwd`/$@
-	ssh root@gryphn chmod u+s `pwd`/$@
+	${CXX} ${CFLAGS} ${EPICS_CFLAGS} -o $@ $^ ${LIBS}
+	$(SSH) root@gryphn chown root `pwd`/$@
+	$(SSH) root@gryphn chmod u+s `pwd`/$@
 
 bin/resetVbias: resetVbias.cc TAGMcontroller.cc TAGMcommunicator.cc
 	mkdir -p bin
-	${CXX} ${CFLAGS} -o $@ $^ ${LIBS}
-	ssh root@gryphn chown root `pwd`/$@
-	ssh root@gryphn chmod u+s `pwd`/$@
+	${CXX} ${CFLAGS} ${EPICS_CFLAGS} -o $@ $^ ${LIBS}
+	$(SSH) root@gryphn chown root `pwd`/$@
+	$(SSH) root@gryphn chmod u+s `pwd`/$@
 
 bin/probeVbias: probeVbias.cc TAGMcontroller.cc TAGMcommunicator.cc
 	mkdir -p bin
 	${CXX} ${CFLAGS} -o $@ $^ ${LIBS}
-	ssh root@gryphn chown root `pwd`/$@
-	ssh root@gryphn chmod u+s `pwd`/$@
+	$(SSH) root@gryphn chown root `pwd`/$@
+	$(SSH) root@gryphn chmod u+s `pwd`/$@
 
 bin/readVbias: readVbias.cc TAGMcontroller.cc TAGMcommunicator.cc
 	mkdir -p bin
 	${CXX} ${CFLAGS} -o $@ $^ ${LIBS}
-	ssh root@gryphn chown root `pwd`/$@
-	ssh root@gryphn chmod u+s `pwd`/$@
+	$(SSH) root@gryphn chown root `pwd`/$@
+	$(SSH) root@gryphn chmod u+s `pwd`/$@
 
 bin/sendpack: sendpack.c
 	mkdir -p bin
 	${CXX} ${CFLAGS} -o $@ $^ ${LIBS}
-	ssh root@gryphn chown root `pwd`/$@
-	ssh root@gryphn chmod u+s `pwd`/$@
+	$(SSH) root@gryphn chown root `pwd`/$@
+	$(SSH) root@gryphn chmod u+s `pwd`/$@
 
 bin/TAGMremotectrl: TAGMremotectrl.cc TAGMcontroller.o TAGMcommunicator.cc
 	mkdir -p bin
 	${CXX} ${CFLAGS} -o $@ $^ ${LIBS}
-	ssh root@gryphn chown root `pwd`/$@
-	ssh root@gryphn chmod u+s `pwd`/$@
+	$(SSH) root@gryphn chown root `pwd`/$@
+	$(SSH) root@gryphn chmod u+s `pwd`/$@
 
 clean:
 	rm -f ${OBJS} ${EXES} 
