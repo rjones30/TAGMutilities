@@ -385,7 +385,7 @@ int main(int argc, char *argv[])
    SEVCHK(epics_status, "6");
    TAGM_bias_state |= (1 << 6);
    epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
-   SEVCHK(status, "7");
+   SEVCHK(epics_status, "7");
 
 #endif
 
