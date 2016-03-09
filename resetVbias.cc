@@ -9,6 +9,14 @@
 #include <iostream>
 #include <stdexcept>
 
+#if UPDATE_STATUS_IN_EPICS
+#include <cadef.h> /* Structures and data types used by epics CA */
+int epics_status;
+chid epics_channelId[2];
+int TAGM_bias_state;
+double TAGM_gain_pC;
+#endif
+
 #include <TAGMcontroller.h>
 #include <TAGMcommunicator.h>
 
@@ -76,4 +84,26 @@ int main(int argc, char *argv[])
       exit(4);
    }
    delete ctrl;
+
+#if UPDATE_STATUS_IN_EPICS
+
+   epics_status = ca_task_initialize();
+   SEVCHK(epics_status, "1");
+   epics_status = ca_search("TAGM:bias:state", &epics_channelId[0]);
+   SEVCHK(epics_status, "2");
+   epics_status = ca_search("TAGM:gain:pC", &epics_channelId[1]);
+   SEVCHK(epics_status, "3");
+   TAGM_bias_state = 0;
+   TAGM_gain_pC = 0;
+   epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
+   SEVCHK(epics_status, "4");
+   epics_status = ca_put(DBR_DOUBLE, epics_channelId[0], &TAGM_gain_pC);
+   SEVCHK(epics_status, "5");
+   epics_status = ca_pend_io(0.0);
+   SEVCHK(epics_status, "6");
+   ca_clear_channel(epics_channelId[0]);
+   ca_clear_channel(epics_channelId[1]);
+   ca_task_exit();
+
+#endif
 }

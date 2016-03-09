@@ -453,6 +453,9 @@ int main(int argc, char *argv[])
          }
       }
    }
+   ca_clear_channel(epics_channelId[0]);
+   ca_clear_channel(epics_channelId[1]);
+   ca_task_exit();
 
 #endif
 
