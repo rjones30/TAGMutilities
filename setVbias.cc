@@ -531,7 +531,7 @@ void load_from_config()
       double pixelcap_pF;
       double meanyield_pix;
       if (sscanf(line, " %x %d %d %d %lf %lf %lf", &geoaddr, &chan,
-                 &col, &row, &thresh_V, &pixelcap_pF, &meanyield_pix) == 6)
+                 &col, &row, &thresh_V, &pixelcap_pF, &meanyield_pix) == 7)
       {
          if (rowselect[row] == 0 || colselect[col] == 0)
             continue;
