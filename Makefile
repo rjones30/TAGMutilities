@@ -1,5 +1,7 @@
-EPICS = /cs/certified/apps/epics/v3.13.10-j1
-BUILD = rhel-6-x86_64
+#EPICS = /cs/certified/apps/epics/v3.13.10-j1
+EPICS = /gluex/controls/epics/R3-14-12-3-1/base
+#BUILD = rhel-6-x86_64
+BUILD = linux-x86_64
 
 EXES = bin/sendpack bin/setVbias bin/resetVbias bin/probeVbias bin/readVbias \
        bin/TAGMremotectrl
