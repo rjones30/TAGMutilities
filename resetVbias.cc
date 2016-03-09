@@ -93,6 +93,8 @@ int main(int argc, char *argv[])
    SEVCHK(epics_status, "2");
    epics_status = ca_search("TAGM:gain:pC", &epics_channelId[1]);
    SEVCHK(epics_status, "3");
+   epics_status = ca_pend_io(0.0);
+   SEVCHK(epics_status, "3.5");
    TAGM_bias_state = 0;
    TAGM_gain_pC = 0;
    epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);

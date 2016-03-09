@@ -377,6 +377,8 @@ int main(int argc, char *argv[])
    SEVCHK(epics_status, "2");
    epics_status = ca_search("TAGM:gain:pC", &epics_channelId[1]);
    SEVCHK(epics_status, "3");
+   epics_status = ca_pend_io(0.0);
+   SEVCHK(epics_status, "3.5");
    epics_status = ca_get(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
    SEVCHK(epics_status, "4");
    epics_status = ca_get(DBR_DOUBLE, epics_channelId[1], &TAGM_gain_pC);
@@ -417,6 +419,8 @@ int main(int argc, char *argv[])
       TAGM_gain_pC = gain_pC;
    epics_status = ca_put(DBR_DOUBLE, epics_channelId[1], &TAGM_gain_pC);
    SEVCHK(epics_status, "90");
+   epics_status = ca_pend_io(0.0);
+   SEVCHK(epics_status, "91");
 
    TAGM_bias_state &= 0x3f;
    if (gainmode == 1)
@@ -437,9 +441,9 @@ int main(int argc, char *argv[])
    }
    if (allcolumns) {
       epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
-      SEVCHK(epics_status, "91");
-      epics_status = ca_pend_io(0.0);
       SEVCHK(epics_status, "92");
+      epics_status = ca_pend_io(0.0);
+      SEVCHK(epics_status, "93");
    }
    else {
       for (int c=0; c < 100; ++c) {
@@ -447,9 +451,9 @@ int main(int argc, char *argv[])
             TAGM_bias_state &= 0x3f;
             TAGM_bias_state |= ((c + 1) << 7);
             epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
-            SEVCHK(epics_status, "93");
-            epics_status = ca_pend_io(0.0);
             SEVCHK(epics_status, "94");
+            epics_status = ca_pend_io(0.0);
+            SEVCHK(epics_status, "95");
          }
       }
    }
