@@ -86,6 +86,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
+#include <math.h>
 
 #if UPDATE_STATUS_IN_EPICS
 #include <cadef.h> /* Structures and data types used by epics CA */
@@ -554,7 +555,8 @@ void load_from_config()
          if (level_V < 0) {
             double Vg = thresh_V + gain_pC / pixelcap_pF;
             if (peak_pC > 0) {
-               double Vp = thresh_V + peak_pC / (pixelcap_pF * meanyield_pix);
+               double Vp = thresh_V + 
+                           sqrt(peak_pC / (pixelcap_pF * meanyield_pix));
                boards[geoaddr]->setV(chan, (Vg > Vp)? Vp : 0); 
             }
             else {
