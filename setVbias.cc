@@ -557,7 +557,7 @@ void load_from_config()
             if (peak_pC > 0) {
                double Vp = thresh_V + 
                            sqrt(peak_pC / (pixelcap_pF * meanyield_pix));
-               boards[geoaddr]->setV(chan, (Vg > Vp)? Vp : 0); 
+               boards[geoaddr]->setV(chan, (Vg > Vp)? Vp : Vg); 
             }
             else {
                boards[geoaddr]->setV(chan, Vg);
