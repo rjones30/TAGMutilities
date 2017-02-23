@@ -44,6 +44,9 @@
 //                        to gain_pC in pC per pixel.
 //       -p <peak_pC>: set the Vbias levels to the level corresponding
 //                        to average charge peak_pC hit for axial MIPS.
+//       -l : locks all of the rows in each column to a common average
+//                        charge peak_pC, and applies option -g or -p
+//                        to all fibers in a column as if they were one.
 //       -h <health_V>: set the DAQHealth voltage to health_V, default
 //                        is the standard value of 13V.
 //       -V <fixed_V>: set all channels selected in this command to the
@@ -111,6 +114,15 @@ double TAGM_gain_pC;
 
 std::string server;
 const char *netdev = 0;
+int dryrun = 0;
+
+struct fiber_config_info {
+   int geoaddr;
+   int chan;
+   double thresh_V;
+   double pixelcap_pF;
+   double meanyield_pix;
+};
 
 void version()
 {
@@ -122,7 +134,7 @@ void usage()
    std::cerr << "Usage: setVbias -f <input_text_file> [<dest>]" << std::endl
              << "   or: setVbias [-H | -L] [-h <level>] [-C <config_file>] \\"
              << std::endl
-             << "                -r <rows> -c <columns> \\"
+             << "                -r <rows> -c <columns> [-l] \\"
              << std::endl
              << "                [-g <gain_pC> [-p <peak_pC>] | -V <level>] \\"
              << std::endl
@@ -140,6 +152,9 @@ void usage()
              << " is specified by including the <hostname>" << std::endl
              << " and <port> fields as shown, otherwise it" << std::endl
              << " is assumed to reside on the local host." << std::endl
+             << " To do a dry run and simply print output" << std::endl
+             << " voltages to the screen, specify \"dummy\"" << std::endl
+             << " as the value of netdev." << std::endl
              << std::endl;
    std::cerr << "Options:"
              << std::endl
@@ -164,6 +179,10 @@ void usage()
              << " -H : sets high gain mode on all boards addressed in this command,"
              << std::endl
              << "                  default is to leave it unchanged."
+             << std::endl
+             << " -l : lock the gains of all fibers in a column to the same yield"
+             << std::endl
+             << "                  so that -g acts on a column as if it were one."
              << std::endl
              << " -g <gain_pC>: set the Vbias levels to the level corresponding"
              << std::endl
@@ -200,11 +219,12 @@ void help()
    usage();
 }
 
-char cmdline_opts[] = "f:HLh:C:r:c:g:p:V:?v";
+char cmdline_opts[] = "f:HLh:C:r:c:lg:p:V:?v";
 struct option cmdline_longopts[] = {
    {"--help", no_argument, 0, '?'},
    {"--version", no_argument, 0, 'v'},
    {"--config", required_argument, 0, 'C'},
+   {"--lock_columns", no_argument, 0, 'l'},
    {"--gain_pC", required_argument, 0, 'g'},
    {"--peak_pC", required_argument, 0, 'p'},
    {"--highgain", required_argument, 0, 'H'},
@@ -220,6 +240,7 @@ extern int optind, opterr, optopt;
 
 char *textfile = 0;
 char *configfile = 0;
+int lock_columns = 0;
 double gain_pC = DEFAULT_GAIN_PC;
 double peak_pC = DEFAULT_PEAK_PC;
 int gainmode = 0;
@@ -271,6 +292,16 @@ int main(int argc, char *argv[])
          configfile = (char*)malloc(strlen(optarg) + 1);
          strcpy(configfile, optarg);
       }
+      else if (opt == 'l') {
+         if (level_V < 0) {
+            lock_columns = 1;
+         }
+         else {
+            std::cerr << "setVbias error - option -l cannot be used"
+                      << "in combination with -V" << std::endl;
+            exit(1);
+         }
+      }
       else if (opt == 'g') {
          sscanf(optarg, "%lf", &gain_pC);
       }
@@ -295,6 +326,11 @@ int main(int argc, char *argv[])
          sscanf(optarg, "%lf", &health_V);
       }
       else if (opt == 'V') {
+         if (lock_columns) {
+            std::cerr << "setVbias error - option -l cannot be used"
+                      << "in combination with -V" << std::endl;
+            exit(1);
+         }
          sscanf(optarg, "%lf", &level_V);
       }
       else if (opt == 'r') {
@@ -492,6 +528,9 @@ void load_from_textfile()
                if (server.size() > 0) {
                   boards[geoaddr] = new TAGMcommunicator(geoaddr, server);
                }
+               else if (strncmp(netdev, "dummy", 5) == 0) {
+                  dryrun = 1;
+               }
                else {
                   boards[geoaddr] = new TAGMcontroller(geoaddr, netdev);
                }
@@ -501,7 +540,16 @@ void load_from_textfile()
                exit(5);
             }
          }
-         boards[geoaddr]->setV(chan, voltage);
+         if (!dryrun) {
+            boards[geoaddr]->setV(chan, voltage);
+         }
+         else {
+            std::cout << "setting channel " 
+                      << std::hex << (unsigned int)geoaddr 
+                      << ":" << std::dec << chan
+                      << " to " << voltage << "V"
+                      << std::endl;
+         }
       }
    }
    fin.close();
@@ -520,6 +568,9 @@ void load_from_config()
       exit(4);
    }
 
+   std::map<int,std::map<int,fiber_config_info> > finfo;
+   std::map<int,std::map<int,double> > Vsetpoint;
+
    while (fin.good()) {
       char line[999];
       fin.getline(line, 99);
@@ -534,18 +585,42 @@ void load_from_config()
       if (sscanf(line, " %x %d %d %d %lf %lf %lf", &geoaddr, &chan,
                  &col, &row, &thresh_V, &pixelcap_pF, &meanyield_pix) == 7)
       {
+         finfo[col][row].geoaddr = geoaddr;
+         finfo[col][row].chan = chan;
+         finfo[col][row].thresh_V = thresh_V;
+         finfo[col][row].pixelcap_pF = pixelcap_pF;
+         finfo[col][row].meanyield_pix = meanyield_pix;
+
          if (rowselect[row] == 0 || colselect[col] == 0)
             continue;
+
          if (boards.find(geoaddr) == boards.end()) {
             try {
                if (server.size() > 0) {
                   boards[geoaddr] = new TAGMcommunicator(geoaddr, server);
                }
+               else if (strncmp(netdev, "dummy", 5) == 0) {
+                  dryrun = 1;
+               }
                else {
                   boards[geoaddr] = new TAGMcontroller(geoaddr, netdev);
                }
-               boards[geoaddr]->setV(31, health_V);
-               boards[geoaddr]->setV(30, (gainmode < 2)? 5.0 : 10.);
+               if (!dryrun) {
+                  boards[geoaddr]->setV(31, health_V);
+                  boards[geoaddr]->setV(30, (gainmode < 2)? 5.0 : 10.);
+               }
+               else {
+                  std::cout << "setting channel " 
+                            << std::hex << (unsigned int)geoaddr 
+                            << ":" << std::dec << 30
+                            << " to " << ((gainmode < 2)? 5.0 : 10.) << "V"
+                            << std::endl;
+                  std::cout << "setting channel " 
+                            << std::hex << (unsigned int)geoaddr
+                            << ":" << std::dec << 31
+                            << " to " << health_V << "V"
+                            << std::endl;
+               }
             }
             catch (const std::runtime_error &err) {
                std::cerr << err.what() << std::endl;
@@ -553,22 +628,113 @@ void load_from_config()
             }
          }
          if (level_V < 0) {
-            double Vg = thresh_V + gain_pC / pixelcap_pF;
+            double Vg = thresh_V + gain_pC / (pixelcap_pF + 1e-6);
             if (peak_pC > 0) {
                double Vp = thresh_V + 
-                           sqrt(peak_pC / (pixelcap_pF * meanyield_pix));
-               boards[geoaddr]->setV(chan, (Vg > Vp)? Vp : Vg); 
+                           sqrt(peak_pC / (pixelcap_pF * meanyield_pix + 1e-6));
+               if (!dryrun) {
+                  boards[geoaddr]->setV(chan, (Vg > Vp)? Vp : Vg); 
+               }
+               else {
+                  Vsetpoint[col][row] = (Vg > Vp)? Vp : Vg;
+                  std::cout << "setting channel " 
+                            << std::hex << (unsigned int)geoaddr
+                            << ":" << std::dec << chan
+                            << " to " << Vsetpoint[col][row] << "V"
+                            << std::endl;
+               }
             }
             else {
-               boards[geoaddr]->setV(chan, Vg);
+               if (!dryrun) {
+                  boards[geoaddr]->setV(chan, Vg);
+               }
+               else {
+                  Vsetpoint[col][row] = Vg;
+                  std::cout << "setting channel " 
+                            << std::hex << (unsigned int)geoaddr
+                            << ":" << std::dec << chan
+                            << " to " << Vsetpoint[col][row] << "V"
+                            << std::endl;
+               }
             }
          }
          else {
-            boards[geoaddr]->setV(chan, level_V);
+            if (!dryrun) {
+               boards[geoaddr]->setV(chan, level_V);
+            }
+            else {
+               Vsetpoint[col][row] = level_V;
+               std::cout << "setting channel " 
+                         << std::hex << (unsigned int)geoaddr 
+                         << ":" << std::dec << chan
+                         << " to " << Vsetpoint[col][row] << "V"
+                         << std::endl;
+            }
          }
       }
    }
    fin.close();
+
+   // Apply column locking, if requested
+   if (lock_columns) {
+      for (int col=1; col <= MAX_COLUMNS; ++col) {
+         if (colselect[col] == 0)
+            continue;
+         double qpeak_pC = 1e99; 
+         for (int row=1; row <= MAX_ROWS; ++row) {
+            double q_pC = (finfo[col][row].meanyield_pix /
+                           finfo[col][row].pixelcap_pF) * gain_pC * gain_pC;
+            qpeak_pC = (q_pC < qpeak_pC)? q_pC : qpeak_pC;
+         }
+         for (int row=1; row <= MAX_ROWS; ++row) {
+            if (rowselect[row] == 0)
+               continue;
+            double V = finfo[col][row].thresh_V + 
+                       sqrt(qpeak_pC / (finfo[col][row].pixelcap_pF *
+                                        finfo[col][row].meanyield_pix + 1e-6));
+            int geoaddr = finfo[col][row].geoaddr;
+            int chan = finfo[col][row].chan;
+            if (!dryrun) {
+               boards[geoaddr]->setV(chan, V);
+            }
+            else {
+               Vsetpoint[col][row] = V;
+               std::cout << "overwriting channel " 
+                         << std::hex << (unsigned int)geoaddr 
+                         << ":" << std::dec << chan
+                         << " to " << Vsetpoint[col][row] << "V"
+                         << std::endl;
+            }
+         }
+      }
+
+#define DEBUG_COLUMN_LOCKING 1
+#if DEBUG_COLUMN_LOCKING
+      for (int col=1; col <= MAX_COLUMNS; ++col) {
+         std::cout << "expected yield in column " << col << ":"
+                   << std::endl;
+         for (int row=1; row <= MAX_ROWS; ++row) {
+            if (colselect[col] == 0 || rowselect[row] == 0)
+               continue;
+            int geoaddr = finfo[col][row].geoaddr;
+            int chan = finfo[col][row].chan;
+            double thresh_V = finfo[col][row].thresh_V;
+            double pixelcap_pF = finfo[col][row].pixelcap_pF;
+            double meanyield_pix = finfo[col][row].meanyield_pix;
+            double V;
+            if (!dryrun) {
+               V = boards[geoaddr]->getVnew(chan);
+            }
+            else {
+               V = Vsetpoint[col][row];
+            }
+            double mu = meanyield_pix * pixelcap_pF * pow(V - thresh_V, 2);
+            std::cout << "          row " << row << " : " << mu << std::endl;
+         }
+      }
+#endif
+
+   }
 }
 
 int decode_sequence(const char *seq, unsigned char *arr, int max)
