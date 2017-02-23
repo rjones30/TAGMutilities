@@ -59,7 +59,7 @@ TAGMcontroller::TAGMcontroller(unsigned char geoaddr, const char *netdev) {
    // format a broadcast packet to get the board at this
    // geoaddr to respond, so we can find its MAC address
    fGeoaddr = geoaddr;
-   std::string hostMAC(get_hostMACaddr());
+   std::string hostMAC(get_hostMACaddr(netdev));
    unsigned int mac[6];
    if (sscanf(hostMAC.c_str(), "%2x:%2x:%2x:%2x:%2x:%2x",
               &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]) != 6)
@@ -113,7 +113,7 @@ TAGMcontroller::TAGMcontroller(unsigned char MACaddr[6], const char *netdev) {
    // send a probe packet to this Vbias board
    // and look in response packet for its geoaddr
    fGeoaddr = 0xff;
-   std::string hostMAC(get_hostMACaddr());
+   std::string hostMAC(get_hostMACaddr(netdev));
    unsigned int mac[6];
    if (sscanf(hostMAC.c_str(), "%2x:%2x:%2x:%2x:%2x:%2x",
               &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]) != 6)
@@ -214,7 +214,7 @@ std::map<unsigned char, std::string> TAGMcontroller::probe(const char *netdev)
    // send a broadcast Q-packet to solicit responses
    // from every Vbias board present on the network
    unsigned char packet[64];
-   std::string hostMAC(get_hostMACaddr());
+   std::string hostMAC(get_hostMACaddr(netdev));
    unsigned int mac[6];
    sscanf(hostMAC.c_str(), "%2x:%2x:%2x:%2x:%2x:%2x",
           &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
