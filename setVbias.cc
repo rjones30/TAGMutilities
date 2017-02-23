@@ -124,7 +124,7 @@ void usage()
              << std::endl
              << "                -r <rows> -c <columns> \\"
              << std::endl
-             << "                [-g <gain_pC> [-p <peak_pC>] <| -V <level>] \\"
+             << "                [-g <gain_pC> [-p <peak_pC>] | -V <level>] \\"
              << std::endl
              << "                [<dest>]"
              << std::endl
