@@ -628,10 +628,11 @@ void load_from_config()
             }
          }
          if (level_V < 0) {
-            double Vg = thresh_V + gain_pC / (pixelcap_pF + 1e-6);
+            double Vg = thresh_V + gain_pC / pixelcap_pF;
             if (peak_pC > 0) {
-               double Vp = thresh_V + 
-                           sqrt(peak_pC / (pixelcap_pF * meanyield_pix + 1e-6));
+               double Vp = thresh_V;
+               if (meanyield_pix > 0)
+                  Vp += sqrt(peak_pC / (pixelcap_pF * meanyield_pix));
                if (!dryrun) {
                   boards[geoaddr]->setV(chan, (Vg > Vp)? Vp : Vg); 
                }
@@ -680,18 +681,20 @@ void load_from_config()
       for (int col=1; col <= MAX_COLUMNS; ++col) {
          if (colselect[col] == 0)
             continue;
-         double qpeak_pC = 1e99; 
+         double qpeak_pC = 1e6; 
          for (int row=1; row <= MAX_ROWS; ++row) {
             double q_pC = (finfo[col][row].meanyield_pix /
                            finfo[col][row].pixelcap_pF) * gain_pC * gain_pC;
-            qpeak_pC = (q_pC < qpeak_pC)? q_pC : qpeak_pC;
+            if (q_pC > 0 && q_pC < qpeak_pC)
+               qpeak_pC = q_pC;
          }
          for (int row=1; row <= MAX_ROWS; ++row) {
             if (rowselect[row] == 0)
                continue;
-            double V = finfo[col][row].thresh_V + 
-                       sqrt(qpeak_pC / (finfo[col][row].pixelcap_pF *
-                                        finfo[col][row].meanyield_pix + 1e-6));
+            double V = finfo[col][row].thresh_V;
+            if (finfo[col][row].meanyield_pix > 0)
+               V += sqrt(qpeak_pC / (finfo[col][row].pixelcap_pF *
+                                     finfo[col][row].meanyield_pix));
             int geoaddr = finfo[col][row].geoaddr;
             int chan = finfo[col][row].chan;
             if (!dryrun) {
