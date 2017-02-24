@@ -1,0 +1,14 @@
+executable = TAGMtrees.bash
+output = log.d/stdout.$(PROCESS)
+error = log.d/stderr.$(PROCESS)
+log = TAGMtrees.log
+notification = never
+universe = vanilla
+arguments = $(PROCESS)
+should_transfer_files = yes
+transfer_input_files = setup.sh,runs.list
+WhenToTransferOutput = ON_EXIT
+on_exit_hold = false
+on_exit_remove = true
+RequestCPUs = 4
+queue 15
