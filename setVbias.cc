@@ -641,6 +641,7 @@ void load_from_config()
                   std::cout << "setting channel " 
                             << std::hex << (unsigned int)geoaddr
                             << ":" << std::dec << chan
+                            << "[row=" << row << ",col=" << col << "]"
                             << " to " << Vsetpoint[col][row] << "V"
                             << std::endl;
                }
@@ -654,6 +655,7 @@ void load_from_config()
                   std::cout << "setting channel " 
                             << std::hex << (unsigned int)geoaddr
                             << ":" << std::dec << chan
+                            << "[row=" << row << ",col=" << col << "]"
                             << " to " << Vsetpoint[col][row] << "V"
                             << std::endl;
                }
@@ -668,6 +670,7 @@ void load_from_config()
                std::cout << "setting channel " 
                          << std::hex << (unsigned int)geoaddr 
                          << ":" << std::dec << chan
+                         << "[row=" << row << ",col=" << col << "]"
                          << " to " << Vsetpoint[col][row] << "V"
                          << std::endl;
             }
@@ -702,10 +705,14 @@ void load_from_config()
             }
             else {
                Vsetpoint[col][row] = V;
+               double geff = (V - finfo[col][row].thresh_V) * 
+                                  finfo[col][row].pixelcap_pF;
                std::cout << "overwriting channel " 
                          << std::hex << (unsigned int)geoaddr 
                          << ":" << std::dec << chan
+                         << "[row=" << row << ",col=" << col << "]"
                          << " to " << Vsetpoint[col][row] << "V"
+                         << " for g=" << geff
                          << std::endl;
             }
          }
