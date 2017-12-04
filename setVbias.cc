@@ -67,14 +67,14 @@
 //    to compute the Vbias levels corresponding with a stated single-pixel
 //    gain, version 2 requires the existence of a config file. The config
 //    file by default is setVbias.conf in the same directory as the
-//    setVbias executable. An alternate can be specified on the command
+//    setVbias executable. An alternate path can be specified on the command
 //    line using the -C option. The format of the config file is as follows.
 //    >>>>>>>>> cut here
-//    board(hex) channel(0-31) column(1-6) row (1-5) threshold(V) gain(pF/pixel)
-//    --------------------------------------------------------------------------
-//      9f          0             1            1       71.950          0.225
-//      9f          1             1            2       71.880          0.225
-//      9f          2             1            3       71.850          0.225
+//    board(hex) channel(0-31) column(1-6) row(1-5) threshold(V) gain(pF/pixel) yield(pixel/hit/V)
+//    --------------------------------------------------------------------------------------------
+//      9f          0             1           1       71.950         0.225           90.
+//      9f          1             1           2       71.880         0.225           90.
+//      9f          2             1           3       71.850         0.225           90.
 //    ... more lines like the above ...
 //    >>>>>>>>> cut here
 
@@ -84,12 +84,18 @@
 #define DEFAULT_PEAK_PC 0.00
 #define DEFAULT_HEALTH_V 13.0
 
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <stdexcept>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
 #include <math.h>
+#include <TAGMcontroller.h>
+#include <TAGMcommunicator.h>
 
 #if UPDATE_STATUS_IN_EPICS
 #include <cadef.h> /* Structures and data types used by epics CA */
@@ -99,18 +105,9 @@ int TAGM_bias_state;
 double TAGM_gain_pC;
 #endif
 
-#include <iostream>
-#include <fstream>
-#include <map>
-#include <stdexcept>
-
 // Enable the following line to generate a hex dump of the last
 // D packet and S packet received from each board before exit.
 #define DUMP_LAST_PACKETS 1
-
-
-#include <TAGMcontroller.h>
-#include <TAGMcommunicator.h>
 
 std::string server;
 const char *netdev = 0;
@@ -136,7 +133,7 @@ void usage()
              << std::endl
              << "                -r <rows> -c <columns> [-l] \\"
              << std::endl
-             << "                [-g <gain_pC> [-p <peak_pC>] | -V <level>] \\"
+             << "                [-g <gain_pC> | -p <peak_pC> | -V <level>] \\"
              << std::endl
              << "                [<dest>]"
              << std::endl
@@ -144,7 +141,7 @@ void usage()
              << std::endl
              << " where the TAGM frontend resides, formatted as follows."
              << std::endl
-             << "   <dest> := [<hostname>[:<port>]::][netdev]]" << std::endl
+             << "   <dest> := [<hostname>[:<port>]::][netdev]" << std::endl
              << " where <netdev> is the network device (eg. eth0)" << std::endl
              << " that communicates with the TAGM frontend." << std::endl
              << " If <netdev> is on a remote host that is" << std::endl
