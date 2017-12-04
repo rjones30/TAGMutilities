@@ -14,7 +14,8 @@ fit_start = bg_start
 fit_end = 2500.;
 
 # standard values for converting from fADC integral to charge (pC)
-fADC_gain = 400. / 4096
+# dq = V*dt/R = fADC*(1V/4096)*4ns/50Ohm = fADC*0.01953pC
+fADC_gain = 0.01953 
 fADC_pedestal = 900
 
 # These tables are nested dicts [column][run]
