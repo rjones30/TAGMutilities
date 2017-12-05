@@ -7,3 +7,4 @@
 *.pyc
 *.o
 *.so
+*.root
