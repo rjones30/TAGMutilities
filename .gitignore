@@ -8,3 +8,6 @@
 *.o
 *.so
 *.root
+fitpeaks.txt
+fitresults.txt
+setup.sh
