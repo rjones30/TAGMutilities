@@ -11,7 +11,7 @@ rawdata=/Gluex/calibration/TAGM/rawdata
 
 if [[ $# > 0 ]]; then
     line=`expr $1 + 1`
-    run=`head -n $line runs.list | tail -n 1`
+    run=`head -n $line TAGMbias_runs.list | tail -n 1`
     export infile=`ls $pnfspath/$rawdata/Run0$run/*.evio`
 else
     echo "usage: run_hdroot.sh <sequence number>"
