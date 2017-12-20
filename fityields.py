@@ -26,6 +26,11 @@ fit_end = 2500.;
 fADC_gain = 0.01953 
 fADC_pedestal = 900
 
+gval = [0.25, 0.45, 0.35]
+gset = [['40625', '40626', '40627', '40628', '40629'],
+        ['40630', '40633', '40635', '40636', '40637'],
+        ['40638', '40639', '40640', '40641', '40642']]
+
 # These tables are nested dicts [column][run]
 peakmean = {}
 peaksigma = {}
@@ -191,21 +196,9 @@ def fitall():
    """
    global interact
    interact = 0
-   fit(30195)
-   fit(30196)
-   fit(30197)
-   fit(30199)
-   fit(30200)
-   fit(30201)
-   fit(30203)
-   fit(30206)
-   fit(30207)
-   fit(30208)
-   fit(30211)
-   fit(30212)
-   fit(30213)
-   fit(30216)
-   fit(30217)
+   for ig in range(0, len(gval)):
+      for run in gset[ig]:
+         fit(run)
    interact = 1
 
 def save(file):
@@ -333,31 +326,16 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
    print "new total is", tre.GetEntries()
    tre.Write()
 
-def maketree_2017():
+def maketree(rootfile, setVbias_conf):
    """
-   Calls add2tree for all of the runs in the Spring 2017 dataset
+   Calls add2tree for all of the runs in the dataset
    """
-   rootfile = "fityields_2017.root"
-   setVbias_conf = "/home/halld/online/TAGMutilities/" +\
-                   "setVbias_fulldetector-4-21-2016.conf"
    f = TFile(rootfile, "recreate")
    f = 0
-
-   add2tree("fityields.30195", 1, 0.25, setVbias_conf, rootfile)
-   add2tree("fityields.30196", 2, 0.25, setVbias_conf, rootfile)
-   add2tree("fityields.30197", 3, 0.25, setVbias_conf, rootfile)
-   add2tree("fityields.30199", 4, 0.25, setVbias_conf, rootfile)
-   add2tree("fityields.30200", 5, 0.25, setVbias_conf, rootfile)
-   add2tree("fityields.30201", 1, 0.35, setVbias_conf, rootfile)
-   add2tree("fityields.30203", 2, 0.35, setVbias_conf, rootfile)
-   add2tree("fityields.30206", 3, 0.35, setVbias_conf, rootfile)
-   add2tree("fityields.30207", 4, 0.35, setVbias_conf, rootfile)
-   add2tree("fityields.30208", 5, 0.35, setVbias_conf, rootfile)
-   add2tree("fityields.30211", 1, 0.45, setVbias_conf, rootfile)
-   add2tree("fityields.30212", 2, 0.45, setVbias_conf, rootfile)
-   add2tree("fityields.30213", 3, 0.45, setVbias_conf, rootfile)
-   add2tree("fityields.30216", 4, 0.45, setVbias_conf, rootfile)
-   add2tree("fityields.30217", 5, 0.45, setVbias_conf, rootfile)
+   for ig in range(0, len(gval)):
+      for row in range(1, 6):
+         name = "fityields." + str(gset[ig][row-1])
+         add2tree(name, row, gval[ig], setVbias_conf, rootfile)
 
 def fityields(rootfile):
    """
