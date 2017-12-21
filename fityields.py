@@ -19,7 +19,8 @@ pedestal = 900.
 bg_start = 970.
 bg_end = 3500.
 fit_start = bg_start
-fit_end = 2500.;
+fit_end = 8500.;
+f_rebin = 1;
 
 # standard values for converting from fADC integral to charge (pC)
 # dq = V*dt/R = fADC*(1V/4096)*4ns/50Ohm = fADC*0.01953pC
@@ -88,62 +89,99 @@ def fit(run):
    global bg_end
    f = TFile("TAGMtrees_" + str(run) + ".root", "update")
    fitter = TF1("fitter", fitfunc, fit_start, fit_end, 6)
+   fitter0 = TF1("fitter0", fitfunc, fit_start, fit_end, 6)
    fadc = gROOT.FindObject("fadc")
+   global c1
+   c1 = gROOT.FindObject("c1")
+   if c1:
+      c1.Delete()
+   c1 = TCanvas("c1","c1",0,0,800,400)
+   c1.Divide(2)
+   c1.cd(1)
+   c1_1 = gROOT.FindObject("c1_1")
+   c1_1.SetLogy()
    colbase = 1
    h = 0
-   for col in range(0, 102):
+   for col in range(0, 99999):
       column = col + colbase
       if column > 102:
          break;
-      h = gROOT.FindObject("col" + str(column))
+      h = 0 #gROOT.FindObject("col" + str(column))
       if not h:
          print "no histogram found for column", column, " so regenerating..."
-         fadc.Draw("pi", "qf==0&&row==0&&col==" + str(column))
+         hpi = TH1D("hpi", "column " + str(column), 480, 0, 8160)
+         fadc.Draw("pi>>hpi", "qf==0&&row==0&&col==" + str(column))
          try:
-            h = gROOT.FindObject("htemp").Clone("col" + str(column))
+            h = gROOT.FindObject("hpi").Clone("col" + str(column))
          except:
             print "unable to generate histogram for column", column,
             print ", moving on..."
             continue
       if not h:
          break
-      i0 = h.FindBin(bg_start)
-      y0bg = h.GetBinContent(i0)
-      i = i0
-      while h.GetBinContent(i) < h.GetBinContent(i-1):
+      global f_rebin
+      rebname = h.GetName() + "reb"
+      hreb = gROOT.FindObject(rebname)
+      if hreb:
+         hreb.Delete()
+      if f_rebin > 1:
+         hreb = h.Rebin(f_rebin, rebname)
+      else:
+         hreb = h.Clone(rebname)
+      i0 = hreb.FindBin(bg_start)
+      while hreb.Integral(1, i0) < 10 and i0 < hreb.GetNbinsX():
+         i0 += 1
+      y1bg = hreb.GetBinContent(i0)
+      i1 = i0
+      i = i0 + 1
+      while hreb.GetBinContent(i) < hreb.GetBinContent(i-1) or \
+            hreb.GetBinContent(i+1) < hreb.GetBinContent(i-1):
+         if y1bg > hreb.GetBinContent(i):
+            x1bg = hreb.GetXaxis().GetBinCenter(i)
+            y1bg = hreb.GetBinContent(i)
+            i1 = i
          i += 1
-      x1bg = h.GetXaxis().GetBinCenter(i)
-      y1bg = h.GetBinContent(i)
-      i -= 1
-      while h.GetBinContent(i-1) > h.GetBinContent(i):
-         y0bg = h.GetBinContent(i)
-         if y0bg > y1bg * 8 or i == i0:
+      i = i1
+      while hreb.Integral(1,i) > 10:
+         x0bg = hreb.GetXaxis().GetBinCenter(i)
+         y0bg = hreb.GetBinContent(i)
+         if y0bg > y1bg * 30 or i == i0:
             break
          i -= 1
-      x0bg = h.GetXaxis().GetBinCenter(i)
       if y0bg > y1bg and y1bg > 0:
          bgslope = (x1bg - bg_start) / math.log(y0bg / y1bg)
       else:
          y0bg = 1
          bgslope = 1
-      i = h.FindBin(x1bg)
+      i = hreb.FindBin(x1bg)
       y0sig = y1bg
-      x1sig = x1bg
-      while h.GetBinContent(i) > 10:
-         if h.GetBinContent(i) > y0sig:
-            y0sig = h.GetBinContent(i)
-            x1sig = h.GetXaxis().GetBinCenter(i)
+      x0sig = x1bg
+      nmax = hreb.GetNbinsX()
+      while hreb.Integral(i,nmax) > 10:
+         if hreb.GetBinContent(i) > y0sig:
+            y0sig = hreb.GetBinContent(i)
+            x0sig = hreb.GetXaxis().GetBinCenter(i)
          i += 1
-      xmax = h.GetXaxis().GetBinCenter(i)
+      xmax = hreb.GetXaxis().GetBinCenter(i)
       fitmean = 0
       fitsigma = 0
-      if h.Integral(i0, i) > 100:
-         fitter.SetParameter(0, y1bg)
+      if hreb.Integral(i0, i) > 100:
+         fitter0.SetParameter(0, y1bg)
+         fitter0.SetParameter(1, x1bg)
+         fitter0.SetParameter(2, bgslope)
+         fitter0.SetParameter(3, y0sig)
+         fitter0.SetParameter(4, x0sig)
+         fitter0.SetParameter(5, x0sig / 15.)
+         c1.cd(1)
+         hreb.Draw()
+         fitter0.Draw("hist same")
+         c1.cd(2)
+         fitter.SetParameter(0, y1bg / f_rebin)
          fitter.SetParameter(1, x1bg)
          fitter.SetParameter(2, bgslope)
-         fitter.SetParameter(3, y0sig)
-         fitter.SetParameter(4, x1sig)
-         fitter.SetParameter(5, x1sig / 8.)
+         fitter.SetParameter(3, y0sig / f_rebin)
+         fitter.SetParameter(4, x0sig)
+         fitter.SetParameter(5, x0sig / 15.)
          h.Fit(fitter, "", "", x0bg, xmax)
          bgheight = fitter.GetParameter(0)
          bgmin = fitter.GetParameter(1)
@@ -158,20 +196,28 @@ def fit(run):
       if interact:
          print "press enter to accept,",
          print "# for column#,",
-         print "<ped>. to refit,",
-         print "g to regen,"
+         print "p<ped> to set bg_start limit,",
+         print "r<rb> to set rebin factor,",
+         print "e<eb> to set bg_end limit,",
+         print "g to regen,",
          resp = raw_input("or q to quit: ")
          if len(resp) > 0:
             isint = re.match(r"([0-9]+)$", resp)
-            isfloat = re.match(r"([.0-9]+)$", resp)
+            isped = re.match(r"p *([.0-9]+)$", resp)
+            isrebin = re.match(r"r *([0-9]+)$", resp)
+            isend = re.match(r"e *([.0-9]+)$", resp)
             if isint:
                colbase = int(isint.group(1)) - (col + 1)
-            elif isfloat:
-               bg_start = float(isfloat.group(1))
+            elif isped:
+               bg_start = float(isped.group(1))
                colbase -= 1
                continue
-            elif re.match(r"^e.*", resp):
-               bg_end = float(re.match(r"^e(.*)", resp).group(1))
+            elif isrebin:
+               f_rebin = int(isrebin.group(1))
+               colbase -= 1
+               continue
+            elif isend:
+               bg_end = float(isend.group(1))
                colbase -= 1
                continue
             elif re.match(r"g", resp):
