@@ -402,10 +402,15 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
          e_row[0] = row
          e_col[0] = col
          e_run[0] = run
-         e_Vbd[0] = setVbias_threshold[row][col]
-         e_G[0] = setVbias_gain[row][col]
-         e_Y[0] = setVbias_yield[row][col]
-         e_gQ[0] = gCoulombs
+         try:
+            e_Vbd[0] = setVbias_threshold[row][col]
+            e_G[0] = setVbias_gain[row][col]
+            e_Y[0] = setVbias_yield[row][col]
+            e_gQ[0] = gCoulombs
+         except:
+            print "non-existent fiber reported in fityields file?"
+            print "row=",row,",col=",col,"textfile=",textfile
+            continue
          if mean > fADC_pedestal:
             e_qmean[0] = (mean - fADC_pedestal) * fADC_gain
          else:
