@@ -40,7 +40,7 @@ import sys
 nrows = 5
 ncols = 102
 
-# empirical factor to convert from fit slope(adc/V) to gain(pF)
+# empirical factor to convert from fit slope(adc_peak/V) to gain(pF)
 fit_slope_to_gain_pF = 0.011
 
 # global values for config_conf table
