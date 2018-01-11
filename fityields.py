@@ -518,6 +518,22 @@ def fityields(rootfile):
                c1.Print("yieldfit_" + str(row) + "_" + str(col) + ".png")
             elif ans == "q":
                return
+            elif ans == "r":
+               while ans == "r":
+                  topbin = h1.FindBin(0.45)
+                  h1.SetBinError(topbin, h1.GetBinError(topbin) * 5)
+                  if h1.Fit("pol1", "s").Get().IsValid():
+                     f1 = h1.GetFunction("pol1")
+                     yicept = f1.GetParameter(0)
+                     slope = f1.GetParameter(1)
+                     chisqr = f1.GetChisquare()
+                  print "p to save plot, q to abort, enter to continue: ",
+                  c1.Update()
+                  ans = raw_input()
+            else:
+               yicept = 0
+               slope = 1e-99
+               chisqr = 1e99
             try:
                t = float(ans)
                if t > 0:
