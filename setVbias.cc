@@ -85,6 +85,7 @@
 #define DEFAULT_HEALTH_V 13.0
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <map>
 #include <stdexcept>
@@ -681,7 +682,7 @@ void load_from_config()
       for (int col=1; col <= MAX_COLUMNS; ++col) {
          if (colselect[col] == 0)
             continue;
-         double qpeak_pC = 1e6; 
+         double qpeak_pC = peak_pC; 
          for (int row=1; row <= MAX_ROWS; ++row) {
             double q_pC = (finfo[col][row].meanyield_pix /
                            finfo[col][row].pixelcap_pF) * gain_pC * gain_pC;
@@ -718,7 +719,7 @@ void load_from_config()
 #define DEBUG_COLUMN_LOCKING 1
 #if DEBUG_COLUMN_LOCKING
       for (int col=1; col <= MAX_COLUMNS; ++col) {
-         std::cout << "expected yield in column " << col << ":"
+         std::cout << "expected pulse parameters in column " << col << ":"
                    << std::endl;
          for (int row=1; row <= MAX_ROWS; ++row) {
             if (colselect[col] == 0 || rowselect[row] == 0)
@@ -735,8 +736,16 @@ void load_from_config()
             else {
                V = Vsetpoint[col][row];
             }
-            double mu = meanyield_pix * pixelcap_pF * pow(V - thresh_V, 2);
-            std::cout << "          row " << row << " : " << mu << std::endl;
+            double dV = V - thresh_V;
+            double q = meanyield_pix * pixelcap_pF * pow(dV, 2);
+            double y = meanyield_pix * dV;
+            double g = pixelcap_pF * dV;
+            std::cout << "          row " << row << " : " 
+                      << "q=" << std::setprecision(3) << q << "pC, "
+                      << "y=" << std::setprecision(3) << y << "pix, "
+                      << "g=" << std::setprecision(3) << g << "pC, "
+                      << "dV=" << std::setprecision(3) << dV << "V"
+                      << std::endl;
          }
       }
 #endif
