@@ -3,11 +3,14 @@
 /tmp
 /bin/*
 /test
+/work
 *-orig
 *.pyc
 *.o
 *.so
+*.out
 *.root
 fitpeaks.txt
 fitresults.txt
+fityields.[0-9]*
 setup.sh

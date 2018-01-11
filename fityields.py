@@ -191,6 +191,11 @@ def fit(run):
          fitsigma = abs(fitter.GetParameter(5))
          if bgheight > 0 and fitheight > 0:
             h.GetXaxis().SetRangeUser(x0bg, fitmean + 5*fitsigma)
+      else:
+         c1.cd(1)
+         hreb.Draw()
+         c1.cd(2)
+         h.Draw()
       h.Draw()
       c1.Update()
       if interact:
@@ -224,6 +229,11 @@ def fit(run):
                f.Delete("col" + str(column) + ";*")
                colbase -= 1
                continue
+            elif re.match(r"p", resp):
+               img = "fityields_" + str(run) + "_" + str(column) + ".png"
+               print "saving image as", img
+               c1.Print(img)
+               continue
             else:
                break
       if not column in peakmean:
@@ -246,6 +256,41 @@ def fitall():
       for run in gset[ig]:
          fit(run)
    interact = 1
+
+def countall(cond="qf==0&&pi>1000"):
+   """
+   Make a pass through all of the datasets and plot the total counts
+   that pass the condition given in string cond, saving the results
+   in a color map.
+   """
+   global c1
+   c1 = gROOT.FindObject("c1")
+   if c1:
+      c1.Delete()
+   c1 = TCanvas("c1","c1",0,0,800,400)
+   global hitmap
+   hitmap = [0]*3
+   for ig in range(0, len(gval)):
+      hitmap[ig] = TH2D("hitmap" + str(ig),
+                        "TAGM count map for row scans with g=" + str(gval[ig]),
+                        102, 1, 103, 5, 1, 6)
+      hitmap[ig].SetDirectory(0)
+      hitmap[ig].SetStats(0)
+      for irow in range(0, len(gset[ig])):
+         row = irow + 1
+         run = gset[ig][irow]
+         f = TFile("TAGMtrees_" + str(run) + ".root")
+         fadc = gROOT.FindObject("fadc")
+         h = gROOT.FindObject("hpi")
+         if h:
+             h.Delete()
+         h = TH1D("hpi", "", 102, 1, 103)
+         fadc.Draw("col>>hpi", cond)
+         for col in range(1, 103):
+            hitmap[ig].SetBinContent(col, row, h.GetBinContent(col))
+      hitmap[ig].Draw("colz")
+      c1.Update()
+   return hitmap
 
 def save(file):
    """
