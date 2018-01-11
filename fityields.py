@@ -24,7 +24,12 @@ f_rebin = 1;
 
 # standard values for converting from fADC integral to charge (pC)
 # dq = V*dt/R = fADC*(1V/4096)*4ns/50Ohm = fADC*0.01953pC
-fADC_gain = 0.01953 
+#fADC_gain = 0.01953 # pC/count
+
+# Empirical value based on adc_peak/pC = 0.011counts/pC in makeVbiasconf.py
+# and the empirical ratio adc_peak/adc_pulse_integral = 0.235 measured using
+# row-by-row data in runs 40635 on December 19, 2017.
+fADC_gain = 0.011 / 0.235 # pC/count
 fADC_pedestal = 900
 
 gval = [0.25, 0.45, 0.35]
@@ -357,6 +362,7 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
 
    e_row = array.array("i", [0])
    e_col = array.array("i", [0])
+   e_Vbd_orig = array.array("d", [0])
    e_Vbd = array.array("d", [0])
    e_G = array.array("d", [0])
    e_Y = array.array("d", [0])
@@ -372,6 +378,7 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
    if tre:
       tre.SetBranchAddress("row", e_row)
       tre.SetBranchAddress("col", e_col)
+      tre.SetBranchAddress("Vbd_orig", e_Vbd_orig)
       tre.SetBranchAddress("Vbd", e_Vbd)
       tre.SetBranchAddress("G", e_G)
       tre.SetBranchAddress("Y", e_Y)
@@ -383,6 +390,7 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
       tre = TTree("yields", "fityields output tree")
       tre.Branch("row", e_row, "row/I")
       tre.Branch("col", e_col, "col/I")
+      tre.Branch("Vbd_orig", e_Vbd_orig, "Vbd_orig/D")
       tre.Branch("Vbd", e_Vbd, "Vbd/D")
       tre.Branch("G", e_G, "G/D")
       tre.Branch("Y", e_Y, "Y/D")
@@ -403,6 +411,7 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
          e_col[0] = col
          e_run[0] = run
          try:
+            e_Vbd_orig[0] = setVbias_threshold[row][col]
             e_Vbd[0] = setVbias_threshold[row][col]
             e_G[0] = setVbias_gain[row][col]
             e_Y[0] = setVbias_yield[row][col]
@@ -459,16 +468,19 @@ def fityields(rootfile):
 
    e_row = array.array("i", [0])
    e_col = array.array("i", [0])
+   e_Vbd_orig = array.array("d", [0])
    e_Vbd = array.array("d", [0])
    e_G = array.array("d", [0])
    e_Y = array.array("d", [0])
    ftre = TTree("fit", "fityields results")
    ftre.Branch("row", e_row, "row/I")
    ftre.Branch("col", e_col, "col/I")
+   ftre.Branch("Vbd_orig", e_Vbd_orig, "Vbd_orig/D")
    ftre.Branch("Vbd", e_Vbd, "Vbd/D")
    ftre.Branch("G", e_G, "G/D")
    ftre.Branch("Y", e_Y, "Y/D")
 
+   pause_on_chisqr = 0
    for row in range(1,6):
       for col in range(1,103):
          hname = "fit_{0}_{1}".format(row, col)
@@ -476,21 +488,42 @@ def fityields(rootfile):
          # The following binning was chosen assuming calibration data
          # were taken at g=0.25, g=0.35, and g=0.45, adjust as needed.
          h1 = TH1D(hname, htitle, 33, 0.2, 0.5)
-         tre.Draw("gQ>>" + hname, "sqrt(qmean)*(qmean>25)*" +
+         tre.Draw("gQ>>" + hname, "sqrt(qmean)*(qmean>0)*" +
                   "(row==" + str(row) + "&&" + "col==" + str(col) + ")")
          for b in range(1, h1.GetNbinsX()):
             if h1.GetBinContent(b) > 0:
                h1.SetBinError(b, 0.3)
          print "fitting row", row, "column", col
          h1.SetStats(0)
-         if h1.GetEntries() > 0:
-            h1.Fit("pol1")
-            f1 = h1.GetFunction("pol1")
-            yicept = f1.GetParameter(0)
-            slope = f1.GetParameter(1)
+         if h1.Integral(1,33) > 0:
+            h1.SetStats(0)
+            if h1.Fit("pol1", "s").Get().IsValid():
+               f1 = h1.GetFunction("pol1")
+               yicept = f1.GetParameter(0)
+               slope = f1.GetParameter(1)
+               chisqr = f1.GetChisquare()
+            else:
+               yicept = 0
+               slope = 1e-99
+               chisqr = 1e99
          else:
             yicept = 0
             slope = 1e-99
+            chisqr = 1e99
+         c1.Update()
+         if chisqr > pause_on_chisqr:
+            print "p to save plot, q to abort, enter to continue: ",
+            ans = raw_input()
+            if ans == "p":
+               c1.Print("yieldfit_" + str(row) + "_" + str(col) + ".png")
+            elif ans == "q":
+               return
+            try:
+               t = float(ans)
+               if t > 0:
+                  pause_on_chisqr = t
+            except:
+               pass
          h1.Write()
          c1.Update()        
          for e in range(0, tre.GetEntries()):
@@ -503,11 +536,12 @@ def fityields(rootfile):
             return
          e_row[0] = row
          e_col[0] = col
-         e_Vbd[0] = tre.Vbd - (yicept / (slope * tre.G))
+         e_Vbd_orig[0] = tre.Vbd_orig
+         e_Vbd[0] = tre.Vbd_orig - (yicept / (slope * tre.G))
          e_G[0] = tre.G
          e_Y[0] = tre.G * (slope ** 2)
          # correct the yield to match the scale of pC for spring 2017 data
-         e_Y[0] /= 2.7;
+         # e_Y[0] /= 2.7;
          ftre.Fill()
    ftre.BuildIndex("row", "col")
    ftre.Write()
@@ -547,7 +581,7 @@ def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
                                                     int(grep.group(2)),
                                                     int(grep.group(3)),
                                                     int(grep.group(4)))
-         out += "{0:13.3f}{1:12.3f}{2:16.2f}".format(ftre.Vbd,
+         out += "{0:13.3f}{1:12.3f}{2:16.2f}".format(ftre.Vbd_orig,
                                                      ftre.G,
                                                      ftre.Y)
          confout.write(out + "\n")
