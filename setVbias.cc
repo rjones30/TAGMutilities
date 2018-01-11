@@ -682,7 +682,7 @@ void load_from_config()
       for (int col=1; col <= MAX_COLUMNS; ++col) {
          if (colselect[col] == 0)
             continue;
-         double qpeak_pC = peak_pC; 
+         double qpeak_pC = (peak_pC > 0)? peak_pC : 1e6; 
          for (int row=1; row <= MAX_ROWS; ++row) {
             double q_pC = (finfo[col][row].meanyield_pix /
                            finfo[col][row].pixelcap_pF) * gain_pC * gain_pC;
