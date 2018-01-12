@@ -9,6 +9,7 @@
 # version: april 1, 2016
 
 from ROOT import *
+import numpy
 import math
 import array
 import re
@@ -32,10 +33,18 @@ f_rebin = 1;
 fADC_gain = 0.011 / 0.235 # pC/count
 fADC_pedestal = 900
 
+# This is where you need to specify the row-by-row scan runs that are used
+# as a basis for the yields calibration. Together with the list of runs and
+# -g values for each, you also need to specify the setVbias_conf file that
+# was in play when the runs were taken. The gset table needs to have the
+# same number of rows as the number of elements in gval, each of which is
+# itself a list of 5 run numbers given in the order row=1,2,3,4,5 for which
+# row was enabled during the run.
 gval = [0.25, 0.45, 0.35]
 gset = [['40625', '40626', '40627', '40628', '40629'],
         ['40630', '40633', '40635', '40636', '40637'],
         ['40638', '40639', '40640', '40641', '40642']]
+reference_setVbias_conf = "setVbias_fulldetector-12-5-2017.conf"
 
 # These tables are nested dicts [column][run]
 peakmean = {}
@@ -111,7 +120,7 @@ def fit(run):
       column = col + colbase
       if column > 102:
          break;
-      h = 0 #gROOT.FindObject("col" + str(column))
+      h = gROOT.FindObject("col" + str(column))
       if not h:
          print "no histogram found for column", column, " so regenerating..."
          hpi = TH1D("hpi", "column " + str(column), 480, 0, 8160)
@@ -330,7 +339,7 @@ def loadVbias(setVbias_conf):
    setVbias_yield = {row : {} for row in range(0,6)}
    for line in open(setVbias_conf):
       try:
-         grep = re.match(r" *([0-9a-fA-F]+)  *([0-9]+)  *([0-9]+)  *([0-9]+) " +
+         grep = re.match(r"  *([0-9a-fA-F]+)  *([0-9]+)  *([0-9]+)  *([0-9]+) " +
                          r" *([0-9.]+)  *([0-9.]+)  *([0-9.]+) *", line)
          if grep:
             row = int(grep.group(4))
@@ -362,7 +371,7 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
 
    e_row = array.array("i", [0])
    e_col = array.array("i", [0])
-   e_Vbd_orig = array.array("d", [0])
+   e_Vbd0 = array.array("d", [0])
    e_Vbd = array.array("d", [0])
    e_G = array.array("d", [0])
    e_Y = array.array("d", [0])
@@ -378,7 +387,7 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
    if tre:
       tre.SetBranchAddress("row", e_row)
       tre.SetBranchAddress("col", e_col)
-      tre.SetBranchAddress("Vbd_orig", e_Vbd_orig)
+      tre.SetBranchAddress("Vbd0", e_Vbd0)
       tre.SetBranchAddress("Vbd", e_Vbd)
       tre.SetBranchAddress("G", e_G)
       tre.SetBranchAddress("Y", e_Y)
@@ -390,7 +399,7 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
       tre = TTree("yields", "fityields output tree")
       tre.Branch("row", e_row, "row/I")
       tre.Branch("col", e_col, "col/I")
-      tre.Branch("Vbd_orig", e_Vbd_orig, "Vbd_orig/D")
+      tre.Branch("Vbd0", e_Vbd0, "Vbd0/D")
       tre.Branch("Vbd", e_Vbd, "Vbd/D")
       tre.Branch("G", e_G, "G/D")
       tre.Branch("Y", e_Y, "Y/D")
@@ -411,7 +420,7 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
          e_col[0] = col
          e_run[0] = run
          try:
-            e_Vbd_orig[0] = setVbias_threshold[row][col]
+            e_Vbd0[0] = setVbias_threshold[row][col]
             e_Vbd[0] = setVbias_threshold[row][col]
             e_G[0] = setVbias_gain[row][col]
             e_Y[0] = setVbias_yield[row][col]
@@ -468,14 +477,14 @@ def fityields(rootfile):
 
    e_row = array.array("i", [0])
    e_col = array.array("i", [0])
-   e_Vbd_orig = array.array("d", [0])
+   e_Vbd0 = array.array("d", [0])
    e_Vbd = array.array("d", [0])
    e_G = array.array("d", [0])
    e_Y = array.array("d", [0])
    ftre = TTree("fit", "fityields results")
    ftre.Branch("row", e_row, "row/I")
    ftre.Branch("col", e_col, "col/I")
-   ftre.Branch("Vbd_orig", e_Vbd_orig, "Vbd_orig/D")
+   ftre.Branch("Vbd0", e_Vbd0, "Vbd0/D")
    ftre.Branch("Vbd", e_Vbd, "Vbd/D")
    ftre.Branch("G", e_G, "G/D")
    ftre.Branch("Y", e_Y, "Y/D")
@@ -530,7 +539,7 @@ def fityields(rootfile):
                   print "p to save plot, q to abort, enter to continue: ",
                   c1.Update()
                   ans = raw_input()
-            else:
+            elif chisqr > 1e10:
                yicept = 0
                slope = 1e-99
                chisqr = 1e99
@@ -552,8 +561,8 @@ def fityields(rootfile):
             return
          e_row[0] = row
          e_col[0] = col
-         e_Vbd_orig[0] = tre.Vbd_orig
-         e_Vbd[0] = tre.Vbd_orig - (yicept / (slope * tre.G))
+         e_Vbd0[0] = tre.Vbd0
+         e_Vbd[0] = tre.Vbd0 - (yicept / (slope * tre.G))
          e_G[0] = tre.G
          e_Y[0] = tre.G * (slope ** 2)
          # correct the yield to match the scale of pC for spring 2017 data
@@ -561,6 +570,151 @@ def fityields(rootfile):
          ftre.Fill()
    ftre.BuildIndex("row", "col")
    ftre.Write()
+
+def visualize_threshold(new_setVbias_conf, threshold=0.3, select_gval=0.45):
+   """
+   Make a pass through all of the datasets and plot the pulse height
+   spectra with the threshold as a fraction of the mean pulse integral
+   marked at the appropriate place on the plot. To generate these plots
+   you need the original channel Vbd values that were used when the
+   scan data were generated, but you need the new Vbd fit values from
+   the fityields analysis. That is why I have created a second method
+   for reading config data from setVbias_conf files. It is also why
+   I wrote a special function just to generate these plots.
+   """
+   global c1
+   c1 = gROOT.FindObject("c1")
+   if c1:
+      c1.Delete()
+   c1 = TCanvas("c1","c1",0,0,550,500)
+
+   loadVbias(reference_setVbias_conf)
+
+   global newconf
+   try:
+      newconf = newconf
+   except:
+      newconf = read_setVbias_conf(new_setVbias_conf)
+   run = 0
+   skip = 0
+   for ig in range(0, len(gval)):
+      if gval[ig] != select_gval:
+         continue
+      for ichan in range(0, len(newconf['board'])):
+         row = newconf['row'][ichan]
+         column = newconf['column'][ichan]
+         Vbd = newconf['Vthresh'][ichan]
+         Gain = newconf['Gain'][ichan]
+         Yield = newconf['Yield'][ichan]
+         Vbd0 = setVbias_threshold[row][column]
+         try:
+            thisrun = gset[ig][row - 1]
+         except:
+            print "run lookup error, ig=", ig ,"row=", row
+            return
+         if thisrun != run:
+             run = thisrun
+             f = TFile("TAGMtrees_" + str(run) + ".root")
+         h = gROOT.FindObject("col" + str(column))
+         if not h:
+            print "no histogram found for column", column, " so regenerating..."
+            hpi = TH1D("hpi", "column " + str(column), 480, 0, 8160)
+            fadc.Draw("pi>>hpi", "qf==0&&row==0&&col==" + str(column))
+            try:
+               h = gROOT.FindObject("hpi").Clone("col" + str(column))
+            except:
+               print "unable to generate histogram for column", column,
+               print ", moving on..."
+               continue
+            if not h:
+               break
+         qmean = (Yield / Gain) * (gval[ig] + Gain * (Vbd0 - Vbd))**2
+         xpeak = qmean / fADC_gain + fADC_pedestal
+         xdip = qmean * threshold / fADC_gain + fADC_pedestal
+         h.GetXaxis().SetRangeUser(xdip * 0.5, xdip * 5)
+         h.SetTitle("row " + str(row) + " column " + str(column) +
+                    " at g=" + str(gval[ig]))
+         c1.SetLogy()
+         h.Draw()
+         xthresh = numpy.array([xdip, xdip])
+         ythresh = numpy.array([0, h.GetMaximum()])
+         gthresh = TGraph(2, xthresh, ythresh)
+         gthresh.SetLineColor(kBlue)
+         gthresh.SetLineWidth(5)
+         gthresh.Draw("same")
+         xsumit = numpy.array([xpeak, xpeak])
+         ysumit = numpy.array([0, h.GetMaximum()])
+         gsumit = TGraph(2, xsumit, ysumit)
+         gsumit.SetLineColor(kYellow)
+         gsumit.SetLineWidth(5)
+         gsumit.Draw("same")
+         c1.Update()
+         if skip > 0:
+            skip -= 1
+            continue
+         print "threshold was", round(xdip),
+         print "peak was", round(xpeak),
+         print "run was", run
+         print "press enter to continue,",
+         resp = raw_input("p to print, or q to quit: ")
+         if resp == 'p':
+            c1.Print("thresh_" + str(row) + "_" + str(column) + ".png")
+         elif resp == 'q':
+            return
+         elif len(resp) > 0:
+            try:
+               skip = int(resp)
+            except:
+               skip = 0
+
+def read_setVbias_conf(setVbias_conf=reference_setVbias_conf):
+   """
+   Open an existing setVbias_conf file and read the contents 
+   into a local table. The table is returned as an associative
+   array with the columns as named arrays "board", "channel",
+   "column", "row", "Vthresh", "Gain", and "Yield".
+   """
+   conf = {"board"   : [],
+           "channel" : [],
+           "column"  : [],
+           "row"     : [],
+           "Vthresh" : [],
+           "Gain"    : [],
+           "Yield"   : []}
+   try:
+      confin = open(setVbias_conf)
+   except:
+      print "Error - cannot open \"", setVbias_conf, "\" for input,",
+      print "cannot continue."
+      return conf
+   for line in confin:
+      grep = re.match(r"^  *([0-9a-fA-F]+)  *([0-9]+)  *([0-9]+)  *([0-9]+)" +
+                      r"  *([0-9.]+)  *([0-9.]+)  *([0-9.]+)", line)
+      if grep:
+         board = grep.group(1)
+         channel = grep.group(2)
+         column = grep.group(3)
+         row = grep.group(4)
+         Vthresh = grep.group(5)
+         Gain = grep.group(6)
+         Yield = grep.group(7)
+         try:
+            channel = int(channel)
+            column = int(column)
+            row = int(row)
+            Vthresh = float(Vthresh)
+            Gain = float(Gain)
+            Yield = float(Yield)
+         except:
+            continue
+         conf['board'].append(board)
+         conf['channel'].append(channel)
+         conf['column'].append(column)
+         conf['row'].append(row)
+         conf['Vthresh'].append(Vthresh)
+         conf['Gain'].append(Gain)
+         conf['Yield'].append(Yield)
+   return conf
 
 def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
    """
@@ -578,7 +732,7 @@ def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
       print "Error - cannot find fit tree in", rootfile
       return
    for line in confin:
-      grep = re.match(r"^ *([0-9a-fA-F]+)  *([0-9]+)  *([0-9]+)  *([0-9]+)" +
+      grep = re.match(r"^  *([0-9a-fA-F]+)  *([0-9]+)  *([0-9]+)  *([0-9]+)" +
                       r"  *([0-9.]+)  *([0-9.]+)  *([0-9.]+)", line)
       if grep:
          col = int(grep.group(3))
@@ -597,7 +751,7 @@ def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
                                                     int(grep.group(2)),
                                                     int(grep.group(3)),
                                                     int(grep.group(4)))
-         out += "{0:13.3f}{1:12.3f}{2:16.2f}".format(ftre.Vbd_orig,
+         out += "{0:13.3f}{1:12.3f}{2:16.2f}".format(ftre.Vbd,
                                                      ftre.G,
                                                      ftre.Y)
          confout.write(out + "\n")
