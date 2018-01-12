@@ -83,6 +83,8 @@
 #define DEFAULT_GAIN_PC 0.50
 #define DEFAULT_PEAK_PC 0.00
 #define DEFAULT_HEALTH_V 13.0
+#define TAGM_PEAK_INTEGRAL_RATIO 0.235
+#define TAGM_PC_PER_PINTEGRAL 0.011
 
 #include <iostream>
 #include <iomanip>
@@ -740,11 +742,13 @@ void load_from_config()
             double q = meanyield_pix * pixelcap_pF * pow(dV, 2);
             double y = meanyield_pix * dV;
             double g = pixelcap_pF * dV;
+            double peak = q * TAGM_PEAK_INTEGRAL_RATIO / TAGM_PC_PER_PINTEGRAL;
             std::cout << "          row " << row << " : " 
                       << "q=" << std::setprecision(3) << q << "pC, "
                       << "y=" << std::setprecision(3) << y << "pix, "
                       << "g=" << std::setprecision(3) << g << "pC, "
-                      << "dV=" << std::setprecision(3) << dV << "V"
+                      << "dV=" << std::setprecision(3) << dV << "V, "
+                      << "peak=" << std::setprecision(4) << peak << "fADCcounts"
                       << std::endl;
          }
       }
