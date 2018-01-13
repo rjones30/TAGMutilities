@@ -27,10 +27,11 @@ f_rebin = 1;
 # dq = V*dt/R = fADC*(1V/4096)*4ns/50Ohm = fADC*0.01953pC
 #fADC_gain = 0.01953 # pC/count
 
-# Empirical value based on adc_peak/pC = 0.011counts/pC in makeVbiasconf.py
+# Empirical value based on pC/adc_peak = 0.011pC/count in makeVbiasconf.py
+# which gets multiplied by the ratio of high/low gain on the preamplifiers
 # and the empirical ratio adc_peak/adc_pulse_integral = 0.235 measured using
 # row-by-row data in runs 40635 on December 19, 2017.
-fADC_gain = 0.011 / 0.235 # pC/count
+fADC_gain = 0.011 * 18 * 0.235 # pC per adc_pulse_integral
 fADC_pedestal = 900
 
 # This is where you need to specify the row-by-row scan runs that are used
@@ -565,13 +566,11 @@ def fityields(rootfile):
          e_Vbd[0] = tre.Vbd0 - (yicept / (slope * tre.G))
          e_G[0] = tre.G
          e_Y[0] = tre.G * (slope ** 2)
-         # correct the yield to match the scale of pC for spring 2017 data
-         # e_Y[0] /= 2.7;
          ftre.Fill()
    ftre.BuildIndex("row", "col")
    ftre.Write()
 
-def visualize_threshold(new_setVbias_conf, threshold=0.3, select_gval=0.45):
+def visualize_threshold(new_setVbias_conf, threshold=0.5, select_gval=0.45):
    """
    Make a pass through all of the datasets and plot the pulse height
    spectra with the threshold as a fraction of the mean pulse integral
