@@ -14,9 +14,7 @@
 import re
 import sys
 from ROOT import *
-
-threshold_fraction = 0.5
-pedestal_offset = 100
+import numpy
 
 # ttag_tagm is taken from the ccdb record /Translation/DAQ2detector
 # TAGM section. It is a map from fADC250 slot number in TAGM crate
@@ -29,11 +27,11 @@ ttab_tagm = [3,2,1,6,5,4,103,104,105,106,107,9,8,7,12,11,
              57,56,55,60,59,58,63,62,61,66,65,64,69,68,67,72,
              71,70,75,74,73,78,77,76,113,114,115,116,117,81,80,79,
              84,83,82,87,86,85,90,89,88,93,92,91,96,95,94,118,
-             119,120,121,122,99,98,97,102,101,100,123,124,125,126,127,128]
+             119,120,121,122,99,98,97,100,101,102,123,124,125,126,127,128]
 
 def hist(infile):
    """
-   Reads scaler rates from a plain text file (output from faPrintScalerRates)
+   Reads scaler rates from a plain text file output from faPrintScalerRates
    and returns a histogram containing the rate vs column. Individual readout
    channels are assigned column numbers 103..122.
    """
@@ -51,3 +49,80 @@ def hist(infile):
    h.GetYaxis().SetTitle("rate (Hz)")
    h.GetYaxis().SetTitleOffset(1.5)
    return h
+
+def hscan(infile):
+   """
+   Reads scaler rates from a plain text file output from faDoThresholdScan
+   and returns a histogram containing the rate on threshold vs column as a
+   2D histogram. Individual readout channels are assigned column numbers
+   103..122. Non-uniform bins are used on the threshold axis.
+   """
+   rates = {}
+   thresh = []
+   nthresh = 0
+   for line in open(infile):
+      threshre = re.match(r"threshold set to ([0-9]+)", line)
+      if threshre:
+         nthresh += 1
+         thresh.append(float(threshre.group(1)))
+         rates[nthresh] = [0] * 129
+         itab = 0
+      vals = line.split()
+      for val in vals:
+         if re.match(r"[0-9]+\.[0-9]$", val) and val != "250000.0":
+            col = ttab_tagm[itab]
+            try:
+               rates[nthresh][col] = float(val)
+            except:
+               print "bad assign at thresh,col=", nthresh, col
+            itab += 1
+   thresh.append(2 * thresh[nthresh-1] - thresh[nthresh-2])
+   xbins = numpy.array(thresh, dtype=float)
+   h2 = TH2D("h2","threshold scan", 128, 1, 129, nthresh, xbins)
+   for j in rates:
+      for i in range(0, len(rates[j])):
+         h2.SetBinContent(i, j, rates[j][i])
+   h2.SetStats(0)
+   h2.GetXaxis().SetTitle("TAGM column")
+   h2.GetYaxis().SetTitle("threshold (fADC counts)")
+   h2.GetYaxis().SetTitleOffset(1.5)
+   return h2
+
+def hdiffer(infile):
+   """
+   Reads scaler rates from a plain text file output from faDoThresholdScan
+   and returns histograms containing the pulse amplitude spectrum that comes
+   from differentiating the rate vs threshold for each column.
+   """
+   scalef = 1 / 0.235
+   offset = 900
+   spects = [0] * 129
+   h2 = hscan(infile)
+   nbins = h2.GetNbinsY()
+   thresh = []
+   for i in range(1, nbins + 1):
+      thresh.append(h2.GetYaxis().GetBinLowEdge(i))
+   thresh.append(h2.GetYaxis().GetBinUpEdge(nbins))
+   thresh_rescaled = map(lambda t: (t - 100) / 0.235 + 900, thresh)
+   xbins = numpy.array(thresh_rescaled, dtype=float)
+   for col in range(1, 129):
+      spects[col] = TH1D("col" + str(col), "column " + str(col), nbins, xbins)
+      for i in range(1, nbins + 1):
+         spects[col].SetBinContent(i, h2.GetBinContent(col, i) -
+                                      h2.GetBinContent(col, i+1))
+   return spects
+
+def hall_1_2018():
+   """
+   Reads in a set of 15 scans done in January 2018 and put them out
+   into TAGMtree files for input to fityields.
+   """
+   for row in [1, 2, 3, 4, 5]:
+      for gval in [25, 35, 45]:
+         f = TFile("TAGMtrees_" + str(row) + str(gval) + ".root", "recreate")
+         s = hdiffer("r" + str(row) + "g" + str(gval))
+         for h in s:
+            if h:
+               h.SetBinContent(h.GetNbinsX(), 0)
+               h.Write()
+         f.Close()
