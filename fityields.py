@@ -41,11 +41,20 @@ fADC_pedestal = 900
 # same number of rows as the number of elements in gval, each of which is
 # itself a list of 5 run numbers given in the order row=1,2,3,4,5 for which
 # row was enabled during the run.
+
+# Row-by-row scan data taken on 12/19/2017 [rtj]
 gval = [0.25, 0.45, 0.35]
 gset = [['40625', '40626', '40627', '40628', '40629'],
         ['40630', '40633', '40635', '40636', '40637'],
         ['40638', '40639', '40640', '40641', '40642']]
 reference_setVbias_conf = "setVbias_fulldetector-12-5-2017.conf"
+
+# Pedestal scan data taken on 1/15/2018 [rtj]
+gval = [0.25, 0.35, 0.45]
+gset = [['125', '225', '325', '425', '525'],
+        ['135', '235', '335', '435', '535'],
+        ['145', '245', '345', '445', '545']]
+reference_setVbias_conf = "setVbias_fulldetector-1-11-2018.conf"
 
 # These tables are nested dicts [column][run]
 peakmean = {}
@@ -546,8 +555,7 @@ def fityields(rootfile):
                chisqr = 1e99
             try:
                t = float(ans)
-               if t > 0:
-                  pause_on_chisqr = t
+               pause_on_chisqr = t
             except:
                pass
          h1.Write()
@@ -754,7 +762,7 @@ def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
                                                      ftre.G,
                                                      ftre.Y)
          confout.write(out + "\n")
-      else:
+      elif re.match(r"^ ", line):
          print "unrecognized format in", old_setVbias_conf,
          print " giving up"
          return
