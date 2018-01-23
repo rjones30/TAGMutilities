@@ -10,6 +10,14 @@
 #
 # author: richard.t.jones at uconn.edu
 # version: january 12, 2018
+#
+# threshold scans:
+#    This module has been extended to interpret the output from fadc250
+#    threshold scans performed using the utility faDoThresholdScan on
+#    the roctagm1 frontend. Simply save the output from faDoThresholdScan
+#    to a file, then give that filename as an argument to the hscan()
+#    function below. It will return a 2D histogram with column number
+#    on the x axis, threshold on the y axis, and rate on the z axis.
 
 import re
 import sys
@@ -17,9 +25,9 @@ from ROOT import *
 import numpy
 
 # ttag_tagm is taken from the ccdb record /Translation/DAQ2detector
-# TAGM section. It is a map from fADC250 slot number in TAGM crate
-# roctagm1 and channel number 0..15 within the slot to fiber 
-# row,column index encoded as row*1000 + column.
+# TAGM section. It is a sequence map ordered by increasing fADC250
+# slot, channel in the roctagm1 crate to fiber column. Individual
+# fiber outputs from columns 7, 27, 81, and 97 show up as 103..122.
 ttab_tagm = [3,2,1,6,5,4,103,104,105,106,107,9,8,7,12,11,
              10,15,14,13,18,17,16,21,20,19,24,23,22,108,109,110,
              111,112,27,26,25,30,29,28,33,32,31,36,35,34,39,38,
@@ -114,7 +122,7 @@ def hdiffer(infile):
 
 def hall_1_2018():
    """
-   Reads in a set of 15 scans done in January 2018 and put them out
+   Read in a set of 15 scans done in January 2018 and put them out
    into TAGMtree files for input to fityields.
    """
    for row in [1, 2, 3, 4, 5]:
