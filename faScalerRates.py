@@ -128,7 +128,7 @@ def hall_1_2018():
    for row in [1, 2, 3, 4, 5]:
       for gval in [25, 35, 45]:
          f = TFile("TAGMtrees_" + str(row) + str(gval) + ".root", "recreate")
-         s = hdiffer("r" + str(row) + "g" + str(gval))
+         s = hdiffer("scans-1-30-2018/row" + str(row) + "g" + str(gval) + ".log")
          for h in s:
             if h:
                h.SetBinContent(h.GetNbinsX(), 0)
