@@ -1,0 +1,646 @@
+expected pulse parameters in column 1:
+          row 1 : q=51.1pC, y=209pix, g=0.244pC, dV=1.14V, peak=257.8fADCcounts
+          row 2 : q=50.8pC, y=133pix, g=0.381pC, dV=2.06V, peak=256.6fADCcounts
+          row 3 : q=51pC, y=216pix, g=0.236pC, dV=1.21V, peak=257.3fADCcounts
+          row 4 : q=50.8pC, y=170pix, g=0.3pC, dV=1.46V, peak=256.8fADCcounts
+          row 5 : q=50.8pC, y=193pix, g=0.263pC, dV=1.28V, peak=256.7fADCcounts
+expected pulse parameters in column 2:
+          row 1 : q=46.4pC, y=147pix, g=0.315pC, dV=1.47V, peak=234.2fADCcounts
+          row 2 : q=46.1pC, y=122pix, g=0.379pC, dV=1.74V, peak=233fADCcounts
+          row 3 : q=46.5pC, y=128pix, g=0.363pC, dV=1.6V, peak=235fADCcounts
+          row 4 : q=46.7pC, y=180pix, g=0.259pC, dV=1.2V, peak=235.7fADCcounts
+          row 5 : q=46.8pC, y=182pix, g=0.256pC, dV=1.14V, peak=236.2fADCcounts
+expected pulse parameters in column 3:
+          row 1 : q=0pC, y=-0pix, g=-0.000861pC, dV=-0.0041V, peak=0fADCcounts
+          row 2 : q=60.1pC, y=177pix, g=0.34pC, dV=1.54V, peak=303.6fADCcounts
+          row 3 : q=60.1pC, y=171pix, g=0.351pC, dV=1.54V, peak=303.7fADCcounts
+          row 4 : q=60.1pC, y=197pix, g=0.306pC, dV=1.38V, peak=303.6fADCcounts
+          row 5 : q=59.7pC, y=239pix, g=0.25pC, dV=1.21V, peak=301.7fADCcounts
+expected pulse parameters in column 4:
+          row 1 : q=60pC, y=217pix, g=0.276pC, dV=1.34V, peak=303.1fADCcounts
+          row 2 : q=60.3pC, y=231pix, g=0.261pC, dV=1.31V, peak=304.8fADCcounts
+          row 3 : q=59.6pC, y=201pix, g=0.297pC, dV=1.38V, peak=301.1fADCcounts
+          row 4 : q=59.6pC, y=203pix, g=0.294pC, dV=1.35V, peak=301.1fADCcounts
+          row 5 : q=60.4pC, y=219pix, g=0.276pC, dV=1.33V, peak=305.1fADCcounts
+expected pulse parameters in column 5:
+          row 1 : q=60pC, y=217pix, g=0.277pC, dV=1.38V, peak=303.2fADCcounts
+          row 2 : q=59.8pC, y=220pix, g=0.271pC, dV=1.33V, peak=301.8fADCcounts
+          row 3 : q=60.3pC, y=225pix, g=0.269pC, dV=1.34V, peak=304.6fADCcounts
+          row 4 : q=59.6pC, y=215pix, g=0.277pC, dV=1.35V, peak=300.8fADCcounts
+          row 5 : q=59.8pC, y=189pix, g=0.317pC, dV=1.38V, peak=301.8fADCcounts
+expected pulse parameters in column 6:
+          row 1 : q=60.2pC, y=211pix, g=0.285pC, dV=1.32V, peak=303.8fADCcounts
+          row 2 : q=60.1pC, y=209pix, g=0.287pC, dV=1.34V, peak=303.4fADCcounts
+          row 3 : q=59.8pC, y=192pix, g=0.311pC, dV=1.33V, peak=302fADCcounts
+          row 4 : q=60.1pC, y=194pix, g=0.31pC, dV=1.37V, peak=303.6fADCcounts
+          row 5 : q=60.1pC, y=198pix, g=0.304pC, dV=1.39V, peak=303.5fADCcounts
+expected pulse parameters in column 7:
+          row 1 : q=60.3pC, y=179pix, g=0.337pC, dV=1.48V, peak=304.8fADCcounts
+          row 2 : q=59.9pC, y=185pix, g=0.324pC, dV=1.58V, peak=302.3fADCcounts
+          row 3 : q=60.2pC, y=183pix, g=0.329pC, dV=1.53V, peak=304fADCcounts
+          row 4 : q=60.4pC, y=212pix, g=0.285pC, dV=1.41V, peak=305.1fADCcounts
+          row 5 : q=59.8pC, y=207pix, g=0.289pC, dV=1.34V, peak=302.1fADCcounts
+expected pulse parameters in column 8:
+          row 1 : q=59.7pC, y=191pix, g=0.312pC, dV=1.41V, peak=301.4fADCcounts
+          row 2 : q=60.2pC, y=183pix, g=0.33pC, dV=1.5V, peak=303.9fADCcounts
+          row 3 : q=60.4pC, y=179pix, g=0.337pC, dV=1.52V, peak=305fADCcounts
+          row 4 : q=60pC, y=178pix, g=0.337pC, dV=1.6V, peak=303fADCcounts
+          row 5 : q=59.6pC, y=219pix, g=0.272pC, dV=1.29V, peak=301fADCcounts
+expected pulse parameters in column 9:
+          row 1 : q=60.2pC, y=223pix, g=0.269pC, dV=1.26V, peak=303.9fADCcounts
+          row 2 : q=59.8pC, y=203pix, g=0.294pC, dV=1.38V, peak=301.9fADCcounts
+          row 3 : q=60.4pC, y=202pix, g=0.299pC, dV=1.44V, peak=305fADCcounts
+          row 4 : q=59.6pC, y=206pix, g=0.289pC, dV=1.4V, peak=301.1fADCcounts
+          row 5 : q=60.1pC, y=169pix, g=0.355pC, dV=1.58V, peak=303.5fADCcounts
+expected pulse parameters in column 10:
+          row 1 : q=59.9pC, y=228pix, g=0.263pC, dV=1.26V, peak=302.6fADCcounts
+          row 2 : q=60.3pC, y=159pix, g=0.378pC, dV=1.83V, peak=304.3fADCcounts
+          row 3 : q=59.7pC, y=182pix, g=0.327pC, dV=1.55V, peak=301.3fADCcounts
+          row 4 : q=60.1pC, y=188pix, g=0.32pC, dV=1.59V, peak=303.4fADCcounts
+          row 5 : q=60pC, y=206pix, g=0.291pC, dV=1.57V, peak=302.8fADCcounts
+expected pulse parameters in column 11:
+          row 1 : q=59.8pC, y=168pix, g=0.357pC, dV=1.86V, peak=302.2fADCcounts
+          row 2 : q=59.9pC, y=185pix, g=0.324pC, dV=1.6V, peak=302.3fADCcounts
+          row 3 : q=60pC, y=182pix, g=0.33pC, dV=1.63V, peak=302.9fADCcounts
+          row 4 : q=60pC, y=172pix, g=0.348pC, dV=1.65V, peak=303fADCcounts
+          row 5 : q=60.2pC, y=161pix, g=0.374pC, dV=1.88V, peak=303.8fADCcounts
+expected pulse parameters in column 12:
+          row 1 : q=49.4pC, y=196pix, g=0.252pC, dV=1.15V, peak=249.5fADCcounts
+          row 2 : q=49.6pC, y=185pix, g=0.268pC, dV=1.29V, peak=250.3fADCcounts
+          row 3 : q=49.7pC, y=147pix, g=0.338pC, dV=1.59V, peak=250.9fADCcounts
+          row 4 : q=49.8pC, y=131pix, g=0.38pC, dV=1.53V, peak=251.7fADCcounts
+          row 5 : q=49.6pC, y=136pix, g=0.363pC, dV=1.63V, peak=250.5fADCcounts
+expected pulse parameters in column 13:
+          row 1 : q=59.8pC, y=196pix, g=0.304pC, dV=1.47V, peak=301.9fADCcounts
+          row 2 : q=60.2pC, y=190pix, g=0.317pC, dV=1.56V, peak=304fADCcounts
+          row 3 : q=59.6pC, y=181pix, g=0.33pC, dV=1.56V, peak=301.2fADCcounts
+          row 4 : q=59.8pC, y=183pix, g=0.327pC, dV=1.51V, peak=301.8fADCcounts
+          row 5 : q=60pC, y=207pix, g=0.29pC, dV=1.36V, peak=302.9fADCcounts
+expected pulse parameters in column 14:
+          row 1 : q=59.8pC, y=214pix, g=0.279pC, dV=1.4V, peak=301.9fADCcounts
+          row 2 : q=59.9pC, y=193pix, g=0.311pC, dV=1.47V, peak=302.7fADCcounts
+          row 3 : q=0pC, y=-0pix, g=-1.94e-05pC, dV=-0.0001V, peak=0fADCcounts
+          row 4 : q=60.1pC, y=202pix, g=0.297pC, dV=1.47V, peak=303.3fADCcounts
+          row 5 : q=59.6pC, y=205pix, g=0.29pC, dV=1.38V, peak=300.9fADCcounts
+expected pulse parameters in column 15:
+          row 1 : q=57.8pC, y=152pix, g=0.379pC, dV=1.71V, peak=291.7fADCcounts
+          row 2 : q=58pC, y=182pix, g=0.319pC, dV=1.72V, peak=293fADCcounts
+          row 3 : q=57.7pC, y=163pix, g=0.355pC, dV=1.55V, peak=291.4fADCcounts
+          row 4 : q=58pC, y=187pix, g=0.31pC, dV=1.53V, peak=293.1fADCcounts
+          row 5 : q=58.1pC, y=189pix, g=0.308pC, dV=1.51V, peak=293.4fADCcounts
+expected pulse parameters in column 16:
+          row 1 : q=59.8pC, y=189pix, g=0.315pC, dV=1.5V, peak=301.8fADCcounts
+          row 2 : q=59.8pC, y=188pix, g=0.319pC, dV=1.58V, peak=302.2fADCcounts
+          row 3 : q=60.1pC, y=187pix, g=0.322pC, dV=1.46V, peak=303.8fADCcounts
+          row 4 : q=60pC, y=202pix, g=0.297pC, dV=1.42V, peak=303fADCcounts
+          row 5 : q=60.4pC, y=212pix, g=0.285pC, dV=1.36V, peak=305fADCcounts
+expected pulse parameters in column 17:
+          row 1 : q=60.4pC, y=203pix, g=0.298pC, dV=1.39V, peak=305.2fADCcounts
+          row 2 : q=60.2pC, y=212pix, g=0.284pC, dV=1.55V, peak=304.2fADCcounts
+          row 3 : q=59.9pC, y=176pix, g=0.34pC, dV=1.61V, peak=302.7fADCcounts
+          row 4 : q=59.9pC, y=189pix, g=0.317pC, dV=1.45V, peak=302.4fADCcounts
+          row 5 : q=60.3pC, y=225pix, g=0.267pC, dV=1.32V, peak=304.3fADCcounts
+expected pulse parameters in column 18:
+          row 1 : q=60.3pC, y=247pix, g=0.244pC, dV=1.27V, peak=304.6fADCcounts
+          row 2 : q=59.9pC, y=212pix, g=0.282pC, dV=1.46V, peak=302.4fADCcounts
+          row 3 : q=59.9pC, y=189pix, g=0.316pC, dV=1.6V, peak=302.3fADCcounts
+          row 4 : q=60.3pC, y=217pix, g=0.278pC, dV=1.65V, peak=304.7fADCcounts
+          row 5 : q=60pC, y=221pix, g=0.271pC, dV=1.55V, peak=302.9fADCcounts
+expected pulse parameters in column 19:
+          row 1 : q=36.6pC, y=96.2pix, g=0.38pC, dV=1.79V, peak=184.6fADCcounts
+          row 2 : q=36.6pC, y=99.5pix, g=0.368pC, dV=1.82V, peak=184.8fADCcounts
+          row 3 : q=36.6pC, y=118pix, g=0.31pC, dV=1.52V, peak=185fADCcounts
+          row 4 : q=36.6pC, y=130pix, g=0.283pC, dV=1.35V, peak=184.9fADCcounts
+          row 5 : q=36.7pC, y=104pix, g=0.353pC, dV=1.68V, peak=185.1fADCcounts
+expected pulse parameters in column 20:
+          row 1 : q=53.3pC, y=152pix, g=0.351pC, dV=1.69V, peak=269.1fADCcounts
+          row 2 : q=53.2pC, y=146pix, g=0.365pC, dV=1.75V, peak=268.6fADCcounts
+          row 3 : q=53.4pC, y=190pix, g=0.281pC, dV=1.43V, peak=269.9fADCcounts
+          row 4 : q=53.4pC, y=178pix, g=0.299pC, dV=1.43V, peak=269.8fADCcounts
+          row 5 : q=53.2pC, y=140pix, g=0.38pC, dV=1.74V, peak=268.9fADCcounts
+expected pulse parameters in column 21:
+          row 1 : q=4.95pC, y=61pix, g=0.0812pC, dV=0.396V, peak=25fADCcounts
+          row 2 : q=0pC, y=0pix, g=0.000341pC, dV=0.0015V, peak=0fADCcounts
+          row 3 : q=5.1pC, y=25.7pix, g=0.198pC, dV=0.921V, peak=25.74fADCcounts
+          row 4 : q=0pC, y=-0pix, g=-0.000256pC, dV=-0.0013V, peak=0fADCcounts
+          row 5 : q=5.08pC, y=13.3pix, g=0.381pC, dV=2.11V, peak=25.64fADCcounts
+expected pulse parameters in column 22:
+          row 1 : q=41.5pC, y=181pix, g=0.23pC, dV=1.17V, peak=209.8fADCcounts
+          row 2 : q=41.6pC, y=156pix, g=0.267pC, dV=1.33V, peak=210.1fADCcounts
+          row 3 : q=41.6pC, y=109pix, g=0.38pC, dV=1.83V, peak=210.2fADCcounts
+          row 4 : q=41.3pC, y=140pix, g=0.296pC, dV=1.34V, peak=208.8fADCcounts
+          row 5 : q=41.7pC, y=154pix, g=0.271pC, dV=1.26V, peak=210.8fADCcounts
+expected pulse parameters in column 23:
+          row 1 : q=59.7pC, y=222pix, g=0.269pC, dV=1.27V, peak=301.7fADCcounts
+          row 2 : q=59.7pC, y=207pix, g=0.289pC, dV=1.4V, peak=301.5fADCcounts
+          row 3 : q=59.8pC, y=200pix, g=0.299pC, dV=1.44V, peak=302.1fADCcounts
+          row 4 : q=60.2pC, y=200pix, g=0.301pC, dV=1.48V, peak=304.3fADCcounts
+          row 5 : q=59.7pC, y=212pix, g=0.282pC, dV=1.39V, peak=301.5fADCcounts
+expected pulse parameters in column 24:
+          row 1 : q=60.1pC, y=202pix, g=0.297pC, dV=1.37V, peak=303.3fADCcounts
+          row 2 : q=60.4pC, y=219pix, g=0.275pC, dV=1.33V, peak=305.1fADCcounts
+          row 3 : q=60.1pC, y=194pix, g=0.31pC, dV=1.47V, peak=303.7fADCcounts
+          row 4 : q=60.2pC, y=194pix, g=0.311pC, dV=1.45V, peak=304.2fADCcounts
+          row 5 : q=59.9pC, y=160pix, g=0.375pC, dV=1.65V, peak=302.4fADCcounts
+expected pulse parameters in column 25:
+          row 1 : q=38.1pC, y=107pix, g=0.358pC, dV=1.74V, peak=192.5fADCcounts
+          row 2 : q=38.3pC, y=122pix, g=0.315pC, dV=1.51V, peak=193.6fADCcounts
+          row 3 : q=38.2pC, y=113pix, g=0.338pC, dV=1.68V, peak=193.1fADCcounts
+          row 4 : q=38.3pC, y=136pix, g=0.281pC, dV=1.39V, peak=193.5fADCcounts
+          row 5 : q=38.2pC, y=101pix, g=0.38pC, dV=1.99V, peak=192.7fADCcounts
+expected pulse parameters in column 26:
+          row 1 : q=33.5pC, y=87.8pix, g=0.381pC, dV=1.77V, peak=169.1fADCcounts
+          row 2 : q=33.2pC, y=91.5pix, g=0.363pC, dV=1.7V, peak=167.8fADCcounts
+          row 3 : q=33.5pC, y=111pix, g=0.301pC, dV=1.37V, peak=169.4fADCcounts
+          row 4 : q=33pC, y=117pix, g=0.283pC, dV=1.27V, peak=166.8fADCcounts
+          row 5 : q=33.3pC, y=108pix, g=0.308pC, dV=1.35V, peak=168fADCcounts
+expected pulse parameters in column 27:
+          row 1 : q=21.6pC, y=95.7pix, g=0.226pC, dV=1.11V, peak=109.2fADCcounts
+          row 2 : q=21.7pC, y=70.4pix, g=0.308pC, dV=1.65V, peak=109.6fADCcounts
+          row 3 : q=21.7pC, y=102pix, g=0.213pC, dV=1.05V, peak=109.7fADCcounts
+          row 4 : q=21.6pC, y=56.8pix, g=0.38pC, dV=1.81V, peak=108.9fADCcounts
+          row 5 : q=21.7pC, y=106pix, g=0.206pC, dV=0.926V, peak=109.6fADCcounts
+expected pulse parameters in column 28:
+          row 1 : q=35.1pC, y=96pix, g=0.366pC, dV=1.8V, peak=177.3fADCcounts
+          row 2 : q=35.2pC, y=122pix, g=0.288pC, dV=1.41V, peak=177.8fADCcounts
+          row 3 : q=35.2pC, y=125pix, g=0.281pC, dV=1.39V, peak=177.7fADCcounts
+          row 4 : q=35.1pC, y=92.3pix, g=0.38pC, dV=1.94V, peak=177.4fADCcounts
+          row 5 : q=34.9pC, y=131pix, g=0.267pC, dV=1.31V, peak=176.1fADCcounts
+expected pulse parameters in column 29:
+          row 1 : q=22.6pC, y=115pix, g=0.197pC, dV=0.951V, peak=114.3fADCcounts
+          row 2 : q=22.8pC, y=104pix, g=0.218pC, dV=1.03V, peak=115.1fADCcounts
+          row 3 : q=22.8pC, y=59.9pix, g=0.381pC, dV=1.83V, peak=115.1fADCcounts
+          row 4 : q=22.7pC, y=105pix, g=0.217pC, dV=1.09V, peak=114.8fADCcounts
+          row 5 : q=22.6pC, y=85.7pix, g=0.263pC, dV=1.25V, peak=114fADCcounts
+expected pulse parameters in column 30:
+          row 1 : q=47.6pC, y=152pix, g=0.312pC, dV=1.41V, peak=240.2fADCcounts
+          row 2 : q=47.6pC, y=158pix, g=0.301pC, dV=1.33V, peak=240.4fADCcounts
+          row 3 : q=47.6pC, y=133pix, g=0.357pC, dV=1.67V, peak=240.3fADCcounts
+          row 4 : q=0pC, y=0pix, g=0.000437pC, dV=0.0019V, peak=0fADCcounts
+          row 5 : q=48.1pC, y=126pix, g=0.381pC, dV=1.74V, peak=243fADCcounts
+expected pulse parameters in column 31:
+          row 1 : q=25.7pC, y=67.4pix, g=0.381pC, dV=1.76V, peak=129.6fADCcounts
+          row 2 : q=25.6pC, y=87.6pix, g=0.293pC, dV=1.42V, peak=129.4fADCcounts
+          row 3 : q=25.6pC, y=103pix, g=0.247pC, dV=1.2V, peak=129.1fADCcounts
+          row 4 : q=25.5pC, y=73.8pix, g=0.345pC, dV=1.76V, peak=128.7fADCcounts
+          row 5 : q=25.4pC, y=75.9pix, g=0.335pC, dV=1.52V, peak=128.4fADCcounts
+expected pulse parameters in column 32:
+          row 1 : q=27.4pC, y=85.9pix, g=0.319pC, dV=1.7V, peak=138.4fADCcounts
+          row 2 : q=27.4pC, y=73.1pix, g=0.375pC, dV=1.75V, peak=138.5fADCcounts
+          row 3 : q=27.3pC, y=71.9pix, g=0.38pC, dV=1.78V, peak=138fADCcounts
+          row 4 : q=27.2pC, y=79.5pix, g=0.343pC, dV=1.5V, peak=137.6fADCcounts
+          row 5 : q=27.2pC, y=80.4pix, g=0.338pC, dV=1.74V, peak=137.3fADCcounts
+expected pulse parameters in column 33:
+          row 1 : q=24.8pC, y=92pix, g=0.27pC, dV=1.38V, peak=125.3fADCcounts
+          row 2 : q=24.8pC, y=88.3pix, g=0.281pC, dV=1.49V, peak=125.4fADCcounts
+          row 3 : q=24.7pC, y=89.5pix, g=0.276pC, dV=1.29V, peak=124.6fADCcounts
+          row 4 : q=24.6pC, y=65pix, g=0.379pC, dV=1.82V, peak=124.5fADCcounts
+          row 5 : q=24.8pC, y=72.6pix, g=0.342pC, dV=1.58V, peak=125.4fADCcounts
+expected pulse parameters in column 34:
+          row 1 : q=17.5pC, y=55.9pix, g=0.312pC, dV=1.5V, peak=88.22fADCcounts
+          row 2 : q=17.4pC, y=45.8pix, g=0.38pC, dV=1.78V, peak=87.92fADCcounts
+          row 3 : q=17.4pC, y=52.7pix, g=0.33pC, dV=1.57V, peak=87.96fADCcounts
+          row 4 : q=17.4pC, y=46.1pix, g=0.377pC, dV=1.87V, peak=87.89fADCcounts
+          row 5 : q=17.3pC, y=51.7pix, g=0.334pC, dV=1.61V, peak=87.37fADCcounts
+expected pulse parameters in column 35:
+          row 1 : q=17.8pC, y=55.8pix, g=0.32pC, dV=1.51V, peak=90.13fADCcounts
+          row 2 : q=18pC, y=62.9pix, g=0.286pC, dV=1.31V, peak=90.86fADCcounts
+          row 3 : q=18pC, y=61.3pix, g=0.293pC, dV=1.42V, peak=90.76fADCcounts
+          row 4 : q=18pC, y=56.8pix, g=0.318pC, dV=1.43V, peak=91.1fADCcounts
+          row 5 : q=18pC, y=47.3pix, g=0.381pC, dV=1.8V, peak=90.86fADCcounts
+expected pulse parameters in column 36:
+          row 1 : q=21.3pC, y=60.9pix, g=0.35pC, dV=1.72V, peak=107.7fADCcounts
+          row 2 : q=21.2pC, y=69.5pix, g=0.305pC, dV=1.45V, peak=107.2fADCcounts
+          row 3 : q=21.4pC, y=73pix, g=0.293pC, dV=1.32V, peak=108fADCcounts
+          row 4 : q=21.3pC, y=56.1pix, g=0.38pC, dV=1.65V, peak=107.8fADCcounts
+          row 5 : q=21.2pC, y=60.5pix, g=0.351pC, dV=1.58V, peak=107.3fADCcounts
+expected pulse parameters in column 37:
+          row 1 : q=29pC, y=85pix, g=0.341pC, dV=1.56V, peak=146.4fADCcounts
+          row 2 : q=28.7pC, y=83pix, g=0.346pC, dV=1.53V, peak=144.9fADCcounts
+          row 3 : q=29pC, y=91.5pix, g=0.318pC, dV=1.51V, peak=146.7fADCcounts
+          row 4 : q=28.9pC, y=76.1pix, g=0.38pC, dV=1.83V, peak=146.1fADCcounts
+          row 5 : q=29pC, y=140pix, g=0.208pC, dV=0.966V, peak=146.6fADCcounts
+expected pulse parameters in column 38:
+          row 1 : q=36pC, y=114pix, g=0.317pC, dV=1.57V, peak=181.9fADCcounts
+          row 2 : q=35.7pC, y=108pix, g=0.331pC, dV=1.64V, peak=180.3fADCcounts
+          row 3 : q=35.7pC, y=94.1pix, g=0.379pC, dV=1.73V, peak=180.1fADCcounts
+          row 4 : q=36pC, y=112pix, g=0.322pC, dV=1.62V, peak=181.9fADCcounts
+          row 5 : q=35.7pC, y=105pix, g=0.339pC, dV=1.71V, peak=180.5fADCcounts
+expected pulse parameters in column 39:
+          row 1 : q=43.4pC, y=130pix, g=0.334pC, dV=1.62V, peak=219.2fADCcounts
+          row 2 : q=43.4pC, y=126pix, g=0.345pC, dV=1.73V, peak=219.2fADCcounts
+          row 3 : q=43.7pC, y=119pix, g=0.366pC, dV=1.76V, peak=220.9fADCcounts
+          row 4 : q=43.7pC, y=115pix, g=0.381pC, dV=1.91V, peak=220.9fADCcounts
+          row 5 : q=43.7pC, y=120pix, g=0.363pC, dV=1.73V, peak=220.7fADCcounts
+expected pulse parameters in column 40:
+          row 1 : q=28pC, y=91.1pix, g=0.308pC, dV=1.52V, peak=141.5fADCcounts
+          row 2 : q=27.9pC, y=87.7pix, g=0.318pC, dV=1.55V, peak=141fADCcounts
+          row 3 : q=28pC, y=73.7pix, g=0.38pC, dV=1.75V, peak=141.3fADCcounts
+          row 4 : q=0pC, y=0pix, g=0.00013pC, dV=0.0006V, peak=0fADCcounts
+          row 5 : q=28.2pC, y=82.9pix, g=0.34pC, dV=1.61V, peak=142.4fADCcounts
+expected pulse parameters in column 41:
+          row 1 : q=25.5pC, y=110pix, g=0.231pC, dV=1.05V, peak=128.8fADCcounts
+          row 2 : q=25.6pC, y=71.3pix, g=0.359pC, dV=1.8V, peak=129.3fADCcounts
+          row 3 : q=25.5pC, y=67.2pix, g=0.379pC, dV=1.73V, peak=128.8fADCcounts
+          row 4 : q=25.7pC, y=83.7pix, g=0.307pC, dV=1.5V, peak=130fADCcounts
+          row 5 : q=25.6pC, y=113pix, g=0.228pC, dV=1.08V, peak=129.4fADCcounts
+expected pulse parameters in column 42:
+          row 1 : q=19.3pC, y=71.8pix, g=0.269pC, dV=1.38V, peak=97.67fADCcounts
+          row 2 : q=19.2pC, y=68.3pix, g=0.281pC, dV=1.37V, peak=97fADCcounts
+          row 3 : q=19.2pC, y=70.2pix, g=0.274pC, dV=1.26V, peak=97.06fADCcounts
+          row 4 : q=19.2pC, y=50.6pix, g=0.38pC, dV=1.67V, peak=97.06fADCcounts
+          row 5 : q=19.1pC, y=57.2pix, g=0.335pC, dV=1.46V, peak=96.69fADCcounts
+expected pulse parameters in column 43:
+          row 1 : q=59.8pC, y=269pix, g=0.222pC, dV=1.06V, peak=301.9fADCcounts
+          row 2 : q=59.8pC, y=211pix, g=0.283pC, dV=1.31V, peak=302fADCcounts
+          row 3 : q=59.9pC, y=262pix, g=0.228pC, dV=1.05V, peak=302.4fADCcounts
+          row 4 : q=59.5pC, y=270pix, g=0.22pC, dV=1.03V, peak=300.5fADCcounts
+          row 5 : q=59.7pC, y=233pix, g=0.256pC, dV=1.15V, peak=301.4fADCcounts
+expected pulse parameters in column 44:
+          row 1 : q=60.2pC, y=261pix, g=0.231pC, dV=1.14V, peak=304.2fADCcounts
+          row 2 : q=59.6pC, y=228pix, g=0.261pC, dV=1.11V, peak=301.2fADCcounts
+          row 3 : q=59.6pC, y=211pix, g=0.282pC, dV=1.2V, peak=301.1fADCcounts
+          row 4 : q=59.9pC, y=298pix, g=0.201pC, dV=0.994V, peak=302.4fADCcounts
+          row 5 : q=59.4pC, y=312pix, g=0.191pC, dV=0.953V, peak=300.1fADCcounts
+expected pulse parameters in column 45:
+          row 1 : q=60.6pC, y=294pix, g=0.206pC, dV=1.05V, peak=305.9fADCcounts
+          row 2 : q=60.5pC, y=280pix, g=0.216pC, dV=1.14V, peak=305.7fADCcounts
+          row 3 : q=60.1pC, y=269pix, g=0.224pC, dV=1.07V, peak=303.6fADCcounts
+          row 4 : q=60.3pC, y=282pix, g=0.214pC, dV=1.11V, peak=304.7fADCcounts
+          row 5 : q=0pC, y=0pix, g=0pC, dV=0V, peak=0fADCcounts
+expected pulse parameters in column 46:
+          row 1 : q=60.1pC, y=295pix, g=0.204pC, dV=1.02V, peak=303.4fADCcounts
+          row 2 : q=59.8pC, y=274pix, g=0.218pC, dV=1.09V, peak=302fADCcounts
+          row 3 : q=59.9pC, y=264pix, g=0.227pC, dV=1.09V, peak=302.7fADCcounts
+          row 4 : q=60.1pC, y=246pix, g=0.245pC, dV=1.14V, peak=303.6fADCcounts
+          row 5 : q=60.3pC, y=263pix, g=0.229pC, dV=1.14V, peak=304.4fADCcounts
+expected pulse parameters in column 47:
+          row 1 : q=60.5pC, y=285pix, g=0.213pC, dV=1.02V, peak=305.5fADCcounts
+          row 2 : q=59.9pC, y=258pix, g=0.232pC, dV=1.09V, peak=302.5fADCcounts
+          row 3 : q=60.3pC, y=255pix, g=0.237pC, dV=1.11V, peak=304.8fADCcounts
+          row 4 : q=59.7pC, y=294pix, g=0.203pC, dV=1.01V, peak=301.4fADCcounts
+          row 5 : q=59.5pC, y=261pix, g=0.228pC, dV=1.06V, peak=300.4fADCcounts
+expected pulse parameters in column 48:
+          row 1 : q=60.1pC, y=245pix, g=0.246pC, dV=1.19V, peak=303.6fADCcounts
+          row 2 : q=60pC, y=232pix, g=0.259pC, dV=1.24V, peak=303.2fADCcounts
+          row 3 : q=60.2pC, y=209pix, g=0.288pC, dV=1.2V, peak=304.2fADCcounts
+          row 4 : q=59.6pC, y=236pix, g=0.252pC, dV=1.23V, peak=301.2fADCcounts
+          row 5 : q=60.4pC, y=289pix, g=0.209pC, dV=1.02V, peak=305.3fADCcounts
+expected pulse parameters in column 49:
+          row 1 : q=59.4pC, y=303pix, g=0.196pC, dV=0.989V, peak=300.2fADCcounts
+          row 2 : q=60.4pC, y=266pix, g=0.227pC, dV=1.1V, peak=305.1fADCcounts
+          row 3 : q=60.3pC, y=266pix, g=0.226pC, dV=1.1V, peak=304.4fADCcounts
+          row 4 : q=60pC, y=252pix, g=0.238pC, dV=1.14V, peak=303fADCcounts
+          row 5 : q=60pC, y=233pix, g=0.257pC, dV=1.21V, peak=302.8fADCcounts
+expected pulse parameters in column 50:
+          row 1 : q=60pC, y=304pix, g=0.198pC, dV=1.02V, peak=303.2fADCcounts
+          row 2 : q=60.4pC, y=260pix, g=0.232pC, dV=1.03V, peak=305fADCcounts
+          row 3 : q=60.1pC, y=261pix, g=0.23pC, dV=1.11V, peak=303.7fADCcounts
+          row 4 : q=60.1pC, y=299pix, g=0.201pC, dV=0.981V, peak=303.7fADCcounts
+          row 5 : q=59.8pC, y=270pix, g=0.222pC, dV=1.1V, peak=302.3fADCcounts
+expected pulse parameters in column 51:
+          row 1 : q=60.3pC, y=257pix, g=0.234pC, dV=1.17V, peak=304.5fADCcounts
+          row 2 : q=59.8pC, y=233pix, g=0.256pC, dV=1.2V, peak=302.1fADCcounts
+          row 3 : q=60.3pC, y=197pix, g=0.307pC, dV=1.24V, peak=304.8fADCcounts
+          row 4 : q=60.2pC, y=247pix, g=0.244pC, dV=1.19V, peak=304.1fADCcounts
+          row 5 : q=59.7pC, y=281pix, g=0.212pC, dV=1.01V, peak=301.8fADCcounts
+expected pulse parameters in column 52:
+          row 1 : q=59.4pC, y=272pix, g=0.219pC, dV=1.05V, peak=300.2fADCcounts
+          row 2 : q=59.4pC, y=291pix, g=0.205pC, dV=1.04V, peak=300.1fADCcounts
+          row 3 : q=60.1pC, y=275pix, g=0.218pC, dV=1.01V, peak=303.3fADCcounts
+          row 4 : q=59.7pC, y=265pix, g=0.225pC, dV=1.07V, peak=301.6fADCcounts
+          row 5 : q=60.4pC, y=247pix, g=0.244pC, dV=1.11V, peak=305.1fADCcounts
+expected pulse parameters in column 53:
+          row 1 : q=59.6pC, y=309pix, g=0.193pC, dV=0.882V, peak=300.8fADCcounts
+          row 2 : q=59.7pC, y=253pix, g=0.236pC, dV=1.06V, peak=301.7fADCcounts
+          row 3 : q=60.6pC, y=280pix, g=0.216pC, dV=1.01V, peak=305.9fADCcounts
+          row 4 : q=59.7pC, y=288pix, g=0.207pC, dV=1.03V, peak=301.4fADCcounts
+          row 5 : q=59.4pC, y=292pix, g=0.203pC, dV=0.92V, peak=299.8fADCcounts
+expected pulse parameters in column 54:
+          row 1 : q=59.9pC, y=266pix, g=0.225pC, dV=0.964V, peak=302.7fADCcounts
+          row 2 : q=60.6pC, y=308pix, g=0.197pC, dV=0.928V, peak=306fADCcounts
+          row 3 : q=59.6pC, y=251pix, g=0.237pC, dV=1.15V, peak=300.8fADCcounts
+          row 4 : q=59.5pC, y=274pix, g=0.217pC, dV=0.906V, peak=300.5fADCcounts
+          row 5 : q=60.3pC, y=263pix, g=0.229pC, dV=1.06V, peak=304.5fADCcounts
+expected pulse parameters in column 55:
+          row 1 : q=60.2pC, y=307pix, g=0.196pC, dV=0.999V, peak=304.1fADCcounts
+          row 2 : q=60.3pC, y=271pix, g=0.222pC, dV=1.03V, peak=304.3fADCcounts
+          row 3 : q=59.8pC, y=256pix, g=0.234pC, dV=1.09V, peak=302.2fADCcounts
+          row 4 : q=59.9pC, y=240pix, g=0.25pC, dV=1.17V, peak=302.7fADCcounts
+          row 5 : q=59.9pC, y=232pix, g=0.258pC, dV=1.21V, peak=302.5fADCcounts
+expected pulse parameters in column 56:
+          row 1 : q=60pC, y=287pix, g=0.209pC, dV=1.04V, peak=303.3fADCcounts
+          row 2 : q=59.8pC, y=297pix, g=0.201pC, dV=0.961V, peak=301.8fADCcounts
+          row 3 : q=60.6pC, y=248pix, g=0.244pC, dV=1.1V, peak=305.8fADCcounts
+          row 4 : q=60pC, y=285pix, g=0.211pC, dV=1.02V, peak=303fADCcounts
+          row 5 : q=60.5pC, y=274pix, g=0.221pC, dV=1V, peak=305.4fADCcounts
+expected pulse parameters in column 57:
+          row 1 : q=59.4pC, y=371pix, g=0.16pC, dV=0.982V, peak=300fADCcounts
+          row 2 : q=60pC, y=340pix, g=0.177pC, dV=1.08V, peak=303.2fADCcounts
+          row 3 : q=59.5pC, y=334pix, g=0.178pC, dV=1.06V, peak=300.7fADCcounts
+          row 4 : q=60.4pC, y=345pix, g=0.175pC, dV=1.05V, peak=305fADCcounts
+          row 5 : q=60pC, y=267pix, g=0.225pC, dV=0.995V, peak=302.9fADCcounts
+expected pulse parameters in column 58:
+          row 1 : q=59.5pC, y=304pix, g=0.196pC, dV=0.94V, peak=300.5fADCcounts
+          row 2 : q=59.8pC, y=290pix, g=0.206pC, dV=0.964V, peak=301.8fADCcounts
+          row 3 : q=59.9pC, y=275pix, g=0.218pC, dV=1.03V, peak=302.4fADCcounts
+          row 4 : q=60.1pC, y=289pix, g=0.208pC, dV=0.969V, peak=303.7fADCcounts
+          row 5 : q=60.3pC, y=283pix, g=0.213pC, dV=1.01V, peak=304.8fADCcounts
+expected pulse parameters in column 59:
+          row 1 : q=60.2pC, y=277pix, g=0.217pC, dV=1.07V, peak=303.9fADCcounts
+          row 2 : q=59.7pC, y=255pix, g=0.234pC, dV=1.06V, peak=301.8fADCcounts
+          row 3 : q=59.8pC, y=279pix, g=0.214pC, dV=1.04V, peak=301.8fADCcounts
+          row 4 : q=59.5pC, y=257pix, g=0.231pC, dV=1.01V, peak=300.5fADCcounts
+          row 5 : q=59.7pC, y=281pix, g=0.212pC, dV=0.973V, peak=301.4fADCcounts
+expected pulse parameters in column 60:
+          row 1 : q=59.7pC, y=288pix, g=0.207pC, dV=0.982V, peak=301.5fADCcounts
+          row 2 : q=60.2pC, y=278pix, g=0.217pC, dV=0.998V, peak=304.3fADCcounts
+          row 3 : q=59.5pC, y=227pix, g=0.262pC, dV=1.06V, peak=300.3fADCcounts
+          row 4 : q=60.4pC, y=237pix, g=0.255pC, dV=1.11V, peak=304.9fADCcounts
+          row 5 : q=60.1pC, y=280pix, g=0.214pC, dV=1.02V, peak=303.7fADCcounts
+expected pulse parameters in column 61:
+          row 1 : q=60pC, y=304pix, g=0.197pC, dV=0.966V, peak=302.9fADCcounts
+          row 2 : q=59.6pC, y=283pix, g=0.211pC, dV=1.1V, peak=301.1fADCcounts
+          row 3 : q=59.7pC, y=248pix, g=0.241pC, dV=1.16V, peak=301.3fADCcounts
+          row 4 : q=60.1pC, y=287pix, g=0.209pC, dV=1.03V, peak=303.7fADCcounts
+          row 5 : q=59.8pC, y=268pix, g=0.223pC, dV=1.13V, peak=302.2fADCcounts
+expected pulse parameters in column 62:
+          row 1 : q=60.4pC, y=289pix, g=0.209pC, dV=0.971V, peak=305fADCcounts
+          row 2 : q=60.3pC, y=269pix, g=0.224pC, dV=1.08V, peak=304.6fADCcounts
+          row 3 : q=60.3pC, y=262pix, g=0.231pC, dV=1.09V, peak=304.6fADCcounts
+          row 4 : q=59.6pC, y=278pix, g=0.214pC, dV=1.04V, peak=301fADCcounts
+          row 5 : q=59.6pC, y=265pix, g=0.225pC, dV=1.06V, peak=301fADCcounts
+expected pulse parameters in column 63:
+          row 1 : q=60.4pC, y=371pix, g=0.163pC, dV=1.11V, peak=305.3fADCcounts
+          row 2 : q=60.3pC, y=457pix, g=0.132pC, dV=1.06V, peak=304.4fADCcounts
+          row 3 : q=60pC, y=255pix, g=0.235pC, dV=1.05V, peak=303.2fADCcounts
+          row 4 : q=60.6pC, y=352pix, g=0.172pC, dV=1.03V, peak=305.9fADCcounts
+          row 5 : q=60pC, y=249pix, g=0.241pC, dV=0.936V, peak=303fADCcounts
+expected pulse parameters in column 64:
+          row 1 : q=60.2pC, y=255pix, g=0.236pC, dV=1.1V, peak=304.2fADCcounts
+          row 2 : q=59.4pC, y=293pix, g=0.203pC, dV=0.923V, peak=300.2fADCcounts
+          row 3 : q=60.5pC, y=318pix, g=0.19pC, dV=0.919V, peak=305.4fADCcounts
+          row 4 : q=59.6pC, y=300pix, g=0.199pC, dV=0.974V, peak=301fADCcounts
+          row 5 : q=59.7pC, y=344pix, g=0.174pC, dV=0.859V, peak=301.3fADCcounts
+expected pulse parameters in column 65:
+          row 1 : q=59.9pC, y=343pix, g=0.175pC, dV=0.801V, peak=302.3fADCcounts
+          row 2 : q=60.2pC, y=308pix, g=0.196pC, dV=0.897V, peak=304.2fADCcounts
+          row 3 : q=60pC, y=283pix, g=0.212pC, dV=1.05V, peak=303.1fADCcounts
+          row 4 : q=60.1pC, y=276pix, g=0.218pC, dV=0.984V, peak=303.4fADCcounts
+          row 5 : q=59.7pC, y=321pix, g=0.186pC, dV=0.921V, peak=301.4fADCcounts
+expected pulse parameters in column 66:
+          row 1 : q=59.8pC, y=242pix, g=0.247pC, dV=1.15V, peak=301.8fADCcounts
+          row 2 : q=59.4pC, y=261pix, g=0.228pC, dV=1.05V, peak=300.2fADCcounts
+          row 3 : q=60pC, y=276pix, g=0.217pC, dV=1.05V, peak=303.2fADCcounts
+          row 4 : q=60.1pC, y=278pix, g=0.216pC, dV=1.04V, peak=303.4fADCcounts
+          row 5 : q=60.6pC, y=299pix, g=0.202pC, dV=0.924V, peak=305.9fADCcounts
+expected pulse parameters in column 67:
+          row 1 : q=59.7pC, y=293pix, g=0.203pC, dV=0.997V, peak=301.3fADCcounts
+          row 2 : q=60.5pC, y=264pix, g=0.23pC, dV=0.985V, peak=305.6fADCcounts
+          row 3 : q=60.5pC, y=273pix, g=0.221pC, dV=1.02V, peak=305.6fADCcounts
+          row 4 : q=59.4pC, y=289pix, g=0.206pC, dV=1.02V, peak=300.2fADCcounts
+          row 5 : q=60.2pC, y=304pix, g=0.198pC, dV=0.995V, peak=304.3fADCcounts
+expected pulse parameters in column 68:
+          row 1 : q=60.6pC, y=301pix, g=0.202pC, dV=0.988V, peak=306fADCcounts
+          row 2 : q=60.2pC, y=280pix, g=0.215pC, dV=1.01V, peak=304.2fADCcounts
+          row 3 : q=60pC, y=291pix, g=0.206pC, dV=1.03V, peak=303.1fADCcounts
+          row 4 : q=59.8pC, y=306pix, g=0.195pC, dV=1V, peak=301.9fADCcounts
+          row 5 : q=59.4pC, y=333pix, g=0.178pC, dV=0.943V, peak=299.9fADCcounts
+expected pulse parameters in column 69:
+          row 1 : q=60.3pC, y=307pix, g=0.196pC, dV=1.03V, peak=304.6fADCcounts
+          row 2 : q=60.2pC, y=278pix, g=0.216pC, dV=1.08V, peak=304fADCcounts
+          row 3 : q=60.6pC, y=311pix, g=0.195pC, dV=1.02V, peak=305.8fADCcounts
+          row 4 : q=60.4pC, y=275pix, g=0.22pC, dV=1.01V, peak=305.2fADCcounts
+          row 5 : q=59.6pC, y=319pix, g=0.187pC, dV=0.934V, peak=301fADCcounts
+expected pulse parameters in column 70:
+          row 1 : q=60.3pC, y=281pix, g=0.215pC, dV=0.986V, peak=304.5fADCcounts
+          row 2 : q=60.4pC, y=288pix, g=0.21pC, dV=0.975V, peak=305.2fADCcounts
+          row 3 : q=60.1pC, y=284pix, g=0.212pC, dV=1.03V, peak=303.7fADCcounts
+          row 4 : q=60.2pC, y=325pix, g=0.185pC, dV=0.941V, peak=304.1fADCcounts
+          row 5 : q=59.7pC, y=328pix, g=0.182pC, dV=0.879V, peak=301.5fADCcounts
+expected pulse parameters in column 71:
+          row 1 : q=59.9pC, y=295pix, g=0.203pC, dV=0.926V, peak=302.5fADCcounts
+          row 2 : q=0pC, y=-0pix, g=-0.000133pC, dV=-0.0006V, peak=0fADCcounts
+          row 3 : q=59.9pC, y=275pix, g=0.218pC, dV=0.976V, peak=302.4fADCcounts
+          row 4 : q=60.4pC, y=280pix, g=0.216pC, dV=1.04V, peak=304.9fADCcounts
+          row 5 : q=60.5pC, y=267pix, g=0.227pC, dV=1.05V, peak=305.4fADCcounts
+expected pulse parameters in column 72:
+          row 1 : q=60.2pC, y=272pix, g=0.221pC, dV=1.05V, peak=303.9fADCcounts
+          row 2 : q=59.5pC, y=269pix, g=0.221pC, dV=1.03V, peak=300.5fADCcounts
+          row 3 : q=59.6pC, y=273pix, g=0.219pC, dV=1.01V, peak=301.1fADCcounts
+          row 4 : q=59.9pC, y=277pix, g=0.217pC, dV=1.06V, peak=302.6fADCcounts
+          row 5 : q=59.6pC, y=318pix, g=0.188pC, dV=0.852V, peak=301.2fADCcounts
+expected pulse parameters in column 73:
+          row 1 : q=60.1pC, y=301pix, g=0.2pC, dV=1.06V, peak=303.5fADCcounts
+          row 2 : q=59.6pC, y=264pix, g=0.226pC, dV=1.11V, peak=300.9fADCcounts
+          row 3 : q=59.7pC, y=286pix, g=0.209pC, dV=1.12V, peak=301.4fADCcounts
+          row 4 : q=60.1pC, y=218pix, g=0.275pC, dV=1.5V, peak=303.5fADCcounts
+          row 5 : q=60.1pC, y=301pix, g=0.199pC, dV=1.04V, peak=303.7fADCcounts
+expected pulse parameters in column 74:
+          row 1 : q=60.3pC, y=275pix, g=0.219pC, dV=1.02V, peak=304.5fADCcounts
+          row 2 : q=59.9pC, y=274pix, g=0.218pC, dV=1.08V, peak=302.4fADCcounts
+          row 3 : q=60.2pC, y=263pix, g=0.229pC, dV=1.05V, peak=303.8fADCcounts
+          row 4 : q=60.3pC, y=271pix, g=0.223pC, dV=1.07V, peak=304.7fADCcounts
+          row 5 : q=59.6pC, y=292pix, g=0.204pC, dV=1.02V, peak=301.2fADCcounts
+expected pulse parameters in column 75:
+          row 1 : q=60.5pC, y=317pix, g=0.191pC, dV=0.912V, peak=305.4fADCcounts
+          row 2 : q=59.5pC, y=260pix, g=0.229pC, dV=1.14V, peak=300.5fADCcounts
+          row 3 : q=60.5pC, y=250pix, g=0.242pC, dV=1.2V, peak=305.4fADCcounts
+          row 4 : q=59.9pC, y=247pix, g=0.242pC, dV=1.03V, peak=302.7fADCcounts
+          row 5 : q=59.8pC, y=293pix, g=0.204pC, dV=0.971V, peak=302.1fADCcounts
+expected pulse parameters in column 76:
+          row 1 : q=59.5pC, y=280pix, g=0.213pC, dV=1.03V, peak=300.4fADCcounts
+          row 2 : q=59.9pC, y=289pix, g=0.208pC, dV=1.1V, peak=302.7fADCcounts
+          row 3 : q=59.6pC, y=308pix, g=0.194pC, dV=0.999V, peak=301.1fADCcounts
+          row 4 : q=59.8pC, y=320pix, g=0.187pC, dV=0.998V, peak=301.9fADCcounts
+          row 5 : q=59.7pC, y=323pix, g=0.184pC, dV=0.887V, peak=301.3fADCcounts
+expected pulse parameters in column 77:
+          row 1 : q=60pC, y=292pix, g=0.206pC, dV=0.998V, peak=303fADCcounts
+          row 2 : q=59.5pC, y=310pix, g=0.192pC, dV=0.936V, peak=300.8fADCcounts
+          row 3 : q=59.7pC, y=305pix, g=0.196pC, dV=1.06V, peak=301.5fADCcounts
+          row 4 : q=60.6pC, y=305pix, g=0.198pC, dV=0.958V, peak=305.9fADCcounts
+          row 5 : q=60.1pC, y=322pix, g=0.187pC, dV=0.872V, peak=303.4fADCcounts
+expected pulse parameters in column 78:
+          row 1 : q=59.9pC, y=339pix, g=0.177pC, dV=0.862V, peak=302.7fADCcounts
+          row 2 : q=60.3pC, y=269pix, g=0.225pC, dV=0.94V, peak=304.8fADCcounts
+          row 3 : q=59.5pC, y=323pix, g=0.184pC, dV=0.985V, peak=300.4fADCcounts
+          row 4 : q=60.1pC, y=259pix, g=0.232pC, dV=1.01V, peak=303.7fADCcounts
+          row 5 : q=60.3pC, y=304pix, g=0.199pC, dV=0.908V, peak=304.7fADCcounts
+expected pulse parameters in column 79:
+          row 1 : q=59.9pC, y=268pix, g=0.224pC, dV=1.03V, peak=302.6fADCcounts
+          row 2 : q=60.3pC, y=279pix, g=0.216pC, dV=1.06V, peak=304.4fADCcounts
+          row 3 : q=59.5pC, y=265pix, g=0.224pC, dV=1.03V, peak=300.5fADCcounts
+          row 4 : q=0pC, y=-0pix, g=-0.000167pC, dV=-0.0009V, peak=0fADCcounts
+          row 5 : q=60.5pC, y=236pix, g=0.256pC, dV=1.28V, peak=305.3fADCcounts
+expected pulse parameters in column 80:
+          row 1 : q=60pC, y=249pix, g=0.241pC, dV=1.12V, peak=303.1fADCcounts
+          row 2 : q=60.2pC, y=288pix, g=0.209pC, dV=1.03V, peak=304.1fADCcounts
+          row 3 : q=59.8pC, y=248pix, g=0.241pC, dV=1.01V, peak=301.8fADCcounts
+          row 4 : q=60.2pC, y=283pix, g=0.213pC, dV=0.99V, peak=304fADCcounts
+          row 5 : q=59.5pC, y=314pix, g=0.19pC, dV=0.963V, peak=300.5fADCcounts
+expected pulse parameters in column 81:
+          row 1 : q=60.4pC, y=255pix, g=0.237pC, dV=1.13V, peak=305fADCcounts
+          row 2 : q=59.4pC, y=271pix, g=0.219pC, dV=0.996V, peak=300.2fADCcounts
+          row 3 : q=60.5pC, y=278pix, g=0.218pC, dV=1.06V, peak=305.8fADCcounts
+          row 4 : q=60.1pC, y=314pix, g=0.191pC, dV=1.01V, peak=303.5fADCcounts
+          row 5 : q=59.8pC, y=316pix, g=0.189pC, dV=0.897V, peak=302fADCcounts
+expected pulse parameters in column 82:
+          row 1 : q=59.8pC, y=402pix, g=0.149pC, dV=0.832V, peak=302.2fADCcounts
+          row 2 : q=60.5pC, y=348pix, g=0.174pC, dV=0.935V, peak=305.5fADCcounts
+          row 3 : q=60.2pC, y=320pix, g=0.188pC, dV=1.08V, peak=304fADCcounts
+          row 4 : q=60.2pC, y=296pix, g=0.203pC, dV=1.08V, peak=304.2fADCcounts
+          row 5 : q=60.1pC, y=268pix, g=0.224pC, dV=1.13V, peak=303.4fADCcounts
+expected pulse parameters in column 83:
+          row 1 : q=59.8pC, y=381pix, g=0.157pC, dV=0.734V, peak=301.9fADCcounts
+          row 2 : q=59.7pC, y=305pix, g=0.196pC, dV=0.947V, peak=301.4fADCcounts
+          row 3 : q=60.4pC, y=271pix, g=0.223pC, dV=0.982V, peak=304.9fADCcounts
+          row 4 : q=59.9pC, y=251pix, g=0.239pC, dV=0.978V, peak=302.3fADCcounts
+          row 5 : q=59.9pC, y=301pix, g=0.199pC, dV=0.752V, peak=302.7fADCcounts
+expected pulse parameters in column 84:
+          row 1 : q=0pC, y=0pix, g=0.000486pC, dV=0.002V, peak=0fADCcounts
+          row 2 : q=59.7pC, y=239pix, g=0.25pC, dV=0.979V, peak=301.5fADCcounts
+          row 3 : q=59.7pC, y=258pix, g=0.232pC, dV=0.966V, peak=301.6fADCcounts
+          row 4 : q=60.3pC, y=242pix, g=0.249pC, dV=0.93V, peak=304.6fADCcounts
+          row 5 : q=60.4pC, y=290pix, g=0.209pC, dV=0.961V, peak=305.2fADCcounts
+expected pulse parameters in column 85:
+          row 1 : q=60.4pC, y=261pix, g=0.232pC, dV=1.15V, peak=305fADCcounts
+          row 2 : q=60.3pC, y=316pix, g=0.191pC, dV=1.01V, peak=304.4fADCcounts
+          row 3 : q=59.5pC, y=272pix, g=0.219pC, dV=1.04V, peak=300.6fADCcounts
+          row 4 : q=60.3pC, y=292pix, g=0.207pC, dV=1V, peak=304.7fADCcounts
+          row 5 : q=59.9pC, y=315pix, g=0.19pC, dV=1.03V, peak=302.3fADCcounts
+expected pulse parameters in column 86:
+          row 1 : q=60pC, y=302pix, g=0.199pC, dV=0.934V, peak=303fADCcounts
+          row 2 : q=59.7pC, y=308pix, g=0.194pC, dV=0.973V, peak=301.6fADCcounts
+          row 3 : q=60.1pC, y=279pix, g=0.215pC, dV=1.08V, peak=303.3fADCcounts
+          row 4 : q=60.3pC, y=279pix, g=0.216pC, dV=1.05V, peak=304.5fADCcounts
+          row 5 : q=60.4pC, y=324pix, g=0.186pC, dV=0.888V, peak=304.9fADCcounts
+expected pulse parameters in column 87:
+          row 1 : q=60.4pC, y=247pix, g=0.244pC, dV=1.1V, peak=305.2fADCcounts
+          row 2 : q=59.7pC, y=281pix, g=0.212pC, dV=1.12V, peak=301.4fADCcounts
+          row 3 : q=59.9pC, y=222pix, g=0.27pC, dV=1.22V, peak=302.4fADCcounts
+          row 4 : q=60.3pC, y=263pix, g=0.229pC, dV=0.928V, peak=304.7fADCcounts
+          row 5 : q=59.9pC, y=299pix, g=0.201pC, dV=0.933V, peak=302.7fADCcounts
+expected pulse parameters in column 88:
+          row 1 : q=60.4pC, y=329pix, g=0.184pC, dV=0.942V, peak=305.3fADCcounts
+          row 2 : q=59.7pC, y=302pix, g=0.198pC, dV=1.02V, peak=301.5fADCcounts
+          row 3 : q=59.7pC, y=288pix, g=0.208pC, dV=1.03V, peak=301.7fADCcounts
+          row 4 : q=60pC, y=301pix, g=0.199pC, dV=1.03V, peak=303fADCcounts
+          row 5 : q=60.5pC, y=348pix, g=0.174pC, dV=0.91V, peak=305.8fADCcounts
+expected pulse parameters in column 89:
+          row 1 : q=60.2pC, y=318pix, g=0.189pC, dV=0.918V, peak=304fADCcounts
+          row 2 : q=60.6pC, y=296pix, g=0.205pC, dV=1.01V, peak=306.1fADCcounts
+          row 3 : q=60.4pC, y=266pix, g=0.227pC, dV=0.972V, peak=305.2fADCcounts
+          row 4 : q=60pC, y=322pix, g=0.187pC, dV=0.957V, peak=303fADCcounts
+          row 5 : q=60.1pC, y=313pix, g=0.192pC, dV=0.919V, peak=303.5fADCcounts
+expected pulse parameters in column 90:
+          row 1 : q=60.5pC, y=368pix, g=0.165pC, dV=0.857V, peak=305.6fADCcounts
+          row 2 : q=59.7pC, y=375pix, g=0.159pC, dV=0.855V, peak=301.5fADCcounts
+          row 3 : q=60pC, y=255pix, g=0.235pC, dV=1.11V, peak=302.8fADCcounts
+          row 4 : q=60pC, y=296pix, g=0.203pC, dV=1.07V, peak=303.2fADCcounts
+          row 5 : q=59.8pC, y=288pix, g=0.208pC, dV=1.02V, peak=302.1fADCcounts
+expected pulse parameters in column 91:
+          row 1 : q=60.6pC, y=338pix, g=0.179pC, dV=0.909V, peak=306.1fADCcounts
+          row 2 : q=59.7pC, y=273pix, g=0.219pC, dV=1.12V, peak=301.3fADCcounts
+          row 3 : q=59.4pC, y=299pix, g=0.199pC, dV=1.05V, peak=300.2fADCcounts
+          row 4 : q=60.4pC, y=278pix, g=0.217pC, dV=1.07V, peak=305fADCcounts
+          row 5 : q=60.3pC, y=277pix, g=0.218pC, dV=1.09V, peak=304.8fADCcounts
+expected pulse parameters in column 92:
+          row 1 : q=60pC, y=235pix, g=0.256pC, dV=1.14V, peak=303.1fADCcounts
+          row 2 : q=60.3pC, y=280pix, g=0.215pC, dV=1V, peak=304.3fADCcounts
+          row 3 : q=60.2pC, y=283pix, g=0.212pC, dV=1.03V, peak=303.9fADCcounts
+          row 4 : q=59.5pC, y=265pix, g=0.225pC, dV=1.02V, peak=300.5fADCcounts
+          row 5 : q=59.9pC, y=278pix, g=0.216pC, dV=1.01V, peak=302.6fADCcounts
+expected pulse parameters in column 93:
+          row 1 : q=59.9pC, y=280pix, g=0.214pC, dV=1.06V, peak=302.3fADCcounts
+          row 2 : q=59.4pC, y=311pix, g=0.191pC, dV=1.01V, peak=300.1fADCcounts
+          row 3 : q=60.3pC, y=247pix, g=0.244pC, dV=1.11V, peak=304.4fADCcounts
+          row 4 : q=60.2pC, y=293pix, g=0.205pC, dV=1.02V, peak=304.2fADCcounts
+          row 5 : q=60.4pC, y=298pix, g=0.203pC, dV=0.966V, peak=305.2fADCcounts
+expected pulse parameters in column 94:
+          row 1 : q=60.2pC, y=266pix, g=0.226pC, dV=1.1V, peak=303.9fADCcounts
+          row 2 : q=60.6pC, y=274pix, g=0.221pC, dV=1.05V, peak=305.9fADCcounts
+          row 3 : q=60.2pC, y=307pix, g=0.196pC, dV=0.966V, peak=303.9fADCcounts
+          row 4 : q=60.1pC, y=293pix, g=0.205pC, dV=0.969V, peak=303.7fADCcounts
+          row 5 : q=60pC, y=344pix, g=0.175pC, dV=0.848V, peak=303.3fADCcounts
+expected pulse parameters in column 95:
+          row 1 : q=59.6pC, y=232pix, g=0.257pC, dV=1.18V, peak=301.2fADCcounts
+          row 2 : q=60pC, y=259pix, g=0.232pC, dV=1.11V, peak=303fADCcounts
+          row 3 : q=60.3pC, y=272pix, g=0.222pC, dV=1.09V, peak=304.4fADCcounts
+          row 4 : q=59.6pC, y=299pix, g=0.2pC, dV=0.951V, peak=301.1fADCcounts
+          row 5 : q=59.4pC, y=324pix, g=0.183pC, dV=0.841V, peak=300.1fADCcounts
+expected pulse parameters in column 96:
+          row 1 : q=60.5pC, y=276pix, g=0.219pC, dV=0.968V, peak=305.5fADCcounts
+          row 2 : q=60.4pC, y=243pix, g=0.249pC, dV=1.15V, peak=305.3fADCcounts
+          row 3 : q=59.6pC, y=277pix, g=0.216pC, dV=0.971V, peak=301.1fADCcounts
+          row 4 : q=60.5pC, y=271pix, g=0.224pC, dV=0.976V, peak=305.5fADCcounts
+          row 5 : q=59.5pC, y=252pix, g=0.236pC, dV=1.04V, peak=300.4fADCcounts
+expected pulse parameters in column 97:
+          row 1 : q=60.3pC, y=285pix, g=0.212pC, dV=1.06V, peak=304.6fADCcounts
+          row 2 : q=60pC, y=303pix, g=0.198pC, dV=0.972V, peak=303.1fADCcounts
+          row 3 : q=60pC, y=241pix, g=0.25pC, dV=1.27V, peak=303.2fADCcounts
+          row 4 : q=59.5pC, y=269pix, g=0.222pC, dV=1.08V, peak=300.7fADCcounts
+          row 5 : q=60.2pC, y=257pix, g=0.234pC, dV=1.18V, peak=303.8fADCcounts
+expected pulse parameters in column 98:
+          row 1 : q=60.5pC, y=348pix, g=0.174pC, dV=0.877V, peak=305.3fADCcounts
+          row 2 : q=59.5pC, y=298pix, g=0.2pC, dV=0.983V, peak=300.6fADCcounts
+          row 3 : q=59.6pC, y=276pix, g=0.216pC, dV=1.04V, peak=301fADCcounts
+          row 4 : q=60pC, y=286pix, g=0.21pC, dV=1.02V, peak=303.2fADCcounts
+          row 5 : q=60.6pC, y=322pix, g=0.188pC, dV=0.896V, peak=306fADCcounts
+expected pulse parameters in column 99:
+          row 1 : q=59.8pC, y=257pix, g=0.233pC, dV=1.12V, peak=302.1fADCcounts
+          row 2 : q=60.4pC, y=271pix, g=0.223pC, dV=1.05V, peak=305.2fADCcounts
+          row 3 : q=59.7pC, y=246pix, g=0.243pC, dV=1.12V, peak=301.4fADCcounts
+          row 4 : q=59.9pC, y=288pix, g=0.208pC, dV=0.98V, peak=302.3fADCcounts
+          row 5 : q=60.5pC, y=297pix, g=0.204pC, dV=1.01V, peak=305.4fADCcounts
+expected pulse parameters in column 100:
+          row 1 : q=59.4pC, y=290pix, g=0.205pC, dV=0.996V, peak=300fADCcounts
+          row 2 : q=60.5pC, y=310pix, g=0.195pC, dV=0.951V, peak=305.6fADCcounts
+          row 3 : q=59.8pC, y=293pix, g=0.204pC, dV=0.999V, peak=302.1fADCcounts
+          row 4 : q=60.6pC, y=328pix, g=0.185pC, dV=0.961V, peak=306.1fADCcounts
+          row 5 : q=59.6pC, y=274pix, g=0.217pC, dV=1.04V, peak=300.8fADCcounts
+expected pulse parameters in column 101:
+          row 1 : q=59.6pC, y=302pix, g=0.197pC, dV=0.949V, peak=301.2fADCcounts
+          row 2 : q=60.2pC, y=246pix, g=0.245pC, dV=1.14V, peak=304.2fADCcounts
+          row 3 : q=60pC, y=178pix, g=0.336pC, dV=1.62V, peak=303.1fADCcounts
+          row 4 : q=60.1pC, y=270pix, g=0.223pC, dV=1.02V, peak=303.6fADCcounts
+          row 5 : q=59.5pC, y=256pix, g=0.233pC, dV=1.08V, peak=300.5fADCcounts
+expected pulse parameters in column 102:
+          row 1 : q=59.7pC, y=281pix, g=0.212pC, dV=1.01V, peak=301.4fADCcounts
+          row 2 : q=0pC, y=-0pix, g=-8e-05pC, dV=-0.0004V, peak=0fADCcounts
+          row 3 : q=59.8pC, y=231pix, g=0.259pC, dV=1.15V, peak=301.9fADCcounts
+          row 4 : q=0pC, y=0pix, g=0pC, dV=0V, peak=0fADCcounts
+          row 5 : q=59.8pC, y=245pix, g=0.245pC, dV=1.11V, peak=302fADCcounts
+90b1 1c4d 3f5e 000b 3c5e 59f6 0042 8e44 1b86 1c3c 1c39 1c32 1c36 1c23 1bf4 1ba8 1c07 1c06 1c1a 1c5b 1c1e 1c34 1c1f 1c07 1c0f 1c0f 1c10 1c11 1c0f 1c11 1c0e 1c0f 1c10 1c0e 1c06 1c0d 1c09 1c05 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 59f6 002e 8e53 008f 07f3 0a87 0ff9 03d7 047b 0572 05d7 05fe 060f 0cff 07c7 08ef 0d28 0dff 010b 08e9 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c5e 5034 0042 8f44 1c07 1c0f 1c0f 1c0b 1c20 1c0d 1c14 1c12 1c1f 1bff 1c10 1c18 1c0f 1c09 1c05 1c17 1c25 1c3d 1c36 1c43 1c59 1c42 1c45 1c45 1c5b 1c26 1c56 1c3b 1c42 1c36 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 5034 002e 8f53 0090 07ec 0a89 0ff1 03d2 0476 056f 05d6 05fc 060d 0d8d 0819 08f6 0cfd 0dfd 0107 08df 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c6f c909 0042 9044 1c72 1c65 1c55 1c57 1c53 1c53 1c50 1b5c 1c54 1c45 1c4d 1c5b 1c5a 1c4f 1c4c 1c06 1c19 1c26 1c2b 1c28 1c16 1c22 1c2f 1c1e 1c0e 1c1f 1c2a 1c17 1c15 1c0f 01f0 050b 
+90b1 1c4d 3f5e 000b 3c6f c909 002e 9053 0090 07e6 0a8a 0ff5 03d1 0473 056a 05ce 05f9 0609 0d04 07bb 08d8 0d0f 0db3 0106 08d8 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c5e 51d8 0042 9144 1bb5 1b48 1bd3 1b68 1c5c 1c3a 1c38 1c1c 1c1b 1c3d 1c3c 1c3c 1c21 1c10 1c2e 1c19 1c14 1c24 1c1d 1c2c 1c0a 1c1a 1c1e 1c20 1c1e 1c14 1c15 1c3f 1c12 1c0a 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 51d8 002e 9153 0094 0802 0a99 0fff 03db 047d 0572 05d7 05fe 060e 0d1b 0801 08bb 0d1c 0e14 0108 08db 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c5e 56eb 0042 9244 1c2a 1c52 1c23 1c65 1c19 1c6d 1c5e 1c3e 1c39 1c45 1c63 1c53 1c61 1c47 1c78 1c22 1c1a 1c3a 1b79 1c3f 1beb 1bf7 1c39 1c00 1c07 1c40 1c1c 1c1c 1c44 1c0e 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 56eb 002e 9253 0094 07fd 0a95 0fff 03d9 047a 056d 05d2 05fa 060b 0d15 0818 08e9 0d18 0e16 010f 08c5 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c5e 50f1 0042 9344 1c33 1c34 1c2b 1c52 1c43 1c4a 1c58 1c58 1c43 1c55 1c62 1c37 1c22 1c50 1c3f 1c40 1c20 1c18 1c32 1c2e 1c2a 1c18 1c20 1c1d 1c3a 1c2a 1c36 1c26 1c32 1c25 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 50f1 002e 9353 0095 07ef 0a90 0ff2 03d3 0478 056e 05d4 05fc 060b 0d04 07ed 089e 0d05 0dfd 010a 08d4 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c5e 5a66 0042 9444 1c39 1c4d 1c4b 1c5b 1c52 1c44 1c49 1c4b 1c43 1c4f 1c38 1c3a 1c33 1c4a 1c01 1c28 1c27 1c1a 1c3b 1c28 1c0b 1c51 1c46 1c32 1bfe 1c38 1c38 1c49 1b91 1c3a 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 5a66 002e 9453 0092 07ff 0a9f 0fff 03d9 047a 056f 05d4 05fc 060c 0d1d 083b 08c9 0d28 0e1a 010d 08b3 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c5e 597e 0042 9544 1c08 1c0a 1c02 1c03 0000 1bff 1c01 1c07 1bf7 1bf6 1c01 1c0f 1bf7 1bf7 1bf8 1c26 1c3a 1c39 1c3e 1c34 1c30 1c32 1c31 1c2c 1c2e 1c2a 1c31 1c30 1c31 1c27 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 597e 002e 9553 0091 080d 0a9d 0fff 03db 047d 0572 05d6 05fe 060f 0d35 0879 08d2 0d30 0e23 010a 08b5 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c5e 558a 0042 9644 1c1a 1c22 1c1b 1c20 1c0f 1c12 1c0e 1c18 1c0c 1c18 1c0c 1c15 1c13 1c16 1c1c 1c02 1bfe 1c16 1c01 1c08 1c02 1c0c 1c08 1c0b 1c03 1c09 1c0a 1c0b 1c08 1c07 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 558a 002e 9653 008f 07ef 0a87 0fee 03d3 0479 0571 05d7 05fe 060f 0d01 07cc 088a 0d0a 0df7 0109 0899 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c6f c6a8 0042 9744 1bfb 1c05 1bfc 1c06 1bfc 1bfe 1bfd 1c04 1bfe 1bf8 1bff 1bfe 1c00 1c08 1c0c 1bed 1be8 1be8 1beb 1beb 1bec 1be7 1bed 1be8 1bdf 1beb 1be2 1be1 1bde 1bdd 01f0 050b 
+90b1 1c4d 3f5e 000b 3c6f c6a8 002e 9753 008c 0802 0a92 0fff 03d8 0479 056d 05d0 05fb 060b 0d1c 07bc 08ac 0d1e 0dc5 010c 08aa 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c6f b6b4 0042 9844 1c13 1c15 1c11 1c0f 1c0a 1c10 1c14 1c11 1c0d 1c0f 1c11 1c18 1c1e 1c13 1c1a 1c1a 1c15 1c1c 1c18 1c13 1c0c 1c09 1c11 1c18 1c0e 1c09 1c0c 1c0d 1c11 1c09 01f0 050b 
+90b1 1c4d 3f5e 000b 3c6f b6b4 002e 9853 0088 07ff 0a97 0fff 03d7 0478 056c 05d0 05fa 060a 0d18 07dd 08af 0d17 0dcb 010b 08b2 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c5e 50c6 0042 9944 1c12 1c15 1c13 1c15 1c09 1c19 1c16 1c15 1c1a 1c10 1c18 1c15 1c18 1c14 1c15 1c1a 1c1b 1c17 1c1a 1c19 1c15 1bb8 1c16 1c16 1c0d 1c21 1c1b 1c1c 1c17 1c18 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 50c6 002e 9953 008a 07ff 0a99 0fff 03dc 047c 0571 05d6 05fd 060e 0d12 0881 089f 0d31 0e10 0111 0899 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c5e 51db 0042 9a44 1bf1 1c04 1c06 1bf6 1bf8 1bfa 1bfc 1bf9 1bfc 1bf4 1bfb 1c01 1bff 1c23 1bf6 1c12 1c17 1c1a 1c1c 1c1d 1c1b 1c15 1c1d 1c19 1c16 1c24 1c25 1c21 1c1e 1c1e 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 51db 002e 9a53 008b 07fd 0a8a 0fff 03d8 047a 0570 05d5 05fd 060d 0d1a 07d2 0898 0d1a 0e09 0104 0897 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c5e 58e5 0042 9b44 1c28 1c1e 1c2b 1c27 1c17 1c2c 1c26 1c22 1c22 1c20 1c28 1c26 1c24 1b26 1c38 1b96 1bfa 1bfc 1bf2 1bfa 1c07 1c00 1c03 1bfb 1bfe 1c01 1bfd 1bfd 1bf7 1c0e 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 58e5 002e 9b53 008b 0803 0a94 0fff 03db 047a 056d 05d1 05f8 060a 0d6d 07ea 08bd 0d21 0e1f 010d 089e 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c6f ca93 0042 9c44 1c02 1c00 1c07 1bfa 1bf9 1bf5 1bf9 1c01 1bfd 1bf8 1c02 1bfb 1bf6 1bf7 1bf5 1bfe 1bff 1c0f 1c09 1c0a 1c01 1c0b 1c08 1c04 1c00 1c09 1c08 1c0b 1c09 1c01 01f0 050b 
+90b1 1c4d 3f5e 000b 3c6f ca93 002e 9c53 0087 07d6 0a8e 0fe4 03d5 0477 056c 05cf 05f9 060a 0d80 07c8 0897 0d4f 0da1 010b 0881 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c6f c8f6 0042 9d44 1c0a 1c0b 1c12 1c08 1c0c 1c15 1c0b 1c10 1c0d 1c10 1c0c 1c14 1c09 1c0b 1c0f 1bfd 1c0e 1bfa 1bfe 1c03 1c07 1c0c 1c0d 1c03 1bf6 1bfe 1c0b 1c01 1bfd 1bfe 01f0 050b 
+90b1 1c4d 3f5e 000b 3c6f c8f6 002e 9d53 008a 07db 0a7e 0fe5 03cd 046e 0566 05ca 05f5 0605 0d05 07ca 0897 0cfb 0da5 0107 087f 0000 0000 0000 0000 0000 
+90b1 1c4d 3f5e 000b 3c5e 5688 0042 9e44 1c26 1c20 1c21 1c17 1c19 1c0e 1c15 1c17 1c1a 1c11 1c22 1c14 1c15 1c1f 1c2d 1c09 1b9e 1c01 0000 1c1c 1c1a 1c30 1c5a 1c1c 1c26 1c1e 1c19 1c1c 1c19 1c26 01f0 050b 
+90b1 1c4d 3f5e 000b 3c5e 5688 002e 9e53 0089 07e8 0a87 0ff1 03d3 0477 056d 05d3 05fa 060a 0d09 07c5 0879 0d12 0df6 0108 088e 0000 0000 0000 0000 0000 
