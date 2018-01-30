@@ -10,6 +10,8 @@
 *.so
 *.out
 *.root
+*.tgz
+/scans-*
 fitpeaks.txt
 fitresults.txt
 fityields.[0-9]*
