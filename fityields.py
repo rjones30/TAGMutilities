@@ -50,11 +50,11 @@ gset = [['40625', '40626', '40627', '40628', '40629'],
 reference_setVbias_conf = "setVbias_fulldetector-12-5-2017.conf"
 
 # Pedestal scan data taken on 1/15/2018 [rtj]
-#gval = [0.25, 0.35, 0.45]
-#gset = [['125', '225', '325', '425', '525'],
-#        ['135', '235', '335', '435', '535'],
-#        ['145', '245', '345', '445', '545']]
-#reference_setVbias_conf = "setVbias_fulldetector-1-11-2018.conf"
+gval = [0.25, 0.35, 0.45]
+gset = [['125', '225', '325', '425', '525'],
+        ['135', '235', '335', '435', '535'],
+        ['145', '245', '345', '445', '545']]
+reference_setVbias_conf = "setVbias_fulldetector-1-11-2018.conf"
 
 # These tables are nested dicts [column][run]
 peakmean = {}
@@ -155,6 +155,7 @@ def fit(run):
       i0 = hreb.FindBin(bg_start)
       while hreb.Integral(1, i0) < 10 and i0 < hreb.GetNbinsX():
          i0 += 1
+      x1bg = hreb.GetBinCenter(i0)
       y1bg = hreb.GetBinContent(i0)
       i1 = i0
       i = i0 + 1
@@ -546,6 +547,17 @@ def fityields(rootfile):
                      yicept = f1.GetParameter(0)
                      slope = f1.GetParameter(1)
                      chisqr = f1.GetChisquare()
+                  print "p to save plot, q to abort, enter to continue: ",
+                  c1.Update()
+                  ans = raw_input()
+            elif len(ans) > 0 and ans[0] == "s":
+               while len(ans) > 0 and ans[0] == "s":
+                  slope = float(ans.split()[1])
+                  sfix = TF1("sfix", "[0]+" + str(slope) + "*x", 60, 80)
+                  sfix.SetParameter(0, 1)
+                  if h1.Fit(sfix, "s").Get().IsValid():
+                     yicept = sfix.GetParameter(0)
+                     chisqr = sfix.GetChisquare()
                   print "p to save plot, q to abort, enter to continue: ",
                   c1.Update()
                   ans = raw_input()
