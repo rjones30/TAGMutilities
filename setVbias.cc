@@ -51,7 +51,7 @@
 //                        is the standard value of 13V.
 //       -V <fixed_V>: set all channels selected in this command to the
 //                        same fixed_V voltage level.
-//       -C <config_file>: selects an alternate config file, setVbias.config
+//       -C <config_file>: selects an alternate config file, setVbias.conf
 //                        in the same directory as the executable is default.
 //    and a row_sequence or column_sequence is a comma-separated list of
 //    row and column index values or ranges as in 2,5,6,8-14,21 or 1-100.
@@ -199,7 +199,7 @@ void usage()
              << std::endl
              << "                  same fixed_V voltage level."
              << std::endl
-             << " -C <config_file>: selects an alternate config file, setVbias.config"
+             << " -C <config_file>: selects an alternate config file, setVbias.conf"
              << std::endl
              << "                  in the same directory as the executable is default."
              << std::endl
@@ -529,7 +529,7 @@ void load_from_textfile()
                if (server.size() > 0) {
                   boards[geoaddr] = new TAGMcommunicator(geoaddr, server);
                }
-               else if (strncmp(netdev, "dummy", 5) == 0) {
+               else if (netdev && strncmp(netdev, "dummy", 5) == 0) {
                   dryrun = 1;
                }
                else {
@@ -600,7 +600,7 @@ void load_from_config()
                if (server.size() > 0) {
                   boards[geoaddr] = new TAGMcommunicator(geoaddr, server);
                }
-               else if (strncmp(netdev, "dummy", 5) == 0) {
+               else if (netdev && strncmp(netdev, "dummy", 5) == 0) {
                   dryrun = 1;
                }
                else {
