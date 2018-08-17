@@ -17,7 +17,7 @@
 #ifndef TAGMCONTROLLER_H
 #define TAGMCONTROLLER_H
 
-#define DEFAULT_NETWORK_DEVICE "eth1"
+#define DEFAULT_NETWORK_DEVICE "em2"
 
 extern "C" {
 #include <pcap.h>
@@ -173,8 +173,8 @@ inline double TAGMcontroller::get_Vgainmode() {     // GAINMODE shared by both p
 
 inline int TAGMcontroller::get_gainmode() {         // =0 (low) or =1 (high) or -1 (undefined)
    double Vgain = get_Vgainmode();
-   return (Vgain > 4.0 && Vgain < 6.0)? 0 :
-          (Vgain > 9.0 && Vgain < 12.0)? 1 : -1;
+   return (Vgain > 4.9 && Vgain < 5.1)? 0 :
+          (Vgain > 9.9 && Vgain < 10.1)? 1 : -1;
 }
 
 inline double TAGMcontroller::get_Vtherm_1() {      // thermister voltage on preamp 1 (V)
