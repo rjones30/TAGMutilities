@@ -38,6 +38,10 @@ Simply cd to the top-level project directory and type "make".
 
 Just this README.
 
+## System Architecture at JLab
+
+The system uses ethernet packets directly so does not rely on IP. There is a dedicated NIC on gluon28 for this purpose. It is device em2 and does not belong to any IP network. The programs listed above all rely on a program TAGMremotectrl to be running which communicates with the controller via this dedicated NIC. That process is therefore crucial for this system to work. Since the TAGMremotectrl process must access the device at a very low level, it is run as root and therefore cannot be started and stopped from the standard operations or user accounts. Instead, it is managed by the supervisord service whose configuration is maintained in /etc/supervisord.conf. If the TAGMremotectrl process dies, it will be restarted automatically.
+
 ## Troubleshooting
 
 You are on your own here, but a good place to start in case of problems would be to read the comments in the TAGMcontroller.h and TAGMcontroller.cc source files. This is the best documentation that exists on the ethernet protocol supported by the controller firmware.
