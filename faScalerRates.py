@@ -48,7 +48,7 @@ def hist(infile):
    for line in open(infile):
       vals = line.split()
       for val in vals:
-         if re.match(r"[0-9]+\.[0-9]$", val) and val != "250000.0":
+         if re.match(r"[0-9]+\.[0-9]$", val) and val != "488281.2":
             col = ttab_tagm[itab]
             h.SetBinContent(col,float(val))
             itab += 1
@@ -77,8 +77,11 @@ def hscan(infile):
          itab = 0
       vals = line.split()
       for val in vals:
-         if re.match(r"[0-9]+\.[0-9]$", val) and val != "250000.0":
-            col = ttab_tagm[itab]
+         if re.match(r"[0-9]+\.[0-9]$", val) and val != "488281.2":
+            try:
+               col = ttab_tagm[itab]
+            except:
+               print "bad ttab_tagm lookup index", itab, "max is", len(ttab_tagm) - 1
             try:
                rates[nthresh][col] = float(val)
             except:
