@@ -41,7 +41,7 @@ gset = [['50195', '50196', '50197', '50198', '50199'],
         ['50205', '50206', '50207', '50208', '50209'],
         ['50190', '50191', '50192', '50193', '50194']]
 
-conf = 'setVbias_fulldetector-1-30-2018.conf'
+conf = 'setVbias_fulldetector-8-22-2018.conf'
 
 peak_fit_query = False
 
@@ -123,7 +123,7 @@ def Fit1(row, col):
    ptr = graph.Fit(fun1, "s")
    xint = ptr.Parameters()[0]
    yint = ptr.Parameters()[1]
-   rasymp = ptr.Parameters()[2]
+   rasymp = abs(ptr.Parameters()[2])
    gref = 40
    Vref = xint + (gref**2 - yint**2)**0.5 / rasymp
    slope = (Vref - xint) * rasymp**2 / gref
