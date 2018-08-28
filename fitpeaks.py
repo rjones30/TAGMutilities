@@ -32,7 +32,7 @@ gset = [['40145', '40146', '40147', '40148', '40149'],
         ['40160', '40161', '40162', '40163', '40164'],
         ['40047', '40048', '40049', '40050', '40051']]
 
-# dark rate runs taking in August, 2018
+# dark rate runs taking on August 19, 2018
 gval = [0.20, 0.25, 0.30, 0.35, 0.40, 0.45]
 gset = [['50195', '50196', '50197', '50198', '50199'],
         ['50180', '50181', '50182', '50183', '50184'],
@@ -41,7 +41,17 @@ gset = [['50195', '50196', '50197', '50198', '50199'],
         ['50205', '50206', '50207', '50208', '50209'],
         ['50190', '50191', '50192', '50193', '50194']]
 
-conf = 'setVbias_fulldetector-8-22-2018.conf'
+# dark rate runs taking on August 26, 2018
+gval = [0.20, 0.25, 0.30, 0.35, 0.40, 0.45]
+gset = [['00072', '00073', '00074', '00075', '00076'],
+        ['00057', '00058', '00059', '00060', '00061'],
+        ['00077', '00078', '00079', '00080', '00081'],
+        ['00062', '00063', '00064', '00065', '00066'],
+        ['00082', '00083', '00084', '00085', '00086'],
+        ['00067', '00068', '00069', '00070', '00071']]
+
+conffile = 'setVbias_fulldetector-8-22-2018.conf'
+confref = conffile
 
 peak_fit_query = False
 
@@ -75,7 +85,7 @@ def Fit1(row, col):
          p[ig] = 0
 
       # Get voltages
-      V[ig] = GetVoltage(gval[ig], row, col, conf)
+      V[ig] = GetVoltage(gval[ig], row, col, conffile)
 
       # Load values into graph
       graph.SetPoint(ig, V[ig], p[ig])
@@ -122,10 +132,13 @@ def Fit1(row, col):
    fun1.SetParameter(2, 5)
    ptr = graph.Fit(fun1, "s")
    xint = ptr.Parameters()[0]
-   yint = ptr.Parameters()[1]
+   yint = abs(ptr.Parameters()[1])
    rasymp = abs(ptr.Parameters()[2])
    gref = 40
-   Vref = xint + (gref**2 - yint**2)**0.5 / rasymp
+   if gref > yint:
+      Vref = xint + (gref**2 - yint**2)**0.5 / rasymp
+   else:
+      Vref = xint + gref / rasymp
    slope = (Vref - xint) * rasymp**2 / gref
    Vbd = Vref - gref / slope
    print Vbd, slope
@@ -138,6 +151,7 @@ def Fit1(row, col):
    gasym.SetLineColor(kRed)
    gasym.SetLineStyle(9)
    gasym.Draw("l")
+   gline = Draw_gvsV(row, col, confref)
    c1.Update()
 
    global peak_fit_query
@@ -152,6 +166,7 @@ def Fit1(row, col):
 
    gain_pF = slope * fit_slope_to_gain_pF
    latest_results[(row,col)] = "{0} {1}".format(Vbd, gain_pF)
+   return graph, gasym, gline
 
 def Hyperfit(var, par):
    """
@@ -166,6 +181,16 @@ def Hyperfit(var, par):
    y0 = par[1]
    slope = par[2]
    return ((slope * (V - V0))**2 + y0**2)**0.5
+
+def Linearfit(var, par):
+   """
+   Linear fit function to apply to graphs of single-pixel
+   pulse height maximum versus bias voltage. 
+   """
+   V = var[0]
+   V0 = par[0]
+   slope = par[1]
+   return slope * (V - V0)
 
 def GetPeak(h):
    """
@@ -227,7 +252,7 @@ def GetChannel(row, col):
    channel = 5*( (newcol - 1) % 6 ) + (row - 1)
    return channel
 
-def GetVoltage(g, row, col, conf):
+def GetVoltage(g, row, col, conf=conffile):
    """
    Compute the Vbias voltage that would be applied to the SiPM
    that reads out fiber row,col if it is set to gain g, using the
@@ -246,6 +271,29 @@ def GetVoltage(g, row, col, conf):
    conf_file.close()
    return float(voltage)
 
+def Draw_gvsV(row, col, conf=0):
+   """
+   Draw the linear function g(V) as an overlay on the graph
+   presently displayed on c1.
+   """
+   gline = TF1("gline", Linearfit, 50, 100, 2)
+   if conf == 0 and (row,col) in latest_results:
+      Vbd = float(latest_results[(row,col)].split()[0])
+      slope = float(latest_results[(row,col)].split()[1])
+   elif conf == 0:
+      Vbd = GetVoltage(0, row, col, conffile)
+      slope = 1 / (GetVoltage(1, row, col, conf) - Vbd)
+   else:
+      Vbd = GetVoltage(0, row, col, conf)
+      slope = 1 / (GetVoltage(1, row, col, conf) - Vbd)
+   gline.SetParameter(0, Vbd)
+   gline.SetParameter(1, slope / fit_slope_to_gain_pF)
+   gline.SetLineColor(kBlue)
+   gline.SetLineStyle(9)
+   gline.Draw("same")
+   c1.Update()
+   return gline
+
 def Write():
    """
    Write new results to a file in the standard format of setVbias.conf
@@ -253,7 +301,7 @@ def Write():
    since these cannot be evaluated based on dark count data.
    """
    outfile = open('fitpeaks.txt', 'w')
-   conf_file = open(conf, 'r')
+   conf_file = open(conffile, 'r')
    for line in conf_file:
       if not line.split()[0][0].isdigit():
          outfile.write(line)
