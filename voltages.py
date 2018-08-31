@@ -13,7 +13,7 @@ import sys
 import subprocess
 
 frendaddress = "gluon28.jlab.org:5692::"
-readVbias = os.environ["HOME"] + "/TAGMutilities/bin/readVbias"
+readVbias = re.sub(r"voltages.py", r"bin/readVbias", sys.argv[0])
 
 Vbias = {}
 for gid in range(0x8e, 0x9f):
