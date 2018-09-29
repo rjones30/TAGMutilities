@@ -49,12 +49,19 @@ gset = [['40625', '40626', '40627', '40628', '40629'],
         ['40638', '40639', '40640', '40641', '40642']]
 reference_setVbias_conf = "setVbias_fulldetector-12-5-2017.conf"
 
-# Pedestal scan data taken on 1/15/2018 [rtj]
+# Row-by-row scan data taken on 1/15/2018 [rtj]
 gval = [0.25, 0.35, 0.45]
 gset = [['125', '225', '325', '425', '525'],
         ['135', '235', '335', '435', '535'],
         ['145', '245', '345', '445', '545']]
 reference_setVbias_conf = "setVbias_fulldetector-1-11-2018.conf"
+
+# Row-by-row scan data taken on 9/23/2018 [rtj]
+gval = [0.25, 0.35, 0.45]
+gset = [['125', '225', '325', '425', '525'],
+        ['135', '235', '335', '435', '535'],
+        ['145', '245', '345', '445', '545']]
+reference_setVbias_conf = "setVbias_fulldetector-8-22-2018.conf"
 
 # These tables are nested dicts [column][run]
 peakmean = {}

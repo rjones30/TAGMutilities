@@ -137,3 +137,18 @@ def hall_1_2018():
                h.SetBinContent(h.GetNbinsX(), 0)
                h.Write()
          f.Close()
+
+def hall_9_2018():
+   """
+   Read in a set of 15 scans done in September 2018 and put them out
+   into TAGMtree files for input to fityields.
+   """
+   for row in [1, 2, 3, 4, 5]:
+      for gval in [25, 35, 45]:
+         f = TFile("TAGMtrees_" + str(row) + str(gval) + ".root", "recreate")
+         s = hdiffer("scans-9-23-2018/row" + str(row) + "g" + str(gval) + ".log")
+         for h in s:
+            if h:
+               h.SetBinContent(h.GetNbinsX(), 0)
+               h.Write()
+         f.Close()
