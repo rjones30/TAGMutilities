@@ -133,6 +133,7 @@ def fit(run):
    c1_1.SetLogy()
    colbase = 1
    h = 0
+   global hreb
    for col in range(0, 99999):
       column = col + colbase
       if column > 102:
@@ -466,7 +467,7 @@ def maketree(rootfile, setVbias_conf):
    f = 0
    for ig in range(0, len(gval)):
       for row in range(1, 6):
-         name = "fityields." + str(gset[ig][row-1])
+         name = "row" + str(gset[ig][row-1][0]) + "g" + str(gset[ig][row-1][1:3]) + ".out"
          add2tree(name, row, gval[ig], setVbias_conf, rootfile)
 
 def fityields(rootfile):
