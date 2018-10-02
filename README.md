@@ -42,6 +42,20 @@ Just this README.
 
 The system uses ethernet packets directly so does not rely on IP. There is a dedicated NIC on gluon28 for this purpose. It is device em2 and does not belong to any IP network. The programs listed above all rely on a program TAGMremotectrl to be running which communicates with the controller via this dedicated NIC. That process is therefore crucial for this system to work. Since the TAGMremotectrl process must access the device at a very low level, it is run as root and therefore cannot be started and stopped from the standard operations or user accounts. Instead, it is managed by the supervisord service whose configuration is maintained in /etc/supervisord.conf. If the TAGMremotectrl process dies, it will be restarted automatically.
 
+The status of the process can be checked either with simple "ps" or via:
+
+sudo supervisorctl status TAGMremotectrl
+
+There has been occasion where the process was running, but not communicating so it had to be killed and restarted. This must be done via root on gluon28. It is worth noting that the last time I did this, it did not seem to get automatically restarted as I would have expected. I tried restarting it with the following:
+
+sudo supervisorctl restart TAGMremotectrl
+
+There seemed to be some delay though and it looked like it had problems starting up. I had to leave it but when I checked later, it was running OK (??)
+
+## Testing
+
+/home/hdops/TAGMutilities/bin/probeVbias -l gluon28.jlab.org:5692
+
 ## Troubleshooting
 
 You are on your own here, but a good place to start in case of problems would be to read the comments in the TAGMcontroller.h and TAGMcontroller.cc source files. This is the best documentation that exists on the ethernet protocol supported by the controller firmware.
