@@ -142,12 +142,17 @@ def fit(run):
       if not h:
          print "no histogram found for column", column, " so regenerating..."
          hpi = TH1D("hpi", "column " + str(column), 480, 0, 8160)
-         fadc.Draw("pi>>hpi", "qf==0&&row==0&&col==" + str(column))
          try:
+            fadc.Draw("pi>>hpi", "qf==0&&row==0&&col==" + str(column))
             h = gROOT.FindObject("hpi").Clone("col" + str(column))
          except:
             print "unable to generate histogram for column", column,
             print ", moving on..."
+            if not column in peakmean:
+               peakmean[column] = {}
+               peaksigma[column] = {}
+            peakmean[column][run] = 0
+            peaksigma[column][run] = 0
             continue
       if not h:
          break

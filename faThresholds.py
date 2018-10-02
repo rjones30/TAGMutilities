@@ -12,7 +12,7 @@ import sys
 import fileinput
 import re
 
-threshold_fraction = 0.5
+threshold_fraction = 0.33
 pedestal_offset = 100
 
 # ttag_tagm is taken from the ccdb record /Translation/DAQ2detector

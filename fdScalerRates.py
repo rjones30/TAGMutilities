@@ -7,7 +7,7 @@
 #                    each point in the sequence. To plot these rates,
 #                    save the output files from one of these scans in
 #                    a directory, and give the name of the directory
-#                    as an argument to the hist() method below.
+#                    as an argument to the hscan() method below.
 #
 # author: richard.t.jones at uconn.edu
 # version: january 17, 2018
@@ -35,7 +35,7 @@ def hscan(indir):
    """
    Reads scaler rates from 128 plain text files stored in the directory
    named in argument indir. It returns returns a 2D histogram containing
-   the rate and a function of threshold vs column. Individual readout
+   the rate as a function of threshold vs column. Individual readout
    channels are assigned column numbers 103..122. Non-uniform steps are
    allowed between the threshold values in the scan.
    """
@@ -73,7 +73,7 @@ def hscan(indir):
          h2.SetBinContent(i, j, rates[thresh][i])
    h2.SetStats(0)
    h2.GetXaxis().SetTitle("TAGM column")
-   h2.GetYaxis().SetTitle("threshold (discriminator mV")
+   h2.GetYaxis().SetTitle("threshold (discriminator mV)")
    h2.GetYaxis().SetTitleOffset(1.5)
    return h2
 
@@ -150,7 +150,7 @@ def hall_1_2018():
    nbins = hagg.GetNbinsY()
    xbins = [hagg.GetYaxis().GetBinLowEdge(i) for i in range(1, nbins+2)]
    xbins_rescaled = map(lambda t: t * 10 + 1000, xbins)
-   f = TFile("TAGMtrees_2018.root", "recreate")
+   f = TFile("TAGMtrees_1_2018.root", "recreate")
    for col in range(1, 129):
       h = hagg.ProjectionY("col" + str(col), col, col)
       for i in range(1, nbins):
@@ -163,3 +163,111 @@ def hall_1_2018():
       h.SetTitle("column " + str(col))
       h.Write()
    f.Close()
+
+def hcollect(colog):
+   """
+   Reads scaler rates from a text file generated using the ROCutilities
+   script ratevsthreshold_collect.py, which collects all of the output
+   files from a series of ratevsthreshold_allchan runs and summarizes 
+   the results in a single file. It returns returns a 2D histogram containing
+   the rate as a function of threshold vs column. Individual readout
+   channels are assigned column numbers 103..122. Non-uniform steps are
+   allowed between the threshold values in the scan.
+   """
+   rates = {}
+   for line in open(colog):
+      p = re.match(r"threshold ([0-9]+)", line)
+      if p:
+         try:
+            thresh = int(p.group(1))
+         except:
+            print "bad", line
+            continue
+      p = re.match(r"slot ([0-9]+):", line)
+      if p:
+         try:
+            slot = int(p.group(1))
+         except:
+            print "bad", line
+            continue
+         fields = line.split()
+         for chan in range(0,16):
+            col = ttab_tagm[slot][chan]
+            rate = float(fields[chan + 2])
+            if not thresh in rates:
+               rates[thresh] = [0] * 129;
+            rates[thresh][col] = rate
+   nthresh = len(rates.keys())
+   if nthresh == 0:
+      return 0
+   threshes = sorted(rates.keys())
+   threshes.append(threshes[-1] + 1)
+   xbins = numpy.array(threshes, dtype=float)
+   h2 = TH2D("h2","threshold scan", 128, 1, 129, nthresh, xbins)
+   for thresh in rates:
+      for i in range(0, len(rates[thresh])):
+         j = h2.GetYaxis().FindBin(thresh)
+         h2.SetBinContent(i, j, rates[thresh][i])
+   h2.SetStats(0)
+   h2.GetXaxis().SetTitle("TAGM column")
+   h2.GetYaxis().SetTitle("threshold (discriminator mV)")
+   h2.GetYaxis().SetTitleOffset(1.5)
+   return h2
+
+def visualize_thresholds(h2drates, threshold_file): 
+   """
+   Reads in a set of discriminator thresholds from a file written by
+   fdThresholds.py, and marks where they fall on the pulse height spectrum
+   based on discriminator threshold scan data.
+   """
+   threshes = [0] * 129
+   for line in open(threshold_file):
+      p = re.match(r"slot ([0-9]+):", line)
+      if p:
+         try:
+            slot = int(p.group(1))
+         except:
+            print "bad", line
+            continue
+      if re.match(r"DSC2_ALLCH_THR ", line):
+         fields = line.split()
+         for chan in range(0,16):
+            col = ttab_tagm[slot][chan]
+            try:
+               threshes[col] = int(fields[chan + 1])
+            except:
+               threshes[col] = 999
+   nbins = h2drates.GetNbinsY()
+   xbins = [h2drates.GetYaxis().GetBinLowEdge(i) for i in range(1, nbins+2)]
+   for col in range(1, 129):
+      h = h2drates.ProjectionY("col" + str(col), col, col)
+      for i in range(1, nbins):
+         rate = h.GetBinContent(i)
+         rate -= h.GetBinContent(i+1)
+         if rate < 0 and i > 1:
+            rate = (rate + h.GetBinContent(i-1)) / 2
+            h.SetBinContent(i-1, rate)
+         h.SetBinContent(i, rate)
+      h.SetBinContent(nbins, 0)
+      h.SetTitle("column " + str(col))
+      if not gROOT.FindObject("c1"):
+         c1 = TCanvas("c1", "c1", 300, 300, 500, 500)
+      c1.SetLogx()
+      h.GetXaxis().SetRangeUser(1,2000)
+      h.Draw()
+      thresh = threshes[col]
+      thrx = numpy.array([thresh, thresh], dtype=float)
+      thry = numpy.array([0, 1e6], dtype=float)
+      thrg = TGraph(2, thrx, thry)
+      thrg.SetLineColor(kBlue)
+      thrg.SetLineWidth(2)
+      thrg.Draw("same")
+      c1.Update()
+      resp = raw_input("Press <enter> to continue, q to quit: ")
+      if resp == 'q':
+         break
+      elif resp == 'p':
+         c1.Print("disc_spectrum_col{0}.png".format(col))
+
+h2 = hcollect("discriminator_scan_row1.log")
+visualize_thresholds(h2, "dscthresh-9-29-2018.out")
