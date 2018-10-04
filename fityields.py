@@ -753,6 +753,14 @@ def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
    Write a new setVbias.conf file by reading the old one (second argument)
    and overwriting the last 3 columns with new fit information saved in
    the fit tree in rootfile.
+   --- change introduced on 10-4-2018, rtj ---
+   Formerly, I was overwriting the Vthresh values from the input file with
+   new Vbd values derived from the linear fits to the light yields data.
+   Those Vbd values are systematically biased low when the light yields
+   are small, which spoils the calibration procedure. After this change,
+   I now retain the Vthresh values from the input file, so that the only
+   update to the input file that is performed is to overwrite the last
+   column (Yields) with the results from the current light-yield fits.
    """
    confin = open(old_setVbias_conf)
    confout = open(new_setVbias_conf, "w")
@@ -783,7 +791,7 @@ def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
                                                     int(grep.group(2)),
                                                     int(grep.group(3)),
                                                     int(grep.group(4)))
-         out += "{0:13.3f}{1:12.3f}{2:16.2f}".format(ftre.Vbd,
+         out += "{0:13.3f}{1:12.3f}{2:16.2f}".format(ftre.Vbd0,
                                                      ftre.G,
                                                      ftre.Y)
          confout.write(out + "\n")
