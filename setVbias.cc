@@ -111,6 +111,11 @@ double TAGM_gain_pC;
 // D packet and S packet received from each board before exit.
 #define DUMP_LAST_PACKETS 1
 
+// When setting the Vbias to match a stated gain (-g) or peak charge (-p)
+// always maintain the Vbias-Vthresh between the following limits (V).
+#define MAX_VBIAS_OVER_THRESHOLD 2.4
+#define MIN_VBIAS_OVER_THRESHOLD 1.2
+
 std::string server;
 const char *netdev = 0;
 int dryrun = 0;
@@ -629,16 +634,20 @@ void load_from_config()
             }
          }
          if (level_V < 0) {
-            double Vg = thresh_V + gain_pC / pixelcap_pF;
             if (peak_pC > 0) {
-               double Vp = thresh_V;
+               double Vp=0;
                if (meanyield_pix > 0)
-                  Vp += sqrt(peak_pC / (pixelcap_pF * meanyield_pix));
+                  Vp = sqrt(peak_pC / (pixelcap_pF * meanyield_pix));
+               if (Vp > MAX_VBIAS_OVER_THRESHOLD)
+                  Vp = MAX_VBIAS_OVER_THRESHOLD;
+               else if (Vp < MIN_VBIAS_OVER_THRESHOLD)
+                  Vp = MIN_VBIAS_OVER_THRESHOLD;
+               Vp += thresh_V;
+               Vsetpoint[col][row] = Vp;
                if (!dryrun) {
-                  boards[geoaddr]->setV(chan, (Vg > Vp)? Vp : Vg); 
+                  boards[geoaddr]->setV(chan, Vp);
                }
                else {
-                  Vsetpoint[col][row] = (Vg > Vp)? Vp : Vg;
                   std::cout << "setting channel " 
                             << std::hex << (unsigned int)geoaddr
                             << ":" << std::dec << chan
@@ -648,11 +657,16 @@ void load_from_config()
                }
             }
             else {
+               double Vg = gain_pC / pixelcap_pF;
+               if (Vg > MAX_VBIAS_OVER_THRESHOLD)
+                  Vg = MAX_VBIAS_OVER_THRESHOLD;
+               else if (Vg < MIN_VBIAS_OVER_THRESHOLD)
+                  Vg = MIN_VBIAS_OVER_THRESHOLD;
+               Vsetpoint[col][row] = Vg;
                if (!dryrun) {
                   boards[geoaddr]->setV(chan, Vg);
                }
                else {
-                  Vsetpoint[col][row] = Vg;
                   std::cout << "setting channel " 
                             << std::hex << (unsigned int)geoaddr
                             << ":" << std::dec << chan
@@ -663,11 +677,11 @@ void load_from_config()
             }
          }
          else {
+            Vsetpoint[col][row] = level_V;
             if (!dryrun) {
                boards[geoaddr]->setV(chan, level_V);
             }
             else {
-               Vsetpoint[col][row] = level_V;
                std::cout << "setting channel " 
                          << std::hex << (unsigned int)geoaddr 
                          << ":" << std::dec << chan
@@ -685,27 +699,41 @@ void load_from_config()
       for (int col=1; col <= MAX_COLUMNS; ++col) {
          if (colselect[col] == 0)
             continue;
-         double qpeak_pC = (peak_pC > 0)? peak_pC : 1e6; 
-         for (int row=1; row <= MAX_ROWS; ++row) {
-            double q_pC = (finfo[col][row].meanyield_pix /
-                           finfo[col][row].pixelcap_pF) * gain_pC * gain_pC;
-            if (q_pC > 0 && q_pC < qpeak_pC)
-               qpeak_pC = q_pC;
-         }
+         int nrows=0;
+         double qmean_pC=0;
          for (int row=1; row <= MAX_ROWS; ++row) {
             if (rowselect[row] == 0)
                continue;
-            double V = finfo[col][row].thresh_V;
+            double dV = Vsetpoint[col][row] - finfo[col][row].thresh_V;
+            double q_pC = finfo[col][row].meanyield_pix *
+                          finfo[col][row].pixelcap_pF * dV * dV;
+            if (q_pC > 0) {
+               qmean_pC += q_pC;
+               ++nrows;
+            }
+         }
+         if (nrows == 0)
+            continue;
+         qmean_pC /= nrows;
+         for (int row=1; row <= MAX_ROWS; ++row) {
+            if (rowselect[row] == 0)
+               continue;
+            double V=0;
             if (finfo[col][row].meanyield_pix > 0)
-               V += sqrt(qpeak_pC / (finfo[col][row].pixelcap_pF *
-                                     finfo[col][row].meanyield_pix));
+               V = sqrt(qmean_pC / (finfo[col][row].pixelcap_pF *
+                                    finfo[col][row].meanyield_pix));
+            if (V > MAX_VBIAS_OVER_THRESHOLD)
+               V = MAX_VBIAS_OVER_THRESHOLD;
+            else if (V < MIN_VBIAS_OVER_THRESHOLD)
+               V = MIN_VBIAS_OVER_THRESHOLD;
+            V += finfo[col][row].thresh_V;
+            Vsetpoint[col][row] = V;
             int geoaddr = finfo[col][row].geoaddr;
             int chan = finfo[col][row].chan;
             if (!dryrun) {
                boards[geoaddr]->setV(chan, V);
             }
             else {
-               Vsetpoint[col][row] = V;
                double geff = (V - finfo[col][row].thresh_V) * 
                                   finfo[col][row].pixelcap_pF;
                std::cout << "overwriting channel " 
@@ -732,13 +760,7 @@ void load_from_config()
             double thresh_V = finfo[col][row].thresh_V;
             double pixelcap_pF = finfo[col][row].pixelcap_pF;
             double meanyield_pix = finfo[col][row].meanyield_pix;
-            double V;
-            if (!dryrun) {
-               V = boards[geoaddr]->getVnew(chan);
-            }
-            else {
-               V = Vsetpoint[col][row];
-            }
+            double V = Vsetpoint[col][row];
             double dV = V - thresh_V;
             double q = meanyield_pix * pixelcap_pF * pow(dV, 2);
             double y = meanyield_pix * dV;
