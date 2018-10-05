@@ -521,6 +521,8 @@ def fityields(rootfile):
          # The following binning was chosen assuming calibration data
          # were taken at g=0.25, g=0.35, and g=0.45, adjust as needed.
          h1 = TH1D(hname, htitle, 33, 0.2, 0.5)
+         h1.GetXaxis().SetTitle("g value (pC)")
+         h1.GetYaxis().SetTitle("mean yield (pC)")
          tre.Draw("gQ>>" + hname, "sqrt(qmean)*(qmean>0)*" +
                   "(row==" + str(row) + "&&" + "col==" + str(col) + ")")
          for b in range(1, h1.GetNbinsX()):
