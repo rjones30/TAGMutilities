@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SETVBIAS="bin/setVbias -L -C setVbias_fulldetector-1-11-2018.conf -c 2,3,21,102"
+SETVBIAS="bin/setVbias -L -C setVbias_fulldetector-8-22-2018.conf -c 1-102"
 CTRLHOST="gluon28.jlab.org:5692"
 
 function put {
