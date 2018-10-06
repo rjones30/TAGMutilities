@@ -414,23 +414,25 @@ int main(int argc, char *argv[])
    // a value of the gain used which is nominally 0.45 pC/pixel. When all
    // SiPMs are off this PV will have a value of 0 pC/pixel.
 
-   epics_status = ca_task_initialize();
-   SEVCHK(epics_status, "1");
-   epics_status = ca_search("TAGM:bias:state", &epics_channelId[0]);
-   SEVCHK(epics_status, "2");
-   epics_status = ca_search("TAGM:gain:pC", &epics_channelId[1]);
-   SEVCHK(epics_status, "3");
-   epics_status = ca_pend_io(0.0);
-   SEVCHK(epics_status, "3.5");
-   epics_status = ca_get(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
-   SEVCHK(epics_status, "4");
-   epics_status = ca_get(DBR_DOUBLE, epics_channelId[1], &TAGM_gain_pC);
-   SEVCHK(epics_status, "5");
-   epics_status = ca_pend_io(0.0);
-   SEVCHK(epics_status, "6");
-   TAGM_bias_state |= (1 << 6);
-   epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
-   SEVCHK(epics_status, "7");
+   if (!dryrun) {
+      epics_status = ca_task_initialize();
+      SEVCHK(epics_status, "1");
+      epics_status = ca_search("TAGM:bias:state", &epics_channelId[0]);
+      SEVCHK(epics_status, "2");
+      epics_status = ca_search("TAGM:gain:pC", &epics_channelId[1]);
+      SEVCHK(epics_status, "3");
+      epics_status = ca_pend_io(0.0);
+      SEVCHK(epics_status, "3.5");
+      epics_status = ca_get(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
+      SEVCHK(epics_status, "4");
+      epics_status = ca_get(DBR_DOUBLE, epics_channelId[1], &TAGM_gain_pC);
+      SEVCHK(epics_status, "5");
+      epics_status = ca_pend_io(0.0);
+      SEVCHK(epics_status, "6");
+      TAGM_bias_state |= (1 << 6);
+      epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
+      SEVCHK(epics_status, "7");
+   }
 
 #endif
 
@@ -453,56 +455,58 @@ int main(int argc, char *argv[])
 
 #if UPDATE_STATUS_IN_EPICS
 
-   // write the final status to epics
-   if (level_V >= 0)
-      TAGM_gain_pC = -level_V;
-   else if (peak_pC > 0)
-      TAGM_gain_pC = peak_pC;
-   else
-      TAGM_gain_pC = gain_pC;
-   epics_status = ca_put(DBR_DOUBLE, epics_channelId[1], &TAGM_gain_pC);
-   SEVCHK(epics_status, "90");
-   epics_status = ca_pend_io(0.0);
-   SEVCHK(epics_status, "91");
-
-   TAGM_bias_state &= 0x3f;
-   if (gainmode == 1)
-      TAGM_bias_state &= ~(1 << 5);
-   else if (gainmode == 2)
-      TAGM_bias_state |= (1 << 5);
-   for (int r=0; r < 5; ++r)
-      if (rowselect[r+1] == 0)
-         TAGM_bias_state &= ~(1 << r);
+   if (!dryrun) {
+      // write the final status to epics
+      if (level_V >= 0)
+         TAGM_gain_pC = -level_V;
+      else if (peak_pC > 0)
+         TAGM_gain_pC = peak_pC;
       else
-         TAGM_bias_state |= (1 << r);
-   int allcolumns = 1;
-   for (int c=0; c < 100; ++c) {
-      if (colselect[c+1] == 0) {
-         allcolumns = 0;
-         break;
-      }
-   }
-   if (allcolumns) {
-      epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
-      SEVCHK(epics_status, "92");
+         TAGM_gain_pC = gain_pC;
+      epics_status = ca_put(DBR_DOUBLE, epics_channelId[1], &TAGM_gain_pC);
+      SEVCHK(epics_status, "90");
       epics_status = ca_pend_io(0.0);
-      SEVCHK(epics_status, "93");
-   }
-   else {
+      SEVCHK(epics_status, "91");
+
+      TAGM_bias_state &= 0x3f;
+      if (gainmode == 1)
+         TAGM_bias_state &= ~(1 << 5);
+      else if (gainmode == 2)
+         TAGM_bias_state |= (1 << 5);
+      for (int r=0; r < 5; ++r)
+         if (rowselect[r+1] == 0)
+            TAGM_bias_state &= ~(1 << r);
+         else
+            TAGM_bias_state |= (1 << r);
+      int allcolumns = 1;
       for (int c=0; c < 100; ++c) {
-         if (colselect[c+1] != 0) {
-            TAGM_bias_state &= 0x3f;
-            TAGM_bias_state |= ((c + 1) << 7);
-            epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
-            SEVCHK(epics_status, "94");
-            epics_status = ca_pend_io(0.0);
-            SEVCHK(epics_status, "95");
+         if (colselect[c+1] == 0) {
+            allcolumns = 0;
+            break;
          }
       }
+      if (allcolumns) {
+         epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
+         SEVCHK(epics_status, "92");
+         epics_status = ca_pend_io(0.0);
+         SEVCHK(epics_status, "93");
+      }
+      else {
+         for (int c=0; c < 100; ++c) {
+            if (colselect[c+1] != 0) {
+               TAGM_bias_state &= 0x3f;
+               TAGM_bias_state |= ((c + 1) << 7);
+               epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
+               SEVCHK(epics_status, "94");
+               epics_status = ca_pend_io(0.0);
+               SEVCHK(epics_status, "95");
+            }
+         }
+      }
+      ca_clear_channel(epics_channelId[0]);
+      ca_clear_channel(epics_channelId[1]);
+      ca_task_exit();
    }
-   ca_clear_channel(epics_channelId[0]);
-   ca_clear_channel(epics_channelId[1]);
-   ca_task_exit();
 
 #endif
 
