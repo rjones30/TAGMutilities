@@ -117,7 +117,7 @@ double TAGM_gain_pC;
 #define MIN_VBIAS_OVER_THRESHOLD 1.2
 
 std::string server;
-const char *netdev = 0;
+std::string netdev;
 int dryrun = 0;
 
 struct fiber_config_info {
@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
       std::string arglast(argv[optind]);
       if (arglast.find(":") == arglast.npos) {
          if (arglast.size() > 0)
-            netdev = arglast.c_str();
+            netdev = arglast;
       }
       else {
          server = arglast;
@@ -534,11 +534,11 @@ void load_from_textfile()
                if (server.size() > 0) {
                   boards[geoaddr] = new TAGMcommunicator(geoaddr, server);
                }
-               else if (netdev && strncmp(netdev, "dummy", 5) == 0) {
+               else if (netdev == "dummy") {
                   dryrun = 1;
                }
                else {
-                  boards[geoaddr] = new TAGMcontroller(geoaddr, netdev);
+                  boards[geoaddr] = new TAGMcontroller(geoaddr, netdev.c_str());
                }
             }
             catch (const std::runtime_error &err) {
@@ -605,11 +605,12 @@ void load_from_config()
                if (server.size() > 0) {
                   boards[geoaddr] = new TAGMcommunicator(geoaddr, server);
                }
-               else if (netdev && strncmp(netdev, "dummy", 5) == 0) {
+               else if (netdev == "dummy") {
+                  boards[geoaddr] = 0;
                   dryrun = 1;
                }
                else {
-                  boards[geoaddr] = new TAGMcontroller(geoaddr, netdev);
+                  boards[geoaddr] = new TAGMcontroller(geoaddr, netdev.c_str());
                }
                if (!dryrun) {
                   boards[geoaddr]->setV(31, health_V);
@@ -662,6 +663,7 @@ void load_from_config()
                   Vg = MAX_VBIAS_OVER_THRESHOLD;
                else if (Vg < MIN_VBIAS_OVER_THRESHOLD)
                   Vg = MIN_VBIAS_OVER_THRESHOLD;
+               Vg += thresh_V;
                Vsetpoint[col][row] = Vg;
                if (!dryrun) {
                   boards[geoaddr]->setV(chan, Vg);
