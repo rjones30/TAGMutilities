@@ -9,7 +9,7 @@ OBJS = TAGMcommunicator.o TAGMcontroller.o sendpack.o setVbias.o resetVbias.o \
        probeVbias.o readVbias.o
 LIBS = -lpcap 
 
-CFLAGS = -g -I. -O0 
+CFLAGS = -g -I. -I./include -O0 
 
 # comment out this section if epics is not available on the build host
 #EPICS_CFLAGS = -DUPDATE_STATUS_IN_EPICS=1 -I$(EPICS)/include \
@@ -51,7 +51,7 @@ bin/sendpack: sendpack.c
 	$(SSH) root@gryphn chown root `pwd`/$@
 	$(SSH) root@gryphn chmod u+s `pwd`/$@
 
-bin/TAGMremotectrl: TAGMremotectrl.cc TAGMcontroller.o TAGMcommunicator.cc
+bin/TAGMremotectrl: TAGMremotectrl.cc TAGMcontroller.cc TAGMcommunicator.cc
 	mkdir -p bin
 	${CXX} ${CFLAGS} -o $@ $^ ${LIBS}
 	$(SSH) root@gryphn chown root `pwd`/$@
