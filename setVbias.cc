@@ -436,21 +436,23 @@ int main(int argc, char *argv[])
 
 #endif
 
-   // send commands to frontend
-   std::map<unsigned char, TAGMcontroller*>::iterator iter;
-   for (iter = boards.begin(); iter != boards.end(); ++iter) {
-      if (! iter->second->ramp()) {
-         std::cerr << "Error returned by ramp() method for board at "
-                   << std::hex << (unsigned int)iter->first << std::endl;
-         exit(4);
-      }
+   if (!dryrun) {
+      // send commands to frontend
+      std::map<unsigned char, TAGMcontroller*>::iterator iter;
+      for (iter = boards.begin(); iter != boards.end(); ++iter) {
+         if (! iter->second->ramp()) {
+            std::cerr << "Error returned by ramp() method for board at "
+                      << std::hex << (unsigned int)iter->first << std::endl;
+            exit(4);
+         }
 #if DUMP_LAST_PACKETS
-      iter->second->latch_voltages();
-      dump_last_packet(iter->second->get_last_packet());
-      iter->second->latch_status();
-      dump_last_packet(iter->second->get_last_packet());
+         iter->second->latch_voltages();
+         dump_last_packet(iter->second->get_last_packet());
+         iter->second->latch_status();
+         dump_last_packet(iter->second->get_last_packet());
 #endif
-      delete iter->second;
+         delete iter->second;
+      }
    }
 
 #if UPDATE_STATUS_IN_EPICS
