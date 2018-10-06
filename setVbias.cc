@@ -84,6 +84,8 @@
 #define DEFAULT_PEAK_PC 0.00
 #define DEFAULT_HEALTH_V 13.0
 #define TAGM_PC_PER_ADCPEAK (0.011 * 18)
+#define MAX_VBIAS_OVER_THRESHOLD 2.4
+#define MIN_VBIAS_OVER_THRESHOLD 1.2
 
 #include <iostream>
 #include <iomanip>
@@ -110,11 +112,6 @@ double TAGM_gain_pC;
 // Enable the following line to generate a hex dump of the last
 // D packet and S packet received from each board before exit.
 #define DUMP_LAST_PACKETS 1
-
-// When setting the Vbias to match a stated gain (-g) or peak charge (-p)
-// always maintain the Vbias-Vthresh between the following limits (V).
-#define MAX_VBIAS_OVER_THRESHOLD 2.4
-#define MIN_VBIAS_OVER_THRESHOLD 1.2
 
 std::string server;
 std::string netdev;
