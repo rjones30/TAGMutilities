@@ -239,7 +239,8 @@ def visualize_thresholds(h2drates, threshold_file):
                threshes[col] = 999
    nbins = h2drates.GetNbinsY()
    xbins = [h2drates.GetYaxis().GetBinLowEdge(i) for i in range(1, nbins+2)]
-   for col in range(1, 129):
+   col = 1
+   while col < 129:
       h = h2drates.ProjectionY("col" + str(col), col, col)
       for i in range(1, nbins):
          rate = h.GetBinContent(i)
@@ -263,11 +264,38 @@ def visualize_thresholds(h2drates, threshold_file):
       thrg.SetLineWidth(2)
       thrg.Draw("same")
       c1.Update()
-      resp = raw_input("Press <enter> to continue, q to quit: ")
+      resp = raw_input("Press t<value> to change threshold to value, " +
+                       "# to jump to column #, " +
+                       "<enter> to accept, " +
+                       "q to quit: ")
       if resp == 'q':
          break
       elif resp == 'p':
          c1.Print("disc_spectrum_col{0}.png".format(col))
+      elif len(resp) > 0 and resp[0] == 't':
+         threshes[col] = int(resp[1:])
+         continue
+      elif len(resp) > 0:
+         try:
+            nextcol = int(resp)
+            col = nextcol
+            continue
+         except:
+            pass
+      col += 1
+   return threshes
 
-h2 = hcollect("discriminator_scan_row1.log")
-visualize_thresholds(h2, "dscthresh-9-29-2018.out")
+for row in range(1,6):
+   h2 = hcollect("discriminator_scan_row{0}.log".format(row))
+   threshes = visualize_thresholds(h2, "fdScalerThresholds.out")
+   fout = open("fdScalerThresholds.out", "w")
+   for slot in ttab_tagm:
+      fout.write("slot " + str(slot) + ":" + "\n")
+      fout.write("DSC2_ALLCH_THR   ")
+      for ichan in range(0, len(ttab_tagm[slot])):
+         col = ttab_tagm[slot][ichan]
+         t = threshes[col]
+         t = t if t > 0 else 999
+         fout.write(" " + str(int(round(t))))
+      fout.write("\n")
+   fout.close()
