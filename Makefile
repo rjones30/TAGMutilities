@@ -12,8 +12,9 @@ LIBS = -lpcap
 CFLAGS = -g -I. -I./include -O0 
 
 # comment out this section if epics is not available on the build host
-#EPICS_CFLAGS = -DUPDATE_STATUS_IN_EPICS=1 -I$(EPICS)/include \
-               -I$(EPICS)/include/os/Linux -L$(EPICS)/lib/$(BUILD) -lca \
+#EPICS_CFLAGS = -DUPDATE_STATUS_IN_EPICS=1 -DEPICS_USE_IPC_BROKER=1 \
+               -I$(EPICS)/include -I$(EPICS)/include/os/Linux \
+               -L$(EPICS)/lib/$(BUILD) -lca \
                -Wl,-rpath,$(EPICS)/lib/$(BUILD)
 
 # replace "ssh" with "true" below if root access is not available on the build host
