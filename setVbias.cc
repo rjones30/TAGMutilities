@@ -529,7 +529,7 @@ int main(int argc, char *argv[])
                 Vsetpoint[c+1].find(r+1) != Vsetpoint[c+1].end() &&
                 r + 1 == 1 && c + 1 == 12)
             {
-               epics_json_msg_send("1.12.V_SET", "int", 1, Vsetpoint[c+1][r+1]);
+               epics_json_msg_send("1.12.V_SET", "int", 1, &Vsetpoint[c+1][r+1]);
                std::cout << "Wrote new voltage " << Vsetpoint[c+1][r+1]
                          << " for col,row " << c + 1 << "," << r + 1
                          << " to EPICS." << std::endl;
