@@ -101,17 +101,6 @@
 #include <TAGMcontroller.h>
 #include <TAGMcommunicator.h>
 
-#if UPDATE_STATUS_IN_EPICS
-#include <cadef.h> /* Structures and data types used by epics CA */
-int epics_status;
-chid epics_channelId[2];
-int TAGM_bias_state;
-double TAGM_gain_pC;
-#if EPICS_USE_IPC_BROKER
-#include "ipc.h"
-#endif
-#endif
-
 // Enable the following line to generate a hex dump of the last
 // D packet and S packet received from each board before exit.
 #define DUMP_LAST_PACKETS 1
@@ -121,6 +110,18 @@ std::string netdev;
 int dryrun = 0;
 
 std::map<int,std::map<int,double> > Vsetpoint;
+
+#if UPDATE_STATUS_IN_EPICS
+#include <cadef.h> /* Structures and data types used by epics CA */
+int epics_status;
+int TAGM_bias_state;
+double TAGM_gain_pC;
+std::map<std::string,chid> epics_channelId;
+int epics_start_communication();
+int epics_get_value(std::string epics_var, chtype ca_type, int len, void *value);
+int epics_put_value(std::string epics_var, chtype ca_type, int len, void *value, int finalize=1);
+int epics_stop_communication();
+#endif
 
 struct fiber_config_info {
    int geoaddr;
@@ -427,23 +428,17 @@ int main(int argc, char *argv[])
    // using ipc topic name "TAGM.VOLTAGES" key "<row>:<column>:V_SET".
 
    if (!dryrun) {
-      epics_status = ca_task_initialize();
-      SEVCHK(epics_status, "1");
+      epics_start_communication();
       epics_status = ca_search("TAGM:bias:state", &epics_channelId[0]);
       SEVCHK(epics_status, "2");
       epics_status = ca_search("TAGM:gain:pC", &epics_channelId[1]);
       SEVCHK(epics_status, "3");
       epics_status = ca_pend_io(0.0);
       SEVCHK(epics_status, "3.5");
-      epics_status = ca_get(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
-      SEVCHK(epics_status, "4");
-      epics_status = ca_get(DBR_DOUBLE, epics_channelId[1], &TAGM_gain_pC);
-      SEVCHK(epics_status, "5");
-      epics_status = ca_pend_io(0.0);
-      SEVCHK(epics_status, "6");
+      epics_get_value("TAGM:bias:state", DBR_SHORT, 1, &TAGM_bias_state);
+      epics_get_value("TAGM:gain:pC", DBR_DOUBLE, 1, &TAGM_gain_pC);
       TAGM_bias_state |= (1 << 6);
-      epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
-      SEVCHK(epics_status, "7");
+      epics_put_value("TAGM_bias_state", DBR_SHORT, 1, &TAGM_bias_state);
    }
 
 #endif
@@ -477,10 +472,7 @@ int main(int argc, char *argv[])
          TAGM_gain_pC = peak_pC;
       else
          TAGM_gain_pC = gain_pC;
-      epics_status = ca_put(DBR_DOUBLE, epics_channelId[1], &TAGM_gain_pC);
-      SEVCHK(epics_status, "90");
-      epics_status = ca_pend_io(0.0);
-      SEVCHK(epics_status, "91");
+      epics_put_value("TAGM:gain:pC", DBR_DOUBLE, 1, &TAGM_gain_pC);
 
       TAGM_bias_state &= 0x3f;
       if (gainmode == 1)
@@ -492,6 +484,21 @@ int main(int argc, char *argv[])
             TAGM_bias_state &= ~(1 << r);
          else
             TAGM_bias_state |= (1 << r);
+      for (int r = 0; r < MAX_ROWS; ++r) {
+         for (int c = 0; c < MAX_COLUMNS; ++c) {
+            if (Vsetpoint.find(c+1) != Vsetpoint.end() &&
+                Vsetpoint[c+1].find(r+1) != Vsetpoint[c+1].end() &&
+                r + 1 == 1 && c + 1 == 12)
+            {
+               std::stringstring buf;
+               buf << "TAGM:bias:" << r + 1 << ":" << c + 1 << ":v_set";
+               epics_put_value(buf.str().c_str(), DBR_DOUBLE, 1, &Vsetpoint[c+1][r+1], 0);
+               std::cout << "Wrote new voltage " << Vsetpoint[c+1][r+1]
+                         << " for col,row " << c + 1 << "," << r + 1
+                         << " to EPICS." << std::endl;
+            }
+         }
+      }
       int allcolumns = 1;
       for (int c=0; c < MAX_COLUMNS; ++c) {
          if (colselect[c+1] == 0) {
@@ -500,42 +507,18 @@ int main(int argc, char *argv[])
          }
       }
       if (allcolumns) {
-         epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
-         SEVCHK(epics_status, "92");
-         epics_status = ca_pend_io(0.0);
-         SEVCHK(epics_status, "93");
+         epics_put_value("TAGM:bias:state", DBR_SHORT, 1, &TAGM_bias_state);
       }
       else {
          for (int c=0; c < MAX_COLUMNS; ++c) {
             if (colselect[c+1] != 0) {
                TAGM_bias_state &= 0x3f;
                TAGM_bias_state |= ((c + 1) << 7);
-               epics_status = ca_put(DBR_SHORT, epics_channelId[0], &TAGM_bias_state);
-               SEVCHK(epics_status, "94");
-               epics_status = ca_pend_io(0.0);
-               SEVCHK(epics_status, "95");
+               epics_put_value("TAGM:bias:state", DBR_SHORT, 1, &TAGM_bias_state);
             }
          }
       }
-      ca_clear_channel(epics_channelId[0]);
-      ca_clear_channel(epics_channelId[1]);
-      ca_task_exit();
-
-#if EPICS_USE_IPC_BROKER
-      epics_json_msg_sender_init("hdtagops", "hdops", "TAGM_setVbias", "TAGM.VOLTAGES");
-      for (int r = 0; r < MAX_ROWS; ++r)
-         for (int c = 0; c < MAX_COLUMNS; ++c)
-            if (Vsetpoint.find(c+1) != Vsetpoint.end() &&
-                Vsetpoint[c+1].find(r+1) != Vsetpoint[c+1].end() &&
-                r + 1 == 1 && c + 1 == 12)
-            {
-               epics_json_msg_send("1.12.V_SET", "int", 1, &Vsetpoint[c+1][r+1]);
-               std::cout << "Wrote new voltage " << Vsetpoint[c+1][r+1]
-                         << " for col,row " << c + 1 << "," << r + 1
-                         << " to EPICS." << std::endl;
-            }
-      epics_json_msg_close();
-#endif
+      epics_stop_communication();
    }
 
 #endif
@@ -856,3 +839,68 @@ void dump_last_packet(const unsigned char *packet) {
    }
    std::cout << std::endl;
 }
+
+#if UPDATE_STATUS_IN_EPICS
+
+int epics_start_communication()
+{
+   epics_status = ca_task_initialize();
+   SEVCHK(epics_status, "0");
+   return (epics_status == ECA_NORMAL);
+}
+
+int epics_get_value(std::string epics_var, chtype ca_type, void *value)
+{
+   if (epics_channelID.find(epics_var) == epics_channelId.end()) {
+      epics_status = ca_search(epics_var.c_str(), &epics_channelId[epics_var]);
+      SEVCHK(epics_status, "1");
+      if (epics_status != ECA_NORMAL) {
+         epics_channelId[epics_var] = 0;
+         return 9;
+      }
+   }
+   else if (epics_channelID[epics_var] == 0) {
+      return 9;
+   }
+   epics_status = ca_get(ca_type, epics_channelId[epics_var], value);
+   SEVCHK(epics_status, "2");
+   epics_status = ca_pend_io(0.0);
+   SEVCHK(epics_status, "3");
+   return (epics_status == ECA_NORMAL);
+}
+
+int epics_put_value(std::string epics_var, chtype ca_type, void *value, int finalize=1)
+{
+   if (epics_channelID.find(epics_var) == epics_channelId.end()) {
+      epics_status = ca_search(epics_var.c_str(), &epics_channelId[epics_var]);
+      SEVCHK(epics_status, "4");
+      if (epics_status != ECA_NORMAL) {
+         epics_channelId[epics_var] = 0;
+         return 9;
+      }
+   }
+   else if (epics_channelID[epics_var] == 0) {
+      return 9;
+   }
+   epics_status = ca_put(DBR_SHORT, epics_channelId[0], value);
+   SEVCHK(epics_status, "5");
+   if (finalize) {
+      epics_status = ca_pend_io(0.0);
+      SEVCHK(epics_status, "6");
+   }
+   return (epics_status == ECA_NORMAL);
+}
+
+int epics_stop_communication()
+{
+   std::map<std::string, chid>::iterator iter
+   for (iter = epics_channelId.begin();
+        iter != epics_channelId.end();
+        ++iter)
+   {
+      ca_clear_channel(iter->second);
+   }
+   ca_task_exit();
+}
+
+#endif
