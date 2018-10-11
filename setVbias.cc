@@ -107,6 +107,9 @@ int epics_status;
 chid epics_channelId[2];
 int TAGM_bias_state;
 double TAGM_gain_pC;
+#if EPICS_USE_IPC_BROKER
+#include "ipc.h"
+#endif
 #endif
 
 // Enable the following line to generate a hex dump of the last
@@ -116,6 +119,8 @@ double TAGM_gain_pC;
 std::string server;
 std::string netdev;
 int dryrun = 0;
+
+std::map<int,std::map<int,double> > Vsetpoint;
 
 struct fiber_config_info {
    int geoaddr;
@@ -207,7 +212,7 @@ void usage()
              << std::endl
              << "A row_sequence or column_sequence is a comma-separated list of"
              << std::endl
-             << "row and column index values or ranges as in 2,5,6,8-14,21 or 1-100."
+             << "row and column index values or ranges as in 2,5,6,8-14,21 or 1-102."
              << std::endl
              << "Row and column numbers start with 1, not 0."
              << std::endl
@@ -410,6 +415,16 @@ int main(int argc, char *argv[])
    // TAGM:gain:pC is a double. When any SiPM is biased this PV will have 
    // a value of the gain used which is nominally 0.45 pC/pixel. When all
    // SiPMs are off this PV will have a value of 0 pC/pixel.
+   //
+   // October 11, 2018 [rtj]
+   // Today I introduced logging of the individual SiPM bias voltages to
+   // EPICS, using the ipc interface introduced to me by Hovanes Egyan.
+   // The names of the variables in EPICS are:
+   //      TAGM:bias:<row>:<column>:v_set
+   // where <row>=1..5 and <column>=1..102. These are written each time
+   // a new set of Vbias voltages is written to the frontend, except for
+   // when dryrun is set. These variables are updated by the ipc process
+   // using ipc topic name "TAGM.VOLTAGES" key "<row>:<column>:V_SET".
 
    if (!dryrun) {
       epics_status = ca_task_initialize();
@@ -478,7 +493,7 @@ int main(int argc, char *argv[])
          else
             TAGM_bias_state |= (1 << r);
       int allcolumns = 1;
-      for (int c=0; c < 100; ++c) {
+      for (int c=0; c < MAX_COLUMNS; ++c) {
          if (colselect[c+1] == 0) {
             allcolumns = 0;
             break;
@@ -491,7 +506,7 @@ int main(int argc, char *argv[])
          SEVCHK(epics_status, "93");
       }
       else {
-         for (int c=0; c < 100; ++c) {
+         for (int c=0; c < MAX_COLUMNS; ++c) {
             if (colselect[c+1] != 0) {
                TAGM_bias_state &= 0x3f;
                TAGM_bias_state |= ((c + 1) << 7);
@@ -505,6 +520,22 @@ int main(int argc, char *argv[])
       ca_clear_channel(epics_channelId[0]);
       ca_clear_channel(epics_channelId[1]);
       ca_task_exit();
+
+#if EPICS_USE_IPC_BROKER
+      epics_json_msg_sender_init("hdtagops", "hdops", "TAGM_setVbias", "TAGM.VOLTAGES");
+      for (int r = 0; r < MAX_ROWS; ++r)
+         for (int c = 0; c < MAX_COLUMNS; ++c)
+            if (Vsetpoint.find(c+1) != Vsetpoint.end() &&
+                Vsetpoint[c+1].find(r+1) != Vsetpoint[c+1].end() &&
+                r + 1 == 1 && c + 1 == 12)
+            {
+               epics_json_msg_send("1.12.V_SET", "int", 1, Vsetpoint[c+1][r+1]);
+               std::cout << "Wrote new voltage " << Vsetpoint[c+1][r+1]
+                         << " for col,row " << c + 1 << "," << r + 1
+                         << " to EPICS." << std::endl;
+            }
+      epics_json_msg_close();
+#endif
    }
 
 #endif
@@ -578,7 +609,6 @@ void load_from_config()
    }
 
    std::map<int,std::map<int,fiber_config_info> > finfo;
-   std::map<int,std::map<int,double> > Vsetpoint;
 
    while (fin.good()) {
       char line[999];
