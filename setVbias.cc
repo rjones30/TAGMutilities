@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
       epics_get_value("TAGM:gain:pC", DBR_DOUBLE, &TAGM_gain_pC);
       epics_get_value("TAGM:bias:state", DBR_SHORT, &TAGM_bias_state);
       TAGM_bias_state |= (1 << 6);
-      epics_put_value("TAGM_bias_state", DBR_SHORT, &TAGM_bias_state);
+      epics_put_value("TAGM:bias:state", DBR_SHORT, &TAGM_bias_state);
    }
 
 #endif
@@ -846,7 +846,6 @@ int epics_start_communication()
 int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len)
 {
    if (epics_channelId.find(epics_var) == epics_channelId.end()) {
-      epics_channelId[epics_var] = 0;
       epics_status = ca_search(epics_var.c_str(), &epics_channelId[epics_var]);
       SEVCHK(epics_status, "1");
       if (epics_status != ECA_NORMAL) {
@@ -874,7 +873,6 @@ int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len)
 int epics_put_value(std::string epics_var, chtype ca_type, void *value, int len, int finalize)
 {
    if (epics_channelId.find(epics_var) == epics_channelId.end()) {
-      epics_channelId[epics_var] = 0;
       epics_status = ca_search(epics_var.c_str(), &epics_channelId[epics_var]);
       SEVCHK(epics_status, "4");
       if (epics_status != ECA_NORMAL) {
