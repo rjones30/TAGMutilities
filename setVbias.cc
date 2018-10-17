@@ -90,6 +90,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 #include <map>
 #include <stdexcept>
 #include <stdlib.h>
