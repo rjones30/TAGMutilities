@@ -846,6 +846,7 @@ int epics_start_communication()
 int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len)
 {
    if (epics_channelId.find(epics_var) == epics_channelId.end()) {
+      epics_channelId[epics_var] = 0;
       epics_status = ca_search(epics_var.c_str(), &epics_channelId[epics_var]);
       SEVCHK(epics_status, "1");
       if (epics_status != ECA_NORMAL) {
@@ -856,6 +857,7 @@ int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len)
    else if (epics_channelId[epics_var] == 0) {
       return 9;
    }
+   std::cout << epics_channelId[epics_var] << std::endl;
    epics_status = ca_get(ca_type, epics_channelId[epics_var], value);
    SEVCHK(epics_status, "2");
    epics_status = ca_pend_io(0.0);
@@ -866,6 +868,7 @@ int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len)
 int epics_put_value(std::string epics_var, chtype ca_type, void *value, int len, int finalize)
 {
    if (epics_channelId.find(epics_var) == epics_channelId.end()) {
+      epics_channelId[epics_var] = 0;
       epics_status = ca_search(epics_var.c_str(), &epics_channelId[epics_var]);
       SEVCHK(epics_status, "4");
       if (epics_status != ECA_NORMAL) {
@@ -876,6 +879,7 @@ int epics_put_value(std::string epics_var, chtype ca_type, void *value, int len,
    else if (epics_channelId[epics_var] == 0) {
       return 9;
    }
+   std::cout << epics_channelId[epics_var] << std::endl;
    epics_status = ca_put(DBR_SHORT, epics_channelId[0], value);
    SEVCHK(epics_status, "5");
    if (finalize) {
