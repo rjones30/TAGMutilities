@@ -853,6 +853,12 @@ int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len)
          epics_channelId[epics_var] = 0;
          return 9;
       }
+      epics_status = ca_pend_io(0.0);
+      SEVCHK(epics_status, "1.5");
+      if (epics_status != ECA_NORMAL) {
+         epics_channelId[epics_var] = 0;
+         return 9;
+      }
    }
    else if (epics_channelId[epics_var] == 0) {
       return 9;
@@ -871,6 +877,12 @@ int epics_put_value(std::string epics_var, chtype ca_type, void *value, int len,
       epics_channelId[epics_var] = 0;
       epics_status = ca_search(epics_var.c_str(), &epics_channelId[epics_var]);
       SEVCHK(epics_status, "4");
+      if (epics_status != ECA_NORMAL) {
+         epics_channelId[epics_var] = 0;
+         return 9;
+      }
+      epics_status = ca_pend_io(0.0);
+      SEVCHK(epics_status, "4.5");
       if (epics_status != ECA_NORMAL) {
          epics_channelId[epics_var] = 0;
          return 9;
