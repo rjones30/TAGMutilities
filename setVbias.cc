@@ -864,7 +864,7 @@ int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len)
    else if (epics_channelId[epics_var] == 0) {
       return 9;
    }
-   epics_status = ca_get(ca_type, epics_channelId[epics_var], value);
+   epics_status = ca_array_get(ca_type, len, epics_channelId[epics_var], value);
    SEVCHK(epics_status, "2");
    epics_status = ca_pend_io(0.0);
    SEVCHK(epics_status, "3");
@@ -890,7 +890,7 @@ int epics_put_value(std::string epics_var, chtype ca_type, void *value, int len,
    else if (epics_channelId[epics_var] == 0) {
       return 9;
    }
-   epics_status = ca_put(ca_type, epics_channelId[epics_var], value);
+   epics_status = ca_array_put(ca_type, len, epics_channelId[epics_var], value);
    SEVCHK(epics_status, "5");
    if (finalize) {
       epics_status = ca_pend_io(0.0);
