@@ -890,7 +890,7 @@ int epics_put_value(std::string epics_var, chtype ca_type, void *value, int len,
       return 9;
    }
    std::cout << epics_channelId[epics_var] << std::endl;
-   epics_status = ca_put(ca_type, epics_channelId[0], value);
+   epics_status = ca_put(ca_type, epics_channelId[epics_var], value);
    SEVCHK(epics_status, "5");
    if (finalize) {
       epics_status = ca_pend_io(0.0);
