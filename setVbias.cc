@@ -122,6 +122,7 @@ int epics_start_communication();
 int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len=1);
 int epics_put_value(std::string epics_var, chtype ca_type, void *value, int len=1, int finalize=1);
 int epics_stop_communication();
+int verbose_epics_messages = 0;
 #endif
 
 struct fiber_config_info {
@@ -487,9 +488,10 @@ int main(int argc, char *argv[])
                std::stringstream buf;
                buf << "TAGM:bias:" << r + 1 << ":" << c + 1 << ":v_set";
                epics_put_value(buf.str().c_str(), DBR_DOUBLE, &Vsetpoint[c+1][r+1], 1, 0);
-               std::cout << "Wrote new voltage " << Vsetpoint[c+1][r+1]
-                         << " for col,row " << c + 1 << "," << r + 1
-                         << " to EPICS." << std::endl;
+               if (verbose_epics_messages)
+                  std::cout << "Wrote new voltage " << Vsetpoint[c+1][r+1]
+                            << " for col,row " << c + 1 << "," << r + 1
+                            << " to EPICS." << std::endl;
             }
          }
       }
@@ -862,7 +864,6 @@ int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len)
    else if (epics_channelId[epics_var] == 0) {
       return 9;
    }
-   std::cout << epics_channelId[epics_var] << std::endl;
    epics_status = ca_get(ca_type, epics_channelId[epics_var], value);
    SEVCHK(epics_status, "2");
    epics_status = ca_pend_io(0.0);
@@ -889,7 +890,6 @@ int epics_put_value(std::string epics_var, chtype ca_type, void *value, int len,
    else if (epics_channelId[epics_var] == 0) {
       return 9;
    }
-   std::cout << epics_channelId[epics_var] << std::endl;
    epics_status = ca_put(ca_type, epics_channelId[epics_var], value);
    SEVCHK(epics_status, "5");
    if (finalize) {
