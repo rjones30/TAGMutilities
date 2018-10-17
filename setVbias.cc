@@ -483,7 +483,7 @@ int main(int argc, char *argv[])
             if (Vsetpoint.find(c+1) != Vsetpoint.end() &&
                 Vsetpoint[c+1].find(r+1) != Vsetpoint[c+1].end())
             {
-               std::stringstring buf;
+               std::stringstream buf;
                buf << "TAGM:bias:" << r + 1 << ":" << c + 1 << ":v_set";
                epics_put_value(buf.str().c_str(), DBR_DOUBLE, 1, &Vsetpoint[c+1][r+1], 0);
                std::cout << "Wrote new voltage " << Vsetpoint[c+1][r+1]
@@ -844,7 +844,7 @@ int epics_start_communication()
 
 int epics_get_value(std::string epics_var, chtype ca_type, void *value)
 {
-   if (epics_channelID.find(epics_var) == epics_channelId.end()) {
+   if (epics_channelId.find(epics_var) == epics_channelId.end()) {
       epics_status = ca_search(epics_var.c_str(), &epics_channelId[epics_var]);
       SEVCHK(epics_status, "1");
       if (epics_status != ECA_NORMAL) {
@@ -852,7 +852,7 @@ int epics_get_value(std::string epics_var, chtype ca_type, void *value)
          return 9;
       }
    }
-   else if (epics_channelID[epics_var] == 0) {
+   else if (epics_channelId[epics_var] == 0) {
       return 9;
    }
    epics_status = ca_get(ca_type, epics_channelId[epics_var], value);
@@ -864,7 +864,7 @@ int epics_get_value(std::string epics_var, chtype ca_type, void *value)
 
 int epics_put_value(std::string epics_var, chtype ca_type, void *value, int finalize=1)
 {
-   if (epics_channelID.find(epics_var) == epics_channelId.end()) {
+   if (epics_channelId.find(epics_var) == epics_channelId.end()) {
       epics_status = ca_search(epics_var.c_str(), &epics_channelId[epics_var]);
       SEVCHK(epics_status, "4");
       if (epics_status != ECA_NORMAL) {
@@ -872,7 +872,7 @@ int epics_put_value(std::string epics_var, chtype ca_type, void *value, int fina
          return 9;
       }
    }
-   else if (epics_channelID[epics_var] == 0) {
+   else if (epics_channelId[epics_var] == 0) {
       return 9;
    }
    epics_status = ca_put(DBR_SHORT, epics_channelId[0], value);
@@ -886,7 +886,7 @@ int epics_put_value(std::string epics_var, chtype ca_type, void *value, int fina
 
 int epics_stop_communication()
 {
-   std::map<std::string, chid>::iterator iter
+   std::map<std::string, chid>::iterator iter;
    for (iter = epics_channelId.begin();
         iter != epics_channelId.end();
         ++iter)
