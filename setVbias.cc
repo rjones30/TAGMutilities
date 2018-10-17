@@ -508,7 +508,7 @@ int main(int argc, char *argv[])
             if (colselect[c+1] != 0) {
                TAGM_bias_state &= 0x3f;
                TAGM_bias_state |= ((c + 1) << 7);
-               epics_put_value("TAGM:bias:state", DBR_SHORT, 1, &TAGM_bias_state);
+               epics_put_value("TAGM:bias:state", DBR_SHORT, &TAGM_bias_state);
             }
          }
       }
