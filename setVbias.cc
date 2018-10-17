@@ -429,14 +429,8 @@ int main(int argc, char *argv[])
 
    if (!dryrun) {
       epics_start_communication();
-      epics_status = ca_search("TAGM:bias:state", &epics_channelId[0]);
-      SEVCHK(epics_status, "2");
-      epics_status = ca_search("TAGM:gain:pC", &epics_channelId[1]);
-      SEVCHK(epics_status, "3");
-      epics_status = ca_pend_io(0.0);
-      SEVCHK(epics_status, "3.5");
-      epics_get_value("TAGM:bias:state", DBR_SHORT, 1, &TAGM_bias_state);
       epics_get_value("TAGM:gain:pC", DBR_DOUBLE, 1, &TAGM_gain_pC);
+      epics_get_value("TAGM:bias:state", DBR_SHORT, 1, &TAGM_bias_state);
       TAGM_bias_state |= (1 << 6);
       epics_put_value("TAGM_bias_state", DBR_SHORT, 1, &TAGM_bias_state);
    }
@@ -487,8 +481,7 @@ int main(int argc, char *argv[])
       for (int r = 0; r < MAX_ROWS; ++r) {
          for (int c = 0; c < MAX_COLUMNS; ++c) {
             if (Vsetpoint.find(c+1) != Vsetpoint.end() &&
-                Vsetpoint[c+1].find(r+1) != Vsetpoint[c+1].end() &&
-                r + 1 == 1 && c + 1 == 12)
+                Vsetpoint[c+1].find(r+1) != Vsetpoint[c+1].end())
             {
                std::stringstring buf;
                buf << "TAGM:bias:" << r + 1 << ":" << c + 1 << ":v_set";
