@@ -843,7 +843,7 @@ int epics_start_communication()
    return (epics_status == ECA_NORMAL);
 }
 
-int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len=1)
+int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len)
 {
    if (epics_channelId.find(epics_var) == epics_channelId.end()) {
       epics_status = ca_search(epics_var.c_str(), &epics_channelId[epics_var]);
@@ -863,7 +863,7 @@ int epics_get_value(std::string epics_var, chtype ca_type, void *value, int len=
    return (epics_status == ECA_NORMAL);
 }
 
-int epics_put_value(std::string epics_var, chtype ca_type, void *value, int len=1, int finalize=1)
+int epics_put_value(std::string epics_var, chtype ca_type, void *value, int len, int finalize)
 {
    if (epics_channelId.find(epics_var) == epics_channelId.end()) {
       epics_status = ca_search(epics_var.c_str(), &epics_channelId[epics_var]);
