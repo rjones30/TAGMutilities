@@ -58,6 +58,10 @@ bin/TAGMremotectrl: TAGMremotectrl.cc TAGMcontroller.cc TAGMcommunicator.cc
 	$(SSH) root@gryphn chown root `pwd`/$@
 	$(SSH) root@gryphn chmod u+s `pwd`/$@
 
+lib/epics.so: pyepics.cc
+	mkdir -p lib
+	${CXX} -fPIC -shared ${CFLAGS} ${EPICS_CFLAGS} -o $@ $^ ${LIBS}
+
 clean:
 	rm -f ${OBJS} ${EXES} 
 
