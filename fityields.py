@@ -63,6 +63,13 @@ gset = [['125', '225', '325', '425', '525'],
         ['145', '245', '345', '445', '545']]
 reference_setVbias_conf = "setVbias_fulldetector-8-22-2018.conf"
 
+# Row-by-row scan data taken on 2/9/2019 [rtj]
+gval = [0.25, 0.35, 0.45]
+gset = [['125', '225', '325', '425', '525'],
+        ['135', '235', '335', '435', '535'],
+        ['145', '245', '345', '445', '545']]
+reference_setVbias_conf = "setVbias_fulldetector-9-29-2018.conf"
+
 # These tables are nested dicts [column][run]
 peakmean = {}
 peaksigma = {}
@@ -264,8 +271,13 @@ def fit(run):
                colbase -= 1
                continue
             elif re.match(r"g", resp):
-               f.Delete("col" + str(column) + ";*")
-               colbase -= 1
+               if fadc:
+                  f.Delete("col" + str(column) + ";*")
+                  colbase -= 1
+               else:
+                  h.Delete()
+                  h = gROOT.FindObject("col" + str(column))
+                  colbase -= 1
                continue
             elif re.match(r"p", resp):
                img = "fityields_" + str(run) + "_" + str(column) + ".png"
