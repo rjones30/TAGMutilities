@@ -15,6 +15,7 @@ from ROOT import *
 from array import array
 import numpy
 import time
+import random
 
 minEntries = 1200
 maxEntries = 100000
@@ -59,7 +60,16 @@ gset = [['00105', '00106', '00107', '00108', '00109'],
         ['00115', '00116', '00117', '00118', '00119'],
         ['00100', '00101', '00102', '00103', '00104']]
 
-conffile = 'setVbias_fulldetector-8-22-2018.conf'
+# dark rate runs taking on January 21, 2019
+gval = [0.20, 0.25, 0.30, 0.35, 0.40, 0.45]
+gset = [['60158', '60161', '60164', '60167', '60170'],
+        ['60142', '60145', '60148', '60152', '60155'],
+        ['60159', '60162', '60165', '60168', '60171'],
+        ['60143', '60146', '60149', '60153', '60156'],
+        ['60160', '60163', '60166', '60169', '60172'],
+        ['60144', '60147', '60150', '60154', '60157']]
+
+conffile = 'setVbias_fulldetector-9-29-2018.conf'
 confref = conffile
 
 peak_fit_query = False
@@ -68,9 +78,8 @@ latest_results = {}
 
 def Fit1(row, col):
    """
-   Fit a full set of single-pixel dark pulse spectra and write out
-   a new set of calibration constants into fitpeaks.txt, overwriting
-   the file if it exists already.
+   Fit a the single-pixel dark pulse spectra for a single fiber and
+   save a new set of calibration constants in an in-memory array.
    """
    graph = TGraphErrors(len(gset))
    p = [0] * len(gset)
@@ -134,11 +143,33 @@ def Fit1(row, col):
                ig += 1
             break
 
+   # Increase errors on points below threshold
+   for ig in range(1, len(gset)):
+      x = numpy.array([0], dtype=float)
+      y = numpy.array([0], dtype=float)
+      graph.GetPoint(ig-1, x, y)
+      ylast = y[0]
+      graph.GetPoint(ig, x, y)
+      ythis = y[0]
+      if ylast < ythis * 0.9:
+         break
+      for iig in range(0, ig):
+         ex = graph.GetErrorX(iig)
+         ey = graph.GetErrorY(iig)
+         ey += 0.5
+         graph.SetPointError(iig, ex, ey)
+   
    # Fit TGraph
    fun1 = TF1("fun1", Hyperfit, 50, 100, 3)
-   fun1.SetParameter(0, 71.0)
-   fun1.SetParameter(1, 25)
-   fun1.SetParameter(2, 5)
+   global peak_fit_query
+   if peak_fit_query:
+      fun1.SetParameter(0, 71.0 + 0.5 * (random.uniform(0,1) - 0.5))
+      fun1.SetParameter(1, 25 + 5 * random.uniform(0,1))
+      fun1.SetParameter(2, 5 + 2 * random.uniform(0,1))
+   else:
+      fun1.SetParameter(0, 71.0)
+      fun1.SetParameter(1, 25)
+      fun1.SetParameter(2, 5)
    ptr = graph.Fit(fun1, "s")
    xint = ptr.Parameters()[0]
    yint = abs(ptr.Parameters()[1])
@@ -163,7 +194,6 @@ def Fit1(row, col):
    gline = Draw_gvsV(row, col, confref)
    c1.Update()
 
-   global peak_fit_query
    ans = raw_input("r to redo, enter to accept? ")
    if len(ans) > 0 and ans[0] == 'r':
       peak_fit_query = 1
