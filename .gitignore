@@ -13,6 +13,7 @@
 *.tgz
 *.log
 /scans-*
+/calib-*
 fitpeaks.txt
 fitresults.txt
 fityields.[0-9]*
