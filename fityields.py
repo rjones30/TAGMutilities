@@ -619,7 +619,7 @@ def fityields(rootfile):
    ftre.BuildIndex("row", "col")
    ftre.Write()
 
-def visualize_threshold(new_setVbias_conf, threshold=0.5, select_gval=0.45):
+def visualize_threshold(new_setVbias_conf, threshold=0.33, select_gval=0.45):
    """
    Make a pass through all of the datasets and plot the pulse height
    spectra with the threshold as a fraction of the mean pulse integral
@@ -807,7 +807,7 @@ def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
                                                     int(grep.group(2)),
                                                     int(grep.group(3)),
                                                     int(grep.group(4)))
-         out += "{0:13.3f}{1:12.3f}{2:16.2f}".format(ftre.Vbd0,
+         out += "{0:13.3f}{1:12.3f}{2:16.2f}".format(ftre.Vbd, # instead of ftre.Vbd0,
                                                      ftre.G,
                                                      ftre.Y)
          confout.write(out + "\n")
