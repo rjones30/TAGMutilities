@@ -68,7 +68,7 @@ gval = [0.25, 0.35, 0.45]
 gset = [['125', '225', '325', '425', '525'],
         ['135', '235', '335', '435', '535'],
         ['145', '245', '345', '445', '545']]
-reference_setVbias_conf = "setVbias_fulldetector-9-29-2018.conf"
+reference_setVbias_conf = "setVbias_fulldetector-1-22-2019.conf"
 
 # These tables are nested dicts [column][run]
 peakmean = {}
@@ -537,9 +537,11 @@ def fityields(rootfile):
          h1.GetYaxis().SetTitle("mean yield (pC)")
          tre.Draw("gQ>>" + hname, "sqrt(qmean)*(qmean>0)*" +
                   "(row==" + str(row) + "&&" + "col==" + str(col) + ")")
+         errorbar = 1.0
          for b in range(1, h1.GetNbinsX()):
             if h1.GetBinContent(b) > 0:
-               h1.SetBinError(b, 0.3)
+               h1.SetBinError(b, errorbar)
+               errorbar = 0.3
          print "fitting row", row, "column", col
          h1.SetStats(0)
          if h1.Integral(1,33) > 0:
