@@ -7,12 +7,12 @@ EXES = bin/sendpack bin/setVbias bin/resetVbias bin/probeVbias bin/readVbias \
        bin/TAGMremotectrl
 OBJS = TAGMcommunicator.o TAGMcontroller.o sendpack.o setVbias.o resetVbias.o \
        probeVbias.o readVbias.o
-LIBS = -lpcap 
+LIBS = /usr/lib64/libpcap.so.1
 
 CFLAGS = -g -I. -I./include -O0 
 
 # comment out this section if epics is not available on the build host
-#EPICS_CFLAGS = -DUPDATE_STATUS_IN_EPICS=1 \
+EPICS_CFLAGS = -DUPDATE_STATUS_IN_EPICS=1 \
                -I$(EPICS)/include -I$(EPICS)/include/os/Linux \
                -L$(EPICS)/lib/$(BUILD) -lca \
                -Wl,-rpath,$(EPICS)/lib/$(BUILD)

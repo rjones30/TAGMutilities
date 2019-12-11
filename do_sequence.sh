@@ -1,11 +1,18 @@
 #!/bin/bash
 #
 # do_sequence.sh - script to cycle through the the rows in a fiber bundle
-#	              and set the bias voltages on by row or by individual sipm,
-#	              ending with all bias voltages reset to zero.
+#	           and set the bias voltages on by row or by individual sipm,
+#	           ending with all bias voltages reset to zero.
 #
 # author: richard.t.jones at uconn.edu
 # version: november 21, 2015
+#
+# Usage: do ./do_sequence.sh -h
+#
+# Notes: 
+#  1. This script was built to run on the darkbox setup at UConn.
+#     Do NOT ATTEMPT to use it with the full TAGM detector readout
+#     at Jefferson Lab. For that, maybe you are looking for seq.sh?
 
 # Select a sequence by commenting out all but the desired scheme below.
 #scheme=rowbyrow

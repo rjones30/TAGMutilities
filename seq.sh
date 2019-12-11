@@ -1,17 +1,17 @@
 #!/bin/bash
 
-SETVBIAS="bin/setVbias -L -C setVbias_fulldetector-8-22-2018.conf -c 1-102"
+SETVBIAS="bin/setVbias -L -C setVbias_fulldetector-12-2-2019.conf -c 1-102"
 CTRLHOST="gluon28.jlab.org:5692"
 
 function put {
-	echo $SETVBIAS -r 1-5 -g 0 $CTRLHOST
-	$SETVBIAS -r 1-5 -g 0 $CTRLHOST
+	echo $SETVBIAS -r 1-5 -V 50 $CTRLHOST
+	$SETVBIAS -r 1-5 -V 50 $CTRLHOST
 	echo $SETVBIAS -r $1 -g $2 $CTRLHOST
 	$SETVBIAS -r $1 -g $2 $3 $4 $5 $6 $CTRLHOST
 }
 
 function fin {
-	put 1-5 0.38 -l
+	put 1-5 0.45 -l
 	echo "you are back in business again"
 	exit 0
 }
