@@ -126,11 +126,11 @@ def hdiffer(infile):
 def hall_1_2018():
    """
    Read in a set of 15 scans done in January 2018 and put them out
-   into TAGMtree files for input to fityields.
+   into TAGMspectra files for input to fityields.
    """
    for row in [1, 2, 3, 4, 5]:
       for gval in [25, 35, 45]:
-         f = TFile("TAGMtrees_" + str(row) + str(gval) + ".root", "recreate")
+         f = TFile("TAGMspectra_" + str(row) + str(gval) + ".root", "recreate")
          s = hdiffer("scans-1-30-2018/row" + str(row) + "g" + str(gval) + ".log")
          for h in s:
             if h:
@@ -141,11 +141,11 @@ def hall_1_2018():
 def hall_9_2018():
    """
    Read in a set of 15 scans done in September 2018 and put them out
-   into TAGMtree files for input to fityields.
+   into TAGMspectra files for input to fityields.
    """
    for row in [1, 2, 3, 4, 5]:
       for gval in [25, 35, 45]:
-         f = TFile("TAGMtrees_" + str(row) + str(gval) + ".root", "recreate")
+         f = TFile("TAGMspectra_" + str(row) + str(gval) + ".root", "recreate")
          s = hdiffer("scans-9-23-2018/row" + str(row) + "g" + str(gval) + ".log")
          for h in s:
             if h:
@@ -156,11 +156,11 @@ def hall_9_2018():
 def hall_2_2019():
    """
    Read in a set of 15 scans done in February 2019 and put them out
-   into TAGMtree files for input to fityields.
+   into TAGMspectra files for input to fityields.
    """
    for row in [1, 2, 3, 4, 5]:
       for gval in [25, 35, 45]:
-         f = TFile("TAGMtrees_" + str(row) + str(gval) + ".root", "recreate")
+         f = TFile("TAGMspectra_" + str(row) + str(gval) + ".root", "recreate")
          s = hdiffer("scans-2-9-2019/row" + str(row) + "g" + str(gval) + ".log")
          for h in s:
             if h:

@@ -142,7 +142,7 @@ def combine(h2list):
 def hall_1_2018(): 
    """
    Reads in a set of 6 scans done in January 2018 and put them out
-   into a TAGMtree file for input to fityields.
+   into a TAGMspectra file for input to fityields.
    """
    h2 = [hscan("test/scan" + str(i)) for i in range(1,7)]
    global hagg
@@ -150,7 +150,7 @@ def hall_1_2018():
    nbins = hagg.GetNbinsY()
    xbins = [hagg.GetYaxis().GetBinLowEdge(i) for i in range(1, nbins+2)]
    xbins_rescaled = map(lambda t: t * 10 + 1000, xbins)
-   f = TFile("TAGMtrees_1_2018.root", "recreate")
+   f = TFile("TAGMspectra_1_2018.root", "recreate")
    for col in range(1, 129):
       h = hagg.ProjectionY("col" + str(col), col, col)
       for i in range(1, nbins):
@@ -284,18 +284,3 @@ def visualize_thresholds(h2drates, threshold_file):
             pass
       col += 1
    return threshes
-
-for row in range(1,6):
-   h2 = hcollect("discriminator_scan_row{0}.log".format(row))
-   threshes = visualize_thresholds(h2, "fdScalerThresholds.out")
-   fout = open("fdScalerThresholds.out", "w")
-   for slot in ttab_tagm:
-      fout.write("slot " + str(slot) + ":" + "\n")
-      fout.write("DSC2_ALLCH_THR   ")
-      for ichan in range(0, len(ttab_tagm[slot])):
-         col = ttab_tagm[slot][ichan]
-         t = threshes[col]
-         t = t if t > 0 else 999
-         fout.write(" " + str(int(round(t))))
-      fout.write("\n")
-   fout.close()
