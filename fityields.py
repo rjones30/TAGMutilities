@@ -1,7 +1,7 @@
 #!/bin/env python
 #
 # fityields.py - utility functions for reading TAGM pulse height spectra
-#                from root trees created using DANA plugin TAGM_trees and
+#                from root spectra created using DANA plugin TAGM_bias and
 #                fitting them to a parameterized form that extracts the
 #                average yield for each column of the microscope.
 #
@@ -33,6 +33,15 @@ f_rebin = 1;
 # row-by-row data in runs 40635 on December 19, 2017.
 fADC_gain = 0.011 * 18 * 0.235 # pC per adc_pulse_integral
 fADC_pedestal = 900
+
+# If using discriminator rates, set these constants here
+fADC_gain = 1
+fADC_pedestal = 0
+pedestal = 0.
+bg_start = 5.
+bg_end = 250.
+fit_start = bg_start
+fit_end = 750.;
 
 # This is where you need to specify the row-by-row scan runs that are used
 # as a basis for the yields calibration. Together with the list of runs and
@@ -69,6 +78,26 @@ gset = [['125', '225', '325', '425', '525'],
         ['135', '235', '335', '435', '535'],
         ['145', '245', '345', '445', '545']]
 reference_setVbias_conf = "setVbias_fulldetector-1-22-2019.conf"
+
+# Row-by-row scan data taken on 12/7/2019 [rtj]
+gval = [0.25, 0.35, 0.45]
+gset = [['125', '225', '325', '425', '525'],
+        ['135', '235', '335', '435', '535'],
+        ['145', '245', '345', '445', '545']]
+reference_setVbias_conf = "setVbias_fulldetector-12-2-2019.conf"
+
+# ttag_tagm is taken from the ccdb record /Translation/DAQ2detector
+# TAGM section. It is a sequence map ordered by increasing discriminator
+# slot, channel in the roctagm2 crate to fiber column. Individual
+# fiber outputs from columns 7, 27, 81, and 97 show up as 103..122.
+ttab_tagm = {4:[3,2,1,6,5,4,103,104,105,106,107,9,8,7,12,11],
+             5:[10,15,14,13,18,17,16,21,20,19,24,23,22,108,109,110],
+             6:[111,112,27,26,25,30,29,28,33,32,31,36,35,34,39,38],
+             7:[37,42,41,40,45,44,43,48,47,46,51,50,49,54,53,52],
+             8:[57,56,55,60,59,58,63,62,61,66,65,64,69,68,67,72],
+             9:[71,70,75,74,73,78,77,76,113,114,115,116,117,81,80,79],
+             10:[84,83,82,87,86,85,90,89,88,93,92,91,96,95,94,118],
+             11:[119,120,121,122,99,98,97,100,101,102,123,124,125,126,127,128]}
 
 # These tables are nested dicts [column][run]
 peakmean = {}
@@ -125,7 +154,7 @@ def fit(run):
    """
    global bg_start
    global bg_end
-   f = TFile("TAGMtrees_" + str(run) + ".root", "update")
+   f = TFile("TAGMspectra_" + str(run) + ".root", "update")
    fitter = TF1("fitter", fitfunc, fit_start, fit_end, 6)
    fitter0 = TF1("fitter0", fitfunc, fit_start, fit_end, 6)
    fadc = gROOT.FindObject("fadc")
@@ -294,14 +323,14 @@ def fit(run):
       h.Write()
    h.SetDirectory(0)
 
-def fitall():
+def fitall(active=0):
    """
    Make an initial non-interactive pass over all of the scan data runs,
    mainly just to create the histograms and do the initial fit, to make
    things go faster when we come back later for an interactive pass.
    """
    global interact
-   interact = 0
+   interact = active
    for ig in range(0, len(gval)):
       for run in gset[ig]:
          fit(run)
@@ -329,7 +358,7 @@ def countall(cond="qf==0&&pi>1000"):
       for irow in range(0, len(gset[ig])):
          row = irow + 1
          run = gset[ig][irow]
-         f = TFile("TAGMtrees_" + str(run) + ".root")
+         f = TFile("TAGMspectra_" + str(run) + ".root")
          fadc = gROOT.FindObject("fadc")
          h = gROOT.FindObject("hpi")
          if h:
@@ -532,8 +561,8 @@ def fityields(rootfile):
          htitle = "linear fit for row {0} column {1}".format(row, col)
          # The following binning was chosen assuming calibration data
          # were taken at g=0.25, g=0.35, and g=0.45, adjust as needed.
-         h1 = TH1D(hname, htitle, 33, 0.2, 0.5)
-         h1.GetXaxis().SetTitle("g value (pC)")
+         h1 = TH1D(hname, htitle, 21, -0.0125, 0.5125)
+         h1.GetXaxis().SetTitle("g value (pF)")
          h1.GetYaxis().SetTitle("mean yield (pC)")
          tre.Draw("gQ>>" + hname, "sqrt(qmean)*(qmean>0)*" +
                   "(row==" + str(row) + "&&" + "col==" + str(col) + ")")
@@ -542,6 +571,8 @@ def fityields(rootfile):
             if h1.GetBinContent(b) > 0:
                h1.SetBinError(b, errorbar)
                errorbar = 0.3
+         h1.SetBinContent(1,0)
+         h1.SetBinError(1,0.1)
          print "fitting row", row, "column", col
          h1.SetStats(0)
          if h1.Integral(1,33) > 0:
@@ -662,7 +693,7 @@ def visualize_threshold(new_setVbias_conf, threshold=0.33, select_gval=0.45):
             return
          if thisrun != run:
              run = thisrun
-             f = TFile("TAGMtrees_" + str(run) + ".root")
+             f = TFile("TAGMspectra_" + str(run) + ".root")
          h = gROOT.FindObject("col" + str(column))
          if not h:
             print "no histogram found for column", column, " so regenerating..."
@@ -683,14 +714,21 @@ def visualize_threshold(new_setVbias_conf, threshold=0.33, select_gval=0.45):
          h.SetTitle("row " + str(row) + " column " + str(column) +
                     " at g=" + str(gval[ig]))
          c1.SetLogy()
+         nbins = h.GetNbinsX();
+         xbins = [h.GetBinLowEdge(i) for i in range(1, nbins+2)]
+         xbins = numpy.array(xbins, dtype=float)
+         xbins = (xbins - fADC_pedestal) * fADC_gain;
+         h.SetBins(nbins, xbins)
          h.Draw()
          xthresh = numpy.array([xdip, xdip])
+         xthresh = (xthresh - fADC_pedestal) * fADC_gain;
          ythresh = numpy.array([0, h.GetMaximum()])
          gthresh = TGraph(2, xthresh, ythresh)
          gthresh.SetLineColor(kBlue)
          gthresh.SetLineWidth(5)
          gthresh.Draw("same")
          xsumit = numpy.array([xpeak, xpeak])
+         xsumit = (xsumit - fADC_pedestal) * fADC_gain;
          ysumit = numpy.array([0, h.GetMaximum()])
          gsumit = TGraph(2, xsumit, ysumit)
          gsumit.SetLineColor(kYellow)
@@ -815,3 +853,110 @@ def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
          print "unrecognized format in", old_setVbias_conf,
          print " giving up"
          return
+
+def write_thresholds(new_setVbias_conf, old_setVbias_conf, 
+                     outfile, threshold=0.33, select_gval=0.45, minthresh=20):
+   """
+   Write out a new discriminator thresholds file based on the calibration
+   contained in the new_setVbias_conf file based on old_setVbias_conf.
+   """
+   global c1
+   c1 = gROOT.FindObject("c1")
+   if c1:
+      c1.Delete()
+   c1 = TCanvas("c1","c1",0,0,550,500)
+
+   loadVbias(old_setVbias_conf)
+
+   global newconf
+   try:
+      newconf = newconf
+   except:
+      newconf = read_setVbias_conf(new_setVbias_conf)
+   run = 0
+   skip = 0
+   threshes = [999] * 129;
+   for ig in range(0, len(gval)):
+      if gval[ig] != select_gval:
+         continue
+      for ichan in range(0, len(newconf['board'])):
+         row = newconf['row'][ichan]
+         column = newconf['column'][ichan]
+         Vbd = newconf['Vthresh'][ichan]
+         Gain = newconf['Gain'][ichan]
+         Yield = newconf['Yield'][ichan]
+         Vbd0 = setVbias_threshold[row][column]
+         try:
+            thisrun = gset[ig][row - 1]
+         except:
+            print "run lookup error, ig=", ig ,"row=", row
+            return
+         if thisrun != run:
+             run = thisrun
+             f = TFile("TAGMspectra_" + str(run) + ".root")
+         h = gROOT.FindObject("col" + str(column))
+         if not h:
+            print "no histogram found for column", column, " so regenerating..."
+            hpi = TH1D("hpi", "column " + str(column), 480, 0, 8160)
+            fadc.Draw("pi>>hpi", "qf==0&&row==0&&col==" + str(column))
+            try:
+               h = gROOT.FindObject("hpi").Clone("col" + str(column))
+            except:
+               print "unable to generate histogram for column", column,
+               print ", moving on..."
+               continue
+            if not h:
+               break
+         qmean = (Yield / Gain) * (gval[ig] + Gain * (Vbd0 - Vbd))**2
+         xpeak = qmean / fADC_gain + fADC_pedestal
+         xdip = qmean * threshold / fADC_gain + fADC_pedestal
+         h.GetXaxis().SetRangeUser(xdip * 0.5, xdip * 5)
+         h.SetTitle("row " + str(row) + " column " + str(column) +
+                    " at g=" + str(gval[ig]))
+         c1.SetLogy()
+         nbins = h.GetNbinsX();
+         xbins = [h.GetBinLowEdge(i) for i in range(1, nbins+2)]
+         xbins = numpy.array(xbins, dtype=float)
+         xbins = (xbins - fADC_pedestal) * fADC_gain;
+         h.SetBins(nbins, xbins)
+         h.Draw()
+         xthresh = numpy.array([xdip, xdip])
+         xthresh = (xthresh - fADC_pedestal) * fADC_gain;
+         ythresh = numpy.array([0, h.GetMaximum()])
+         gthresh = TGraph(2, xthresh, ythresh)
+         gthresh.SetLineColor(kBlue)
+         gthresh.SetLineWidth(5)
+         gthresh.Draw("same")
+         xsumit = numpy.array([xpeak, xpeak])
+         xsumit = (xsumit - fADC_pedestal) * fADC_gain;
+         ysumit = numpy.array([0, h.GetMaximum()])
+         gsumit = TGraph(2, xsumit, ysumit)
+         gsumit.SetLineColor(kYellow)
+         gsumit.SetLineWidth(5)
+         gsumit.Draw("same")
+         c1.Update()
+         if xsumit[0] < minthresh:
+            print "Warning - column", column, "wanting threshold",\
+                  xsumit[0], "is ignored, min value is", minthresh
+         elif xsumit[0] < threshes[column]:
+            threshes[column] = xsumit[0]
+         if column == 9:
+            threshes[102 + row] = xsumit[0]
+         elif column == 27:
+            threshes[107 + row] = xsumit[0]
+         elif column == 81:
+            threshes[112 + row] = xsumit[0]
+         elif column == 99:
+            threshes[117 + row] = xsumit[0]
+   fout = open(outfile, "w")
+   for slot in ttab_tagm:
+      fout.write("slot " + str(slot) + ":" + "\n")
+      fout.write("DSC2_ALLCH_THR   ")
+      for ichan in range(0, len(ttab_tagm[slot])):
+         col = ttab_tagm[slot][ichan]
+         t = threshes[col]
+         t = t if t > 0 else 999
+         fout.write(" {0:3d}".format(int(round(t))))
+      fout.write("\n")
+   fout.close()
+
