@@ -18,7 +18,6 @@ function fin {
 
 for row in 1 2 3 4 5; do
 	for gval in 25 35 45; do
-		put 1-5 0
 		put $row 0.$gval
 		echo -n "ready for scan row${row}g${gval},"
 		echo -n "press enter when done, q to quit: "

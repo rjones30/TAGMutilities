@@ -85,7 +85,7 @@
 #define DEFAULT_HEALTH_V 13.0
 #define TAGM_PC_PER_ADCPEAK (0.011 * 18)
 #define MAX_VBIAS_OVER_THRESHOLD 2.4
-#define MIN_VBIAS_OVER_THRESHOLD 1.2
+#define MIN_VBIAS_OVER_THRESHOLD 1.0
 
 #include <iostream>
 #include <iomanip>
@@ -714,28 +714,27 @@ void load_from_config()
          if (colselect[col] == 0)
             continue;
          int nrows=0;
-         double qmean_pC=0;
+         double qmin_pC=1.e99;
          for (int row=1; row <= MAX_ROWS; ++row) {
             if (rowselect[row] == 0)
                continue;
             double dV = Vsetpoint[col][row] - finfo[col][row].thresh_V;
             double q_pC = finfo[col][row].meanyield_pix *
                           finfo[col][row].pixelcap_pF * dV * dV;
-            if (q_pC > 0) {
-               qmean_pC += q_pC;
+            if (q_pC > 0 && q_pC < qmin_pC) {
+               qmin_pC = q_pC;
                ++nrows;
             }
          }
          if (nrows == 0)
             continue;
-         qmean_pC /= nrows;
          for (int row=1; row <= MAX_ROWS; ++row) {
             if (rowselect[row] == 0)
                continue;
             double V=0;
             if (finfo[col][row].meanyield_pix > 0)
-               V = sqrt(qmean_pC / (finfo[col][row].pixelcap_pF *
-                                    finfo[col][row].meanyield_pix));
+               V = sqrt(qmin_pC / (finfo[col][row].pixelcap_pF *
+                                   finfo[col][row].meanyield_pix));
             if (V > MAX_VBIAS_OVER_THRESHOLD)
                V = MAX_VBIAS_OVER_THRESHOLD;
             else if (V < MIN_VBIAS_OVER_THRESHOLD)
