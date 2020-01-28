@@ -23,13 +23,13 @@ import numpy
 # slot, channel in the roctagm2 crate to fiber column. Individual
 # fiber outputs from columns 7, 27, 81, and 97 show up as 103..122.
 ttab_tagm = {4:[3,2,1,6,5,4,103,104,105,106,107,9,8,7,12,11],
-             5:[10,15,14,13,18,17,16,21,20,19,24,23,22,108,109,110],
+             5:[10,15,14,13,18,17,16,123,20,19,24,23,22,108,109,110],
              6:[111,112,27,26,25,30,29,28,33,32,31,36,35,34,39,38],
              7:[37,42,41,40,45,44,43,48,47,46,51,50,49,54,53,52],
              8:[57,56,55,60,59,58,63,62,61,66,65,64,69,68,67,72],
              9:[71,70,75,74,73,78,77,76,113,114,115,116,117,81,80,79],
              10:[84,83,82,87,86,85,90,89,88,93,92,91,96,95,94,118],
-             11:[119,120,121,122,99,98,97,100,101,102,123,124,125,126,127,128]}
+             11:[119,120,121,122,99,98,97,100,101,102,21,124,125,126,127,128]}
 
 def hscan(indir):
    """
@@ -213,6 +213,31 @@ def hcollect(colog):
    h2.GetYaxis().SetTitle("threshold (discriminator mV)")
    h2.GetYaxis().SetTitleOffset(1.5)
    return h2
+
+def hall_12_2019(): 
+   """
+   Reads in a set of 3 scans done in December 2019 and put them out
+   into a TAGMspectra file for input to fityields.
+   """
+   for g in (25, 35, 45):
+      for r in (1, 2, 3, 4, 5):
+         hagg = hcollect("threshold_scan_r{0}_g{1}.log".format(r,g))
+         nbins = hagg.GetNbinsY()
+         xbins = [hagg.GetYaxis().GetBinLowEdge(i) for i in range(1, nbins+2)]
+         #xbins_rescaled = map(lambda t: t * 10 + 1000, xbins)
+         f = TFile("TAGMspectra_{0}{1}.root".format(r,g), "recreate")
+         for col in range(1, 129):
+            h = hagg.ProjectionY("col" + str(col), col, col)
+            for i in range(1, nbins):
+               rate = h.GetBinContent(i)
+               rate -= h.GetBinContent(i+1)
+               rate = rate if rate > 0 else 0
+               h.SetBinContent(i, rate)
+            h.SetBinContent(nbins, 0)
+            #h.GetXaxis().Set(nbins, numpy.array(xbins_rescaled, dtype=float))
+            h.SetTitle("column " + str(col))
+            h.Write()
+         f.Close()
 
 def visualize_thresholds(h2drates, threshold_file): 
    """
