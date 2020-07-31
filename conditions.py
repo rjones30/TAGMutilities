@@ -56,12 +56,15 @@ def print_table1():
       print "{0:12s}".format(hex(gid)),
       i = 0
       for head in table_heads:
+        try:
          print "{0:12s}".format(readings[gid][head]),
          if epics:
             evar = "TAGM:cb:{0}:{1}".format(gid - 0x8d, epics_names[i])
             evalue = float(readings[gid][head].split()[0])
             epics.caput(evar, evalue)
             i += 1
+        except:
+         print "{0:12s}".format("0"),
       print
 
 def print_table2():
@@ -84,11 +87,14 @@ def print_table2():
    for gid in range(0x8e, 0x9f):
       print "{0:12s}".format(hex(gid)),
       for head in table_heads:
+        try:
          print "{0:12s}".format(" ".join(readings[gid][table_heads[head]].split()[0:2])),
          if epics:
             evar = "TAGM:cb:{0}:{1}".format(gid - 0x8d, epics_names[head])
             evalue = float(readings[gid][table_heads[head]].split()[0])
             epics.caput(evar, evalue)
+        except:
+         print "{0:12s}".format("0"),
       print
 
 def print_table3():
@@ -111,11 +117,14 @@ def print_table3():
    for gid in range(0x8e, 0x9f):
       print "{0:12s}".format(hex(gid)),
       for head in sorted(table_heads):
+        try:
          print "{0:12s}".format(" ".join(readings[gid][table_heads[head]].split()[0:2])),
          if epics:
             evar = "TAGM:cb:{0}:{1}".format(gid - 0x8d, epics_names[head])
             evalue = float(readings[gid][table_heads[head]].split()[0])
             epics.caput(evar, evalue)
+        except:
+         print "{0:12s}".format("0"),
       print
 
 readings = read_frontend()
