@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
    netdev = 0;
    for (int iarg = 1; iarg < argc; ++iarg) {
       if (strcmp(argv[iarg], "-p") == 0 &&
-          sscanf(argv[++iarg], "%x", &listener_port) == 1)
+          sscanf(argv[++iarg], "%d", &listener_port) == 1)
       {
          ++iarg;
       }
