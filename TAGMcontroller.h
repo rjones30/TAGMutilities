@@ -82,6 +82,8 @@ class TAGMcontroller {
    unsigned char fLastPacket[270];
    std::map<unsigned int, unsigned int> fNextVoltages;
 
+   static std::map<unsigned char, std::string> probe(pcap_t *fp, std::string hostMAC);
+
    int set_voltages(unsigned int mask, unsigned int values[32]);
    int fetch_voltages();
    int fetch_status();
@@ -91,10 +93,9 @@ class TAGMcontroller {
    TAGMcontroller();               // stripped down protected constructor for derived classes
 
  private:
-   bool fInitialized;              // flag set after ethernet link is set up
    pcap_t *fEthernet_fp;           // pointer to ethernet file descriptor
-   char *fEthernet_device;         // name of pcap interface, eg. "eth0"
-   int fEthernet_timeout;          // packet read timeout (ms)
+   std::string fEthernet_device;   // name of pcap interface, eg. "eth0"
+   int fEthernet_timeout;          // network response timeout (ms)
    static double fADC_Vref;        // Vref of ADC on frontend Vbias boards (V)
    static double fDAC_Vref;        // Vref of DAC on frontend Vbias boards (V)
    static double fDACdiode_Vf;     // Vf for DAC diode frontend Vbias boards (V)
@@ -109,8 +110,14 @@ class TAGMcontroller {
                              const struct pcap_pkthdr *h,
                              const u_char *bytes);
 
-   void open_network_device(const char *netdev);
+   void open_network_device(int timeout_ms);
    void configure_network_filters();
+
+   static void log_packet(std::string msg,
+                          const unsigned char *packet=0,
+                          const unsigned char *refpacket=0);
+   static std::ofstream logfile;
+   static long int max_logfile_size;
 };
 
 inline const unsigned char TAGMcontroller::get_Geoaddr() {
