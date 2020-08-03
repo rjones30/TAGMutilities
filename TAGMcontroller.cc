@@ -110,7 +110,7 @@ TAGMcontroller::TAGMcontroller(unsigned char geoaddr, const char *netdev)
       fDestMACaddr[i] = fLastPacket[i+6];
    }
 
-   //configure_network_filters();
+   configure_network_filters();
 }
 
 TAGMcontroller::TAGMcontroller(unsigned char MACaddr[6], const char *netdev)
@@ -155,13 +155,12 @@ TAGMcontroller::TAGMcontroller(unsigned char MACaddr[6], const char *netdev)
    }
    fGeoaddr = fLastPacket[14];
 
-   //configure_network_filters();
+   configure_network_filters();
 }
 
 TAGMcontroller::~TAGMcontroller()
 {
    if (fEthernet_fp)
-std::cerr << "destructor calls pcap_close on " << fEthernet_device << std::endl;
       pcap_close(fEthernet_fp);
 }
 
@@ -173,8 +172,6 @@ void TAGMcontroller::open_network_device(int timeout_ms)
       pcap_close(fEthernet_fp);
    fEthernet_timeout = timeout_ms;
    char errbuf[PCAP_ERRBUF_SIZE];
-std::cerr << "open_network_device calls pcap_open_live on " << fEthernet_device
-          << " with timeout " << fEthernet_timeout << std::endl;
    fEthernet_fp = pcap_open_live(fEthernet_device.c_str(), 100, 1,
                                  fEthernet_timeout, errbuf);
    if (fEthernet_fp == 0) {
@@ -214,8 +211,6 @@ std::map<unsigned char, std::string> TAGMcontroller::probe(const char *netdev)
    if (netdev == 0)
       netdev = defnetdev;
    char errbuf[PCAP_ERRBUF_SIZE];
-std::cerr << "probe calls pcap_open_live on " << netdev
-          << " with timeout " << PROBE_TIMEOUT_MS << std::endl;
    pcap_t *fp = pcap_open_live(netdev, 100, 1, PROBE_TIMEOUT_MS, errbuf);
    if (fp == 0) {
       char errmsg[99];
@@ -228,7 +223,6 @@ std::cerr << "probe calls pcap_open_live on " << netdev
    std::map<unsigned char, std::string> result;
    std::string hostMAC(get_hostMACaddr(netdev));
    result = probe(fp, hostMAC);
-std::cerr << "probe calls pcap_close on " << netdev << std::endl;
    pcap_close(fp);
    return result;
 }
@@ -413,6 +407,8 @@ int TAGMcontroller::set_voltages(unsigned int mask, unsigned int values[32])
 {
    // send a P-packet, receive
 
+   open_network_device(READ_TIMEOUT_MS);
+
    // flush any pending packets from the input buffer
    char errbuf[PCAP_ERRBUF_SIZE];
    pcap_setnonblock(fEthernet_fp, 1, errbuf);
@@ -457,7 +453,6 @@ int TAGMcontroller::set_voltages(unsigned int mask, unsigned int values[32])
       }
  
       // wait for the response D-packet
-      open_network_device(READ_TIMEOUT_MS);
       for (int pcnt=0; pcnt < 999; ++pcnt) {
          pcap_pkthdr *packet_header;
          const unsigned char *packet_data;
@@ -559,6 +554,8 @@ bool TAGMcontroller::reset()
    // send a R-packet, receive an S-packet from board, 
    // send a P-packet with zeros, receive a D-packet from board.
 
+   open_network_device(RESET_TIMEOUT_MS);
+
    // flush any pending packets from the input buffer
    char errbuf[PCAP_ERRBUF_SIZE];
    pcap_setnonblock(fEthernet_fp, 1, errbuf);
@@ -596,7 +593,6 @@ bool TAGMcontroller::reset()
    }
  
    // wait for the response S-packet
-   open_network_device(RESET_TIMEOUT_MS);
    for (int pcnt=0; pcnt < 999; ++pcnt) {
       pcap_pkthdr *packet_header;
       const unsigned char *packet_data;
@@ -688,6 +684,8 @@ int TAGMcontroller::fetch_status()
 {
    // send a Q-packet, receive an S-packet from board
 
+   open_network_device(STATUS_TIMEOUT_MS);
+
    // flush any pending packets from the input buffer
    char errbuf[PCAP_ERRBUF_SIZE];
    pcap_setnonblock(fEthernet_fp, 1, errbuf);
@@ -725,7 +723,6 @@ int TAGMcontroller::fetch_status()
       }
  
       // wait for the response S-packet
-      open_network_device(STATUS_TIMEOUT_MS);
       for (int pcnt=0; pcnt < 999; ++pcnt) {
          pcap_pkthdr *packet_header;
          const unsigned char *packet_data;
