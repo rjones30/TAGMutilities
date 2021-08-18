@@ -57,16 +57,16 @@ tracefile=/tmp/ether_trace.log
 cat /dev/null >$tracefile
 
 cd ~halld/online/TAGMutilities
-bin/setVbias $opts -c 1-6 -r 1-5 -V $V0 $netdev >/dev/null
+$bin/setVbias $opts -c 1-6 -r 1-5 -V $V0 $netdev >/dev/null
 
 if [[ $byrow != "" ]]; then
 	for row in 1 2 3 4 5; do
 		echo "lighting up row $row"
-		bin/setVbias $opts -c 1-6 -r $row -g $gain_pC $netdev >> $tracefile
+		$bin/setVbias $opts -c 1-6 -r $row -g $gain_pC $netdev >> $tracefile
 		ssh halld@halldtrg5 mqwrite /Vbias 0x0$row
 		sleep $delay
 		ssh halld@halldtrg5 mqwrite /Vbias 0xff
-		bin/setVbias $opts -c 1-6 -r 1-5 -V $V0 $netdev >/dev/null
+		$bin/setVbias $opts -c 1-6 -r 1-5 -V $V0 $netdev >/dev/null
 	done
 else
 	for col in 1 2 3; do
@@ -74,11 +74,11 @@ else
 			chan=`echo $row $col | awk '{printf("%2.2x", 1+($1-1)+($2-1)*5)}'`
 			cols=`echo $col | awk '{printf("%d,%d", $1, $1+3)}'`
 			echo "selecting channel $chan"
-			bin/setVbias $opts -c $cols -r $row -g $gain_pC $netdev >>$tracefile
+			$bin/setVbias $opts -c $cols -r $row -g $gain_pC $netdev >>$tracefile
 			ssh halld@halldtrg5 mqwrite /Vbias 0x01$chan
 			sleep $delay
 			ssh halld@halldtrg5 mqwrite /Vbias 0xff 
-			bin/setVbias $opts -c 1-6 -r 1-5 -V $V0 $netdev >/dev/null
+			$bin/setVbias $opts -c 1-6 -r 1-5 -V $V0 $netdev >/dev/null
 		done
 	done
 fi
