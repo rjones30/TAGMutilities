@@ -12,6 +12,7 @@
 *.root
 *.tgz
 *.log
+*.cnf
 /scans-*
 /calib-*
 fitpeaks.txt
