@@ -8,6 +8,7 @@ EXES = bin/sendpack bin/setVbias bin/resetVbias bin/probeVbias bin/readVbias \
 OBJS = TAGMcommunicator.o TAGMcontroller.o sendpack.o setVbias.o resetVbias.o \
        probeVbias.o readVbias.o
 LIBS = /usr/lib64/libpcap.so.1
+#LIBS = /usr/lib/arm-linux-gnueabihf/libpcap.so
 
 CFLAGS = -g -I. -I./include -O0 
 
@@ -68,4 +69,3 @@ clean:
 TAGMcontroller.cc: TAGMcontroller.h
 
 TAGMcommunicator.cc: TAGMcommunicator.h
-
