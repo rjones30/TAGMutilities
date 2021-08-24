@@ -95,7 +95,12 @@ std::string process_request(const char* request)
       if (netdev == 0 || strlen(netdev) == 0)
          netdev = default_netdev;
       std::map<unsigned char, std::string> boardlist;
-      boardlist = TAGMcontroller::probe(netdev);
+      try {
+         boardlist = TAGMcontroller::probe(netdev);
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       std::map<unsigned char, std::string>::iterator iter;
       std::stringstream response;
       for (iter = boardlist.begin(); iter != boardlist.end(); ++iter) {
@@ -129,7 +134,14 @@ std::string process_request(const char* request)
             return std::string(err.what()) + "\n";
          }
       }
-      if (! ctrl->reset()) {
+      int stat;
+      try {
+         stat = ctrl->reset();
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
+      if (! stat) {
          std::stringstream response;
          response << "TAGMremotectrl error - "
                   << "reset() method failed for board at "
@@ -208,87 +220,172 @@ std::string process_request(const char* request)
    }
    else if (strcmp(req, "get_Tchip") == 0) {
       std::stringstream response;
-      response << Vboard->get_Tchip() << std::endl;
+      try {
+         response << Vboard->get_Tchip() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_pos5Vpower") == 0) {
       std::stringstream response;
-      response << Vboard->get_pos5Vpower() << std::endl;
+      try {
+         response << Vboard->get_pos5Vpower() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_neg5Vpower") == 0) {
       std::stringstream response;
-      response << Vboard->get_neg5Vpower() << std::endl;
+      try {
+         response << Vboard->get_neg5Vpower() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_pos3_3Vpower") == 0) {
       std::stringstream response;
-      response << Vboard->get_pos3_3Vpower() << std::endl;
+      try {
+         response << Vboard->get_pos3_3Vpower() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_pos1_2Vpower") == 0) {
       std::stringstream response;
-      response << Vboard->get_pos1_2Vpower() << std::endl;
+      try {
+         response << Vboard->get_pos1_2Vpower() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_Vsumref_1") == 0) {
       std::stringstream response;
-      response << Vboard->get_Vsumref_1() << std::endl;
+      try {
+         response << Vboard->get_Vsumref_1() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_Vsumref_2") == 0) {
       std::stringstream response;
-      response << Vboard->get_Vsumref_2() << std::endl;
+      try {
+         response << Vboard->get_Vsumref_2() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_Vgainmode") == 0) {
       std::stringstream response;
-      response << Vboard->get_Vgainmode() << std::endl;
+      try {
+         response << Vboard->get_Vgainmode() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_gainmode") == 0) {
       std::stringstream response;
-      response << Vboard->get_gainmode() << std::endl;
+      try {
+         response << Vboard->get_gainmode() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_Vtherm_1") == 0) {
       std::stringstream response;
-      response << Vboard->get_Vtherm_1() << std::endl;
+      try {
+         response << Vboard->get_Vtherm_1() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_Vtherm_2") == 0) {
       std::stringstream response;
-      response << Vboard->get_Vtherm_2() << std::endl;
+      try {
+         response << Vboard->get_Vtherm_2() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_Tpreamp_1") == 0) {
       std::stringstream response;
-      response << Vboard->get_Tpreamp_1() << std::endl;
+      try {
+         response << Vboard->get_Tpreamp_1() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_Tpreamp_2") == 0) {
       std::stringstream response;
-      response << Vboard->get_Tpreamp_2() << std::endl;
+      try {
+         response << Vboard->get_Tpreamp_2() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_VDAChealth") == 0) {
       std::stringstream response;
-      response << Vboard->get_VDAChealth() << std::endl;
+      try {
+         response << Vboard->get_VDAChealth() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_VDACdiode") == 0) {
       std::stringstream response;
-      response << Vboard->get_VDACdiode() << std::endl;
+      try {
+         response << Vboard->get_VDACdiode() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "get_TDAC") == 0) {
       std::stringstream response;
-      response << Vboard->get_TDAC() << std::endl;
+      try {
+         response << Vboard->get_TDAC() << std::endl;
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return response.str();
    }
    else if (strcmp(req, "latch_status") == 0) {
       Vboard->passthru_status();
-      Vboard->latch_status();
+      try {
+         Vboard->latch_status();
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return std::string("ok\n");
    }
    else if (strcmp(req, "passthru_status") == 0) {
@@ -297,7 +394,12 @@ std::string process_request(const char* request)
    }
    else if (strcmp(req, "latch_voltages") == 0) {
       Vboard->passthru_voltages();
-      Vboard->latch_voltages();
+      try {
+         Vboard->latch_voltages();
+      }
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
+      }
       return std::string("ok\n");
    }
    else if (strcmp(req, "passthru_voltages") == 0) {
@@ -309,7 +411,12 @@ std::string process_request(const char* request)
       unsigned int chan;
       const char *arg = strtok(0, " ");
       if (arg && sscanf(arg, "%u", &chan) == 1) {
-         response << Vboard->getV(chan) << std::endl;
+         try {
+            response << Vboard->getV(chan) << std::endl;
+         }
+         catch (const std::runtime_error &err) {
+            return std::string(err.what()) + "\n";
+         }
       }
       else {
          response << "TAGMremotectrl error - "
@@ -322,7 +429,12 @@ std::string process_request(const char* request)
       unsigned int chan;
       const char *arg = strtok(0, " ");
       if (arg && sscanf(arg, "%u", &chan) == 1) {
-         response << Vboard->getVnew(chan) << std::endl;
+         try {
+            response << Vboard->getVnew(chan) << std::endl;
+         }
+         catch (const std::runtime_error &err) {
+            return std::string(err.what()) + "\n";
+         }
       }
       else {
          response << "TAGMremotectrl error - "
@@ -345,7 +457,12 @@ std::string process_request(const char* request)
                   << "invalid voltage " << arg2 << std::endl;
       }
       else {
-         Vboard->setV(chan, V);
+         try {
+            Vboard->setV(chan, V);
+         }
+         catch (const std::runtime_error &err) {
+            return std::string(err.what()) + "\n";
+         }
          response << "ok\n";
       }
       return response.str();
@@ -363,16 +480,21 @@ std::string process_request(const char* request)
       return response.str();
    }
    else if (strcmp(req, "ramp") == 0) {
-      if (Vboard->ramp()) {
-         return std::string("ok");
+      try {
+         if (Vboard->ramp()) {
+            return std::string("ok");
+         }
+         else {
+            std::stringstream response;
+            response << "TAGMremotectrl error - "
+                     << "error returned by ramp() method for board at "
+                     << std::hex << (unsigned int)Vboard->get_Geoaddr()
+                     << std::endl;
+            return response.str();
+         }
       }
-      else {
-         std::stringstream response;
-         response << "TAGMremotectrl error - "
-                  << "error returned by ramp() method for board at "
-                  << std::hex << (unsigned int)Vboard->get_Geoaddr()
-                  << std::endl;
-         return response.str();
+      catch (const std::runtime_error &err) {
+         return std::string(err.what()) + "\n";
       }
    }
    return std::string("unbelievable!\n");
