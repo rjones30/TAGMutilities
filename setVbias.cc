@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
    sprintf(base, "../setVbias.conf", argv[0]);
 
    // parse command line arguments
-   char opt;
+   signed char opt;
    int longindex;
    while ((opt = getopt_long(argc, argv, cmdline_opts,
                              cmdline_longopts, &longindex)) > 0)
