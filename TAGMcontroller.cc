@@ -64,7 +64,7 @@ TAGMcontroller::TAGMcontroller(unsigned char geoaddr, const char *netdev)
    fEthernet_timeout(0)
 {
    fEthernet_device = (netdev)? netdev : DEFAULT_NETWORK_DEVICE;
-   open_network_device(PROBE_TIMEOUT_MS);
+   open_network_device(PROBE_TIMEOUT_MS / 100);
 
    for (int i=0; i < 32; ++i) {
       fLastVoltages[i] = 0;
@@ -119,7 +119,7 @@ TAGMcontroller::TAGMcontroller(unsigned char MACaddr[6], const char *netdev)
    fEthernet_timeout(0)
 {
    fEthernet_device = (netdev)? netdev : DEFAULT_NETWORK_DEVICE;
-   open_network_device(PROBE_TIMEOUT_MS);
+   open_network_device(PROBE_TIMEOUT_MS / 100);
 
    for (int i=0; i < 32; ++i) {
       fLastVoltages[i] = 0;
@@ -212,7 +212,7 @@ std::map<unsigned char, std::string> TAGMcontroller::probe(const char *netdev)
    if (netdev == 0)
       netdev = defnetdev;
    char errbuf[PCAP_ERRBUF_SIZE];
-   pcap_t *fp = pcap_open_live(netdev, 100, 1, PROBE_TIMEOUT_MS, errbuf);
+   pcap_t *fp = pcap_open_live(netdev, 100, 1, PROBE_TIMEOUT_MS / 100, errbuf);
    if (fp == 0) {
       char errmsg[99];
       sprintf(errmsg, "TAGMcontroller::probe error: "
@@ -272,13 +272,13 @@ std::map<unsigned char, std::string> TAGMcontroller::probe(pcap_t *fp, std::stri
       const unsigned char *packet_data;
       pcap_setnonblock(fp, 1, errbuf);
       int resp = pcap_next_ex(fp, &packet_header, &packet_data);
-      if (resp == 0) {
+      for (int t_ms=1; resp == 0 && t_ms < PROBE_TIMEOUT_MS; t_ms *= 2) {
          fd_set readfds;
          FD_ZERO(&readfds);
          FD_SET(pcap_get_selectable_fd(fp), &readfds);
          struct timeval timeout;
-         timeout.tv_sec = PROBE_TIMEOUT_MS / 1000;
-         timeout.tv_usec = 1000 * (PROBE_TIMEOUT_MS % 1000);
+         timeout.tv_sec = t_ms / 1000;
+         timeout.tv_usec = 1000 * (t_ms % 1000);
          select(1, &readfds, 0, 0, &timeout);
          resp = pcap_next_ex(fp, &packet_header, &packet_data);
       }
@@ -420,7 +420,7 @@ int TAGMcontroller::set_voltages(unsigned int mask, unsigned int values[32])
 {
    // send a P-packet, receive
 
-   open_network_device(READ_TIMEOUT_MS);
+   open_network_device(READ_TIMEOUT_MS / 100);
 
    // flush any pending packets from the input buffer
    char errbuf[PCAP_ERRBUF_SIZE];
@@ -484,13 +484,13 @@ int TAGMcontroller::set_voltages(unsigned int mask, unsigned int values[32])
          }
          pcap_setnonblock(fEthernet_fp, 1, errbuf);
          int resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
-         if (resp == 0) {
+         for (int t_ms=1; resp == 0 && t_ms < READ_TIMEOUT_MS; t_ms *= 2) {
             fd_set readfds;
             FD_ZERO(&readfds);
             FD_SET(pcap_get_selectable_fd(fEthernet_fp), &readfds);
             struct timeval timeout;
-            timeout.tv_sec = READ_TIMEOUT_MS / 1000;
-            timeout.tv_usec = 1000 * (READ_TIMEOUT_MS % 1000);
+            timeout.tv_sec = t_ms / 1000;
+            timeout.tv_usec = 1000 * (t_ms % 1000);
             select(1, &readfds, 0, 0, &timeout);
             resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
          }
@@ -552,8 +552,15 @@ int TAGMcontroller::set_voltages(unsigned int mask, unsigned int values[32])
                log_packet("TAGMcontroller::set_voltages error:"
                           " mismatch between expected and readback voltages,"
                           "resetting the card, and aborting...");
-               reset();
-               throw std::runtime_error(errmsg);
+               static int bad_readback_recurse=0;
+               if (++bad_readback_recurse < 99) {
+                  std::cout << "recursively calling set_voltages, level=" << bad_readback_recurse << std::endl;
+                  set_voltages(mask, values);
+               }
+               else {
+                  reset();
+                  throw std::runtime_error(errmsg);
+               }
             }
          }
 
@@ -579,7 +586,7 @@ bool TAGMcontroller::reset()
    // send a R-packet, receive an S-packet from board, 
    // send a P-packet with zeros, receive a D-packet from board.
 
-   open_network_device(RESET_TIMEOUT_MS);
+   open_network_device(RESET_TIMEOUT_MS / 100);
 
    // flush any pending packets from the input buffer
    char errbuf[PCAP_ERRBUF_SIZE];
@@ -636,13 +643,13 @@ bool TAGMcontroller::reset()
       }
       pcap_setnonblock(fEthernet_fp, 1, errbuf);
       int resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
-      if (resp == 0) {
+      for (int t_ms=1; resp == 0 && t_ms < RESET_TIMEOUT_MS; t_ms *= 2) {
          fd_set readfds;
          FD_ZERO(&readfds);
          FD_SET(pcap_get_selectable_fd(fEthernet_fp), &readfds);
          struct timeval timeout;
-         timeout.tv_sec = RESET_TIMEOUT_MS / 1000;
-         timeout.tv_usec = 1000 * (RESET_TIMEOUT_MS % 1000);
+         timeout.tv_sec = t_ms / 1000;
+         timeout.tv_usec = 1000 * (t_ms % 1000);
          select(1, &readfds, 0, 0, &timeout);
          resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
       }
@@ -721,7 +728,7 @@ int TAGMcontroller::fetch_status()
 {
    // send a Q-packet, receive an S-packet from board
 
-   open_network_device(STATUS_TIMEOUT_MS);
+   open_network_device(STATUS_TIMEOUT_MS / 100);
 
    // flush any pending packets from the input buffer
    char errbuf[PCAP_ERRBUF_SIZE];
@@ -778,13 +785,13 @@ int TAGMcontroller::fetch_status()
          }
          pcap_setnonblock(fEthernet_fp, 1, errbuf);
          int resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
-         if (resp == 0) {
+         for (int t_ms=1; resp == 0 && t_ms < STATUS_TIMEOUT_MS; t_ms *= 2) {
             fd_set readfds;
             FD_ZERO(&readfds);
             FD_SET(pcap_get_selectable_fd(fEthernet_fp), &readfds);
             struct timeval timeout;
-            timeout.tv_sec = STATUS_TIMEOUT_MS / 1000;
-            timeout.tv_usec = 1000 * (STATUS_TIMEOUT_MS % 1000);
+            timeout.tv_sec = t_ms / 1000;
+            timeout.tv_usec = 1000 * (t_ms % 1000);
             select(1, &readfds, 0, 0, &timeout);
             resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
          }
@@ -921,7 +928,8 @@ void TAGMcontroller::log_packet(std::string msg,
                  << " to card " << destaddr << std::endl;
       }
       else if (type == 'S') {
-         logfile << "  response packet type S (card state)"
+         logfile << timestr << " " << msg << std::endl
+                 << "  response packet type S (card state)"
                  << " from card " << srcaddr << std::endl;
          int tempval = (packet[16] << 8) + packet[17];
          double tempC = tempval * 0.25;
@@ -962,7 +970,8 @@ void TAGMcontroller::log_packet(std::string msg,
          }
       }
       else if (type == 'D') {
-         logfile << "  response packet type D (Vbias readback)"
+         logfile << timestr << " " << msg << std::endl
+                 << "  response packet type D (Vbias readback)"
                  << " from card " << srcaddr;
          long int mask = 0;
          if (refpacket) {
