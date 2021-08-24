@@ -65,18 +65,19 @@ TAGMcommunicator::TAGMcommunicator(unsigned char MACaddr[6], std::string server)
 
 void TAGMcommunicator::open_client_connection(std::string server)
 {
-   std::string shost = server;
-   std::string sport = server;
-   std::size_t delim = shost.find(":");
-   if (delim != shost.npos) {
-      shost = shost.substr(0, delim);
-      sport = server.substr(delim + 1);
+   std::string sport("");
+   std::string shost(server);
+   std::string spost(server);
+   std::size_t delim = server.find(":");
+   if (delim != server.npos) {
+      shost = server.substr(0, delim);
+      spost = server.substr(delim + 1);
    }
-   delim = sport.find(":");
+   delim = spost.find(":");
    if (delim == 0) {
       sport = "";
    }
-   sport = sport.substr(0, delim);
+   sport = spost.substr(0, delim);
 
    unsigned char ipaddr[4];
    unsigned short int ipport;
@@ -94,7 +95,7 @@ void TAGMcommunicator::open_client_connection(std::string server)
          snprintf(errmesg, 999, "Cannot look up host %s", shost.c_str());
          throw std::runtime_error(errmesg);
       }
-      for (int i=0; i<6; ++i)
+      for (int i=0; i<4; ++i)
          ipaddr[i] = hent->h_addr_list[0][i];
    }
    if (sport.size() == 0 || sscanf(sport.c_str(), "%hu", &ipport) != 1)
