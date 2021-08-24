@@ -37,6 +37,7 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <net/if_arp.h>
+#include <sys/select.h>
 
 double TAGMcontroller::fADC_Vref = 2.5;
 double TAGMcontroller::fDAC_Vref = 3.3;
@@ -269,7 +270,19 @@ std::map<unsigned char, std::string> TAGMcontroller::probe(pcap_t *fp, std::stri
    for (int pcnt=0; pcnt < 999; ++pcnt) {
       pcap_pkthdr *packet_header;
       const unsigned char *packet_data;
+      pcap_setnonblock(fp, 1, errbuf);
       int resp = pcap_next_ex(fp, &packet_header, &packet_data);
+      if (resp == 0) {
+         fd_set readfds;
+         FD_ZERO(&readfds);
+         FD_SET(pcap_get_selectable_fd(fp), &readfds);
+         struct timeval timeout;
+         timeout.tv_sec = PROBE_TIMEOUT_MS / 1000;
+         timeout.tv_usec = 1000 * (PROBE_TIMEOUT_MS % 1000);
+         select(1, &readfds, 0, 0, &timeout);
+         resp = pcap_next_ex(fp, &packet_header, &packet_data);
+      }
+      pcap_setnonblock(fp, 0, errbuf);
       if (resp == 0) {
          log_packet("TAGMcontroller:probe exits, timeout reached.",
                     0, packet);
@@ -469,7 +482,19 @@ int TAGMcontroller::set_voltages(unsigned int mask, unsigned int values[32])
             log_packet("TAGMcontroller::set_voltages error:"
                        " saw unexpected response packet:", packet_data, packet);
          }
+         pcap_setnonblock(fEthernet_fp, 1, errbuf);
          int resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
+         if (resp == 0) {
+            fd_set readfds;
+            FD_ZERO(&readfds);
+            FD_SET(pcap_get_selectable_fd(fEthernet_fp), &readfds);
+            struct timeval timeout;
+            timeout.tv_sec = READ_TIMEOUT_MS / 1000;
+            timeout.tv_usec = 1000 * (READ_TIMEOUT_MS % 1000);
+            select(1, &readfds, 0, 0, &timeout);
+            resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
+         }
+         pcap_setnonblock(fEthernet_fp, 0, errbuf);
          if (resp == 0) {
             log_packet("TAGMcontroller::set_voltages response error:"
                        " no packets received within timeout.", 0, packet);
@@ -609,7 +634,19 @@ bool TAGMcontroller::reset()
          log_packet("TAGMcontroller::reset error:"
                     " saw unexpected response packet:", packet_data, packet);
       }
+      pcap_setnonblock(fEthernet_fp, 1, errbuf);
       int resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
+      if (resp == 0) {
+         fd_set readfds;
+         FD_ZERO(&readfds);
+         FD_SET(pcap_get_selectable_fd(fEthernet_fp), &readfds);
+         struct timeval timeout;
+         timeout.tv_sec = RESET_TIMEOUT_MS / 1000;
+         timeout.tv_usec = 1000 * (RESET_TIMEOUT_MS % 1000);
+         select(1, &readfds, 0, 0, &timeout);
+         resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
+      }
+      pcap_setnonblock(fEthernet_fp, 0, errbuf);
       if (resp == 0) {
          log_packet("TAGMcontroller::reset response error:"
                     " no packets received within timeout!", 0, packet);
@@ -739,7 +776,19 @@ int TAGMcontroller::fetch_status()
             log_packet("TAGMcontroller::fetch_status error:"
                        " saw unexpected response packet:", packet_data, packet);
          }
+         pcap_setnonblock(fEthernet_fp, 1, errbuf);
          int resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
+         if (resp == 0) {
+            fd_set readfds;
+            FD_ZERO(&readfds);
+            FD_SET(pcap_get_selectable_fd(fEthernet_fp), &readfds);
+            struct timeval timeout;
+            timeout.tv_sec = STATUS_TIMEOUT_MS / 1000;
+            timeout.tv_usec = 1000 * (STATUS_TIMEOUT_MS % 1000);
+            select(1, &readfds, 0, 0, &timeout);
+            resp = pcap_next_ex(fEthernet_fp, &packet_header, &packet_data);
+         }
+         pcap_setnonblock(fEthernet_fp, 0, errbuf);
          if (resp == 0) {
             log_packet("TAGMcontroller::fetch_status response error:"
                        " no packets received within timeout", 0, packet);
