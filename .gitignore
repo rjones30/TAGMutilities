@@ -1,6 +1,7 @@
 /archive
 /old
 /tmp
+/bin/*
 /bin.*/*
 /test
 /work
