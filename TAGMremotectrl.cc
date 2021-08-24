@@ -81,7 +81,7 @@
 int listener_port = 5692;  // default listener port, you choose!
 int listener_socket;
 int listener_fd;
-char *netdev = 0;
+char *default_netdev = 0;
 TAGMcontroller *Vboard;
 std::map<std::string, TAGMcontroller*> Vboards;
 
@@ -92,8 +92,8 @@ std::string process_request(const char* request)
    char *req = strtok(mesg, " ");
    if (req && strcmp(req, "probe") == 0) {
       const char *netdev = strtok(0, " ");
-      if (netdev && strlen(netdev) == 0)
-         netdev = 0;
+      if (netdev == 0 || strlen(netdev) == 0)
+         netdev = default_netdev;
       std::map<unsigned char, std::string> boardlist;
       boardlist = TAGMcontroller::probe(netdev);
       std::map<unsigned char, std::string>::iterator iter;
@@ -106,8 +106,8 @@ std::string process_request(const char* request)
    }
    else if (strcmp(req, "get_hostMACaddr") == 0) {
       const char *netdev = strtok(0, " ");
-      if (netdev && strlen(netdev) == 0)
-         netdev = 0;
+      if (netdev == 0 || strlen(netdev) == 0)
+         netdev = default_netdev;
       TAGMcontroller *ctrl = Vboard;
       if (ctrl == 0) {
          try {
@@ -145,17 +145,9 @@ std::string process_request(const char* request)
       unsigned char geoaddr;
       unsigned char macaddr[6];
       char *addr = strtok(0, " ");
-      char *dev = strtok(0, " ");
-      if (dev && strlen(dev) > 0) {
-         if (netdev != 0) 
-            free(netdev);
-         netdev = (char*)malloc(strlen(dev));
-         strcpy(netdev, dev);
-      }
-      else if (netdev == 0) {
-         netdev = (char*)malloc(strlen(DEFAULT_NETWORK_DEVICE));
-         strcpy(netdev, DEFAULT_NETWORK_DEVICE);
-      }
+      char *netdev = strtok(0, " ");
+      if (netdev == 0 || strlen(netdev) == 0)
+         netdev = default_netdev;
       std::string boardId(addr);
       if (netdev != 0) {
          boardId += "::";
@@ -388,7 +380,8 @@ std::string process_request(const char* request)
 
 int main(int argc, char *argv[])
 {
-   netdev = 0;
+   default_netdev = (char*)malloc(strlen(DEFAULT_NETWORK_DEVICE));
+   strcpy(default_netdev, DEFAULT_NETWORK_DEVICE);
    for (int iarg = 1; iarg < argc; ++iarg) {
       if (strcmp(argv[iarg], "-p") == 0 &&
           sscanf(argv[++iarg], "%d", &listener_port) == 1)
@@ -411,8 +404,8 @@ int main(int argc, char *argv[])
          exit(1);
       }
       else {
-         netdev = (char *)malloc(strlen(argv[iarg]) + 1);
-         strcpy(netdev, argv[iarg]);
+         default_netdev = (char *)malloc(strlen(argv[iarg]) + 1);
+         strcpy(default_netdev, argv[iarg]);
       }
    }
    Vboard = 0;
