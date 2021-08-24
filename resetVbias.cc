@@ -54,13 +54,13 @@ int main(int argc, char *argv[])
    std::string server;
    const char *netdev = 0;
    if (delim != arg1.npos) {
-      arg1 = arg1.substr(delim + 1);
-      if (arg1.find(":") == server.npos) {
-         if (arg1.size() > 0)
-            netdev = arg1.c_str();
+      std::string arg1dev = arg1.substr(delim + 1);
+      if (arg1dev.find(":") == arg1dev.npos) {
+         if (arg1dev.size() > 0)
+            netdev = arg1dev.c_str();
       }
       else {
-         server = arg1;
+         server = arg1dev;
       }
    }
 
