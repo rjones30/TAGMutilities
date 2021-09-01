@@ -1,0 +1,36 @@
+#
+# Run TAGMremotectrl a system service
+#
+# This can be installed on systems supporting systemd (e.g. RHEL7) as:
+#
+#   /etc/systemd/system/TAGMremotectrl.service
+# 
+#
+# After installing it, the service must be enabled by sudo/root using:
+#
+#  systemctl enable TAGMremotectrl
+#
+#
+#-----------------------------------------------------------------------
+
+# Make this service dependent on the autofs service.
+# This is because the program resides on a network
+# mounted file system.
+#
+[Unit]
+Description=Hall-D TAGM HV control
+Wants=autofs.service
+After=autofs.service
+
+
+[Service]
+# Modify TAGMremotectrl.service.d/environment file to set PATH and LD_LIBRARY_PATH
+ExecStart=/home/hdops/TAGMutilities/bin/TAGMremotectrl em2
+Restart=on-failure
+RestartSec=10s
+StandardOutput=journal
+StandardError=journal
+
+
+[Install]
+WantedBy=multi-user.target

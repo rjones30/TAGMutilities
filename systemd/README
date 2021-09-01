@@ -1,0 +1,27 @@
+
+
+This directory contains files that can be used to run TAGMremotectrl
+as a service on systems supporting systemd (e.g. RHEL7).
+
+This only makes sense to run on gluon28 which has a dedicated ethernet
+NIC for this communication.
+
+To use do the following:
+
+1. Copy TAGMremotectrl.service and TAGMremotectrl.service.d to /etc/systemd/system
+
+
+2. Enable the service by running the following as sudo/root:
+
+      systemctl enable TAGMremotectrl
+
+
+You can then check the status with "systemctl status TAGMremotectrl".
+You can disable the service by running the following as sudo/root:
+
+      systemctl disable TAGMremotectrl
+
+You can also check the log of output with:
+
+  journalctl -u TAGMremotectrl.service
+
