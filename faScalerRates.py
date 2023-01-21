@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # faScalerRates.py - utility for reading the output from a run of
 #                    faPrintScalerRates that runs on the frontend roc
@@ -68,6 +68,7 @@ def hscan(infile):
    rates = {}
    thresh = []
    nthresh = 0
+   itab = 0
    for line in open(infile):
       threshre = re.match(r"threshold set to ([0-9]+)", line)
       if threshre:
@@ -77,15 +78,19 @@ def hscan(infile):
          itab = 0
       vals = line.split()
       for val in vals:
-         if re.match(r"[0-9]+\.[0-9]$", val) and val != "488281.2":
+         if itab > 127:
+            continue
+         if re.match(r"[0-9]+\.[0-9]$", val):
             try:
                col = ttab_tagm[itab]
             except:
-               print "bad ttab_tagm lookup index", itab, "max is", len(ttab_tagm) - 1
+               print("bad ttab_tagm lookup index", itab, "max is", len(ttab_tagm) - 1)
+               print("vals is", vals)
+               sys.exit(1)
             try:
                rates[nthresh][col] = float(val)
             except:
-               print "bad assign at thresh,col=", nthresh, col
+               print("bad assign at thresh,col=", nthresh, col)
             itab += 1
    thresh.append(2 * thresh[nthresh-1] - thresh[nthresh-2])
    xbins = numpy.array(thresh, dtype=float)

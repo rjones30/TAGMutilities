@@ -48,10 +48,10 @@ def hscan(indir):
             chan = int(p.group(2))
             col = ttab_tagm[slot][chan]
          except:
-            print "bad slot, chan, col:", slot, chan, col
+            print("bad slot, chan, col:", slot, chan, col)
             continue
       else:
-         print "bad match:", f
+         print("bad match:", f)
          continue
       for line in open(os.path.join(indir, f)):
          fields = line.split()
@@ -181,14 +181,14 @@ def hcollect(colog):
          try:
             thresh = int(p.group(1))
          except:
-            print "bad", line
+            print("bad", line)
             continue
       p = re.match(r"slot ([0-9]+):", line)
       if p:
          try:
             slot = int(p.group(1))
          except:
-            print "bad", line
+            print("bad", line)
             continue
          fields = line.split()
          for chan in range(0,16):
@@ -252,7 +252,7 @@ def visualize_thresholds(h2drates, threshold_file):
          try:
             slot = int(p.group(1))
          except:
-            print "bad", line
+            print("bad", line)
             continue
       if re.match(r"DSC2_ALLCH_THR ", line):
          fields = line.split()
