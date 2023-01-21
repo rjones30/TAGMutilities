@@ -32,6 +32,7 @@ gset = [['40145', '40146', '40147', '40148', '40149'],
         ['40042', '40043', '40044', '40045', '40046'],
         ['40160', '40161', '40162', '40163', '40164'],
         ['40047', '40048', '40049', '40050', '40051']]
+conffile = 'setVbias_fulldetector-1-11-2018.conf'
 
 # dark rate runs taking on August 19, 2018
 gval = [0.20, 0.25, 0.30, 0.35, 0.40, 0.45]
@@ -41,6 +42,7 @@ gset = [['50195', '50196', '50197', '50198', '50199'],
         ['50185', '50186', '50187', '50188', '50189'],
         ['50205', '50206', '50207', '50208', '50209'],
         ['50190', '50191', '50192', '50193', '50194']]
+conffile = 'setVbias_fulldetector-8-22-2018.conf'
 
 # dark rate runs taking on August 26, 2018
 gval = [0.20, 0.25, 0.30, 0.35, 0.40, 0.45]
@@ -50,6 +52,7 @@ gset = [['00072', '00073', '00074', '00075', '00076'],
         ['00062', '00063', '00064', '00065', '00066'],
         ['00082', '00083', '00084', '00085', '00086'],
         ['00067', '00068', '00069', '00070', '00071']]
+conffile = 'setVbias_fulldetector-8-22-2018.conf'
 
 # dark rate runs taking on August 28, 2018
 gval = [0.20, 0.25, 0.30, 0.35, 0.40, 0.45]
@@ -59,6 +62,7 @@ gset = [['00105', '00106', '00107', '00108', '00109'],
         ['00095', '00096', '00097', '00098', '00099'],
         ['00115', '00116', '00117', '00118', '00119'],
         ['00100', '00101', '00102', '00103', '00104']]
+conffile = 'setVbias_fulldetector-8-22-2018.conf'
 
 # dark rate runs taking on January 21, 2019
 gval = [0.20, 0.25, 0.30, 0.35, 0.40, 0.45]
@@ -68,21 +72,57 @@ gset = [['60158', '60161', '60164', '60167', '60170'],
         ['60143', '60146', '60149', '60153', '60156'],
         ['60160', '60163', '60166', '60169', '60172'],
         ['60144', '60147', '60150', '60154', '60157']]
+conffile = 'setVbias_fulldetector-9-29-2018.conf'
 
 # dark rate runs taken in November, 2019
 gval = [0.45, 0.35, 0.25]
 gset = [['70509', '70510', '70511', '70512', '70513'],
         ['70514', '70515', '70516', '70517', '70518'],
         ['70519', '70521', '70522', '70523', '70524']]
-
 conffile = 'setVbias_fulldetector-2-9-2019.conf'
+
+# dark rate runs taken in June, 2022
+gval = [0.25, 0.35, 0.45]
+gset = [['100293', '100296', '100299', '100302', '100305'],
+        ['100294', '100297', '100300', '100303', '100306'],
+        ['100295', '100298', '100301', '100304', '100307']]
+conffile = 'setVbias_fulldetector-12-9-2019_calib.conf'
+
+# light pulse runs taken in June, 2022
+gval = [0.25, 0.35, 0.45]
+gset = [['100592', '100595', '100598', '100601', '100662'],
+        ['100593', '100596', '100599', '100602', '100663'],
+        ['100594', '100597', '100600', '100603', '100664']]
+conffile = 'setVbias_fulldetector-12-9-2019_calib.conf'
+
+# light pulse runs taken in August, 2022
+gval = [0.25, 0.35, 0.45]
+gset = [['110456', '110460', '110463', '110467', '110470'],
+        ['110458', '110461', '110464', '110468', '110471'],
+        ['110459', '110462', '110465', '110469', '110472']]
+conffile = 'setVbias_fulldetector-8-30-2022_calib.conf'
+
+# dark pulse runs taken in January, 2023
+gval = [0.25, 0.35, 0.45]
+gset = [['120051', '120054', '120057', '120060', '120063'],
+        ['120052', '120055', '120058', '120061', '120064'],
+        ['120053', '120056', '120059', '120062', '120065']]
+conffile = 'setVbias_fulldetector-8-30-2022_calib.conf'
+
+# light pulse runs taken in January, 2023
+gval = [0.25, 0.35, 0.45]
+gset = [['120187', '120190', '120193', '120196', '120199'],
+        ['120188', '120191', '120194', '120197', '120200'],
+        ['120189', '120192', '120195', '120198', '120201']]
+conffile = 'setVbias_fulldetector-1-8-2023.conf'
+
 confref = conffile
 
 peak_fit_query = False
 
 latest_results = {}
 
-def Fit1(row, col):
+def Fit1(row, col, interact=1):
    """
    Fit a the single-pixel dark pulse spectra for a single fiber and
    save a new set of calibration constants in an in-memory array.
@@ -91,9 +131,21 @@ def Fit1(row, col):
    p = [0] * len(gset)
    V = [0] * len(gset)
    for ig in range(len(gset)):
-      fin = TFile("TAGMbias_{0}.root".format(gset[ig][row-1]))
-      hin = fin.Get("h_spectra_" + str(col))
-      print hin
+      fbias = "TAGMbias_{0}.root".format(gset[ig][row-1])
+      if os.path.exists(fbias):
+         fin = TFile(fbias)
+         hin = fin.Get("h_spectra_" + str(col))
+         print(hin)
+      else:
+         ftrees = "TAGMtrees_{0}.root".format(gset[ig][row-1])
+         fin = TFile(ftrees)
+         hin = TH1D("h_spectra_" + str(col), 
+                    "fadc spectrum for column " + str(col),
+                    300, 0, 300)
+         fadc = fin.Get("fadc")
+         fadc.Draw("peak-ped/4>>h_spectra_" + str(col),
+                   "pt>300&&qf==0&&row==0&&col==" + str(col))
+         print(hin)
 
       # Check for bad electronic channels
       # if GetNumberPeaks(h25) < 2: continue
@@ -104,8 +156,8 @@ def Fit1(row, col):
       # Get peaks from each histogram
       p[ig] = GetPeak(hin)
       if p[ig] < 0:
-         print 'Fit failed for row', row, ' col ', col,
-         print 'gain setting', gval[ig], 'entries', hin.GetEntries()
+         print('Fit failed for row', row, ' col ', col, end='')
+         print('gain setting', gval[ig], 'entries', hin.GetEntries())
          p[ig] = 0
 
       # Get voltages
@@ -157,12 +209,12 @@ def Fit1(row, col):
       ylast = y[0]
       graph.GetPoint(ig, x, y)
       ythis = y[0]
-      if ylast < ythis * 0.9:
+      if ylast < ythis:
          break
       for iig in range(0, ig):
          ex = graph.GetErrorX(iig)
          ey = graph.GetErrorY(iig)
-         ey += 0.5
+         ey = 0
          graph.SetPointError(iig, ex, ey)
    
    # Fit TGraph
@@ -187,7 +239,7 @@ def Fit1(row, col):
       Vref = xint + gref / rasymp
    slope = (Vref - xint) * rasymp**2 / gref
    Vbd = Vref - gref / slope
-   print Vbd, slope
+   print(Vbd, slope)
    graph.SetTitle("gain curve for row " + 
                   str(row) + " col " + str(col))
    graph.Draw("A*")
@@ -198,14 +250,17 @@ def Fit1(row, col):
    gasym.SetLineStyle(9)
    gasym.Draw("l")
    gline = Draw_gvsV(row, col, confref)
-   c1.Update()
+   gROOT.FindObject("c1").Update()
 
-   ans = raw_input("r to redo, enter to accept? ")
+   if interact:
+      ans = input("r to redo, enter to accept? ")
+   else:
+      ans = ''
    if len(ans) > 0 and ans[0] == 'r':
       peak_fit_query = 1
       return Fit1(row, col)
    elif len(ans) > 0 and ans[0] == 'p':
-      c1.Print("fitpeaks_{0}_{1}.png".format(row,col))
+      gROOT.FindObject("c1").Print("fitpeaks_{0}_{1}.png".format(row,col))
    else:
       peak_fit_query = 0
 
@@ -241,13 +296,13 @@ def GetPeak(h):
    """
    Find the x value of the maximum of the primary peak in histogram h
    """
-   h.RebinX(4)
+   #h.Rebin(4)
    maximum = h.GetBinCenter( h.GetMaximumBin() )
    if h.GetEntries() < 1:
       return 0
 
    try:
-      ptr = h.Fit("gaus", "sqr", "", maximum - 5, maximum + 5)
+      ptr = h.Fit("gaus", "sqr", "", maximum * 0.7, maximum * 1.3)
       sigma = ptr.Parameters()[0]
       mean = ptr.Parameters()[1]
    except:
@@ -257,8 +312,8 @@ def GetPeak(h):
    #    mean = -1
    if peak_fit_query:
       h.Draw()
-      c1.Update()
-      ans = raw_input("x to reject, enter to accept? ")
+      gROOT.FindObject("c1").Update()
+      ans = input("x to reject, enter to accept? ")
       if len(ans) > 0 and ans[0] == 'x':
          return 0
    return float(mean)
@@ -305,11 +360,12 @@ def GetVoltage(g, row, col, conf=conffile):
    """
    conf_file = open(conf, 'r')
    for line in conf_file:
-      if not line.split()[0][0].isdigit():
+      sline = line.strip().split()
+      if not sline[0][0].isdigit():
          continue
-      if int(line.split()[2]) == col and int(line.split()[3]) == row:
-         thresh = float(line.split()[4])
-         gain = float(line.split()[5])
+      if int(sline[2]) == col and int(sline[3]) == row:
+         thresh = float(sline[4])
+         gain = float(sline[5])
 
    voltage = thresh + (g / gain)
 
@@ -336,7 +392,7 @@ def Draw_gvsV(row, col, conf=0):
    gline.SetLineColor(kBlue)
    gline.SetLineStyle(9)
    gline.Draw("same")
-   c1.Update()
+   gROOT.FindObject("c1").Update()
    return gline
 
 def Write():
@@ -348,10 +404,11 @@ def Write():
    outfile = open('fitpeaks.txt', 'w')
    conf_file = open(conffile, 'r')
    for line in conf_file:
-      if not line.split()[0][0].isdigit():
+      sline = line.strip().split()
+      if not sline[0][0].isdigit():
          outfile.write(line)
          continue
-      (geo, cha, col, row, Vbd, gpF, ypi) = line.split()
+      (geo, cha, col, row, Vbd, gpF, ypi) = sline
       r = int(row)
       c = int(col)
       if (r,c) in latest_results:
@@ -362,3 +419,40 @@ def Write():
          line += "\n"
       outfile.write(line)
    outfile.close()
+
+def trees2spectra(ig=-1, row=-1, nfadcbins=300, maxfadc=300):
+   """
+   Read fadc tree data from a TAGMtrees_<run>.root produced by the
+   TAGM_tree plugin and fill histograms h_spectra_<col> for each sum
+   column, write out the histograms into file TAGMbias_<run>.root as
+   if the TAGM_bias plugin had produced them. If ig=0, run over all
+   gain values for the given rows. If row=0, run over all rows as well.
+   """
+   if ig < 0:
+      igrange = [0,3]
+   else:
+      igrange = [ig, ig+1]
+   if row < 0:
+      rowrange = [1, 6]
+   else:
+      rowrange = [row, row+1]
+   for ig in range(igrange[0], igrange[1]):
+      for row in range(rowrange[0], rowrange[1]):
+         ftrees = "TAGMtrees_{0}.root".format(gset[ig][row-1])
+         fin = TFile(ftrees)
+         fadc = fin.Get("fadc")
+         fbias = "TAGMbias_{0}.root".format(gset[ig][row-1])
+         fout = TFile(fbias, "create")
+         h2d = TH2D("h_spectra", "fadc vs column", nfadcbins, 0, maxfadc,
+                                                   102, 1, 103)
+         fadc.Draw("col:peak-ped/4>>h_spectra", "pt>300&&qf==0&&row==0")
+         for col in range(1,103):
+            hin = h2d.ProjectionX("h_spectra_" + str(col), col, col)
+            hin.SetTitle("row 0 column " + str(col))
+            hin.GetXaxis().SetTitle("fadc peak minus pedestal")
+            hin.GetYaxis().SetTitle("counts")
+            hin.Draw()
+            gROOT.FindObject("c1").SetLogy()
+            gROOT.FindObject("c1").Update()
+            hin.Write()
+            print(hin)
