@@ -19,9 +19,20 @@
 
 opts=-L
 delay=20
-gain_pC=0.45
+gain_pC=0.35
 V0=50
 netdev=gluon2.phys.uconn.edu:
+
+platform=$(uname -m)
+if echo $platform | grep -q x86; then
+    bin=$(echo $0 | sed 's/do_sequence.sh/bin/')
+else
+    bin=$(echo $0 | sed "s/do_sequence.sh/bin.$platform/")
+fi
+if [ -z "$bin" -o ! -d "$bin" ]; then
+    echo "do_sequence.sh error - unknown platform type" $(uname -m)
+    exit 1
+fi
 
 while [[ $# -gt 0 ]]; do
 	if `echo $1 | grep -q -- -d`; then
@@ -63,9 +74,9 @@ if [[ $byrow != "" ]]; then
 	for row in 1 2 3 4 5; do
 		echo "lighting up row $row"
 		$bin/setVbias $opts -c 1-6 -r $row -g $gain_pC $netdev >> $tracefile
-		ssh halld@halldtrg5 mqwrite /Vbias 0x0$row
+		ssh halldtrg5 mqwrite /Vbias 0x0$row
 		sleep $delay
-		ssh halld@halldtrg5 mqwrite /Vbias 0xff
+		ssh halldtrg5 mqwrite /Vbias 0xff
 		$bin/setVbias $opts -c 1-6 -r 1-5 -V $V0 $netdev >/dev/null
 	done
 else
@@ -75,9 +86,9 @@ else
 			cols=`echo $col | awk '{printf("%d,%d", $1, $1+3)}'`
 			echo "selecting channel $chan"
 			$bin/setVbias $opts -c $cols -r $row -g $gain_pC $netdev >>$tracefile
-			ssh halld@halldtrg5 mqwrite /Vbias 0x01$chan
+			ssh halldtrg5 mqwrite /Vbias 0x01$chan
 			sleep $delay
-			ssh halld@halldtrg5 mqwrite /Vbias 0xff 
+			ssh halldtrg5 mqwrite /Vbias 0xff 
 			$bin/setVbias $opts -c 1-6 -r 1-5 -V $V0 $netdev >/dev/null
 		done
 	done
