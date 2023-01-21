@@ -3,6 +3,17 @@
 SETVBIAS="$bin/setVbias -L -C setVbias_fulldetector-12-2-2019.conf -c 1-102"
 CTRLHOST="gluon28.jlab.org:5692"
 
+platform=$(uname -m)
+if echo $patform | grep -q x86; then
+    bin=$(echo $0 | sed -s'/do_sequence.sh/bin/')
+else
+    bin=$(echo $0 | sed -s"/do_sequence.sh/bin.$platform/")
+fi
+if [ ! -d $bin ]; then
+    echo "do_sequence.sh error - unknown platform type" $(uname -m)
+    exit 1
+fi
+
 function put {
 	echo $SETVBIAS -r 1-5 -V 50 $CTRLHOST
 	$SETVBIAS -r 1-5 -V 50 $CTRLHOST
