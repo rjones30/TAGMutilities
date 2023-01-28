@@ -20,14 +20,35 @@ source setup.sh
 echo $LD_LIBRARY_PATH
 ldd `which hd_root`
 
-xrootdpath=root://nod25.phys.uconn.edu/gluex/uconn0
-rawdata=/rawdata/TAGM_calib
-
+xrootdpath="root://nod25.phys.uconn.edu/gluex/uconn0"
 
 
 if [[ $# > 0 ]]; then
     line=`expr $1 + 1`
     run=`head -n $line PStags_runs.list | tail -n 1`
+    if [ $run -lt 20000 ]; then
+        rawdata="/rawdata/spring_2016"
+    elif [ $run -lt 30000 ]; then
+        rawdata="/rawdata/fall_2016"
+    elif [ $run -lt 40000 ]; then
+        rawdata="/rawdata/spring_2017"
+    elif [ $run -lt 50000 ]; then
+        rawdata="/rawdata/spring_2018"
+    elif [ $run -lt 60000 ]; then
+        rawdata="/rawdata/fall_2018"
+    elif [ $run -lt 70000 ]; then
+        rawdata="/rawdata/spring_2019"
+    elif [ $run -lt 80000 ]; then
+        rawdata="/rawdata/spring_2020"
+    elif [ $run -lt 100000 ]; then
+        rawdata="/rawdata/fall_2021"
+    elif [ $run -lt 120000 ]; then
+        rawdata="/rawdata/fall_2022"
+    elif [ $run -lt 130000 ]; then
+        rawdata="/rawdata/winter_2023"
+    else
+        rawdata="unknown"
+    fi
     indir=$(echo $run | awk '{printf("'$xrootdpath$rawdata'/Run%06d", $1)}')
     infiles=""
     for infile in $(ls $indir | grep "\.evio$"); do
