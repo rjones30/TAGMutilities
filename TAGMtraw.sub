@@ -1,0 +1,16 @@
+executable = TAGMtraw.bash
+output = log.d/stdout.$(CLUSTER).$(PROCESS)
+error = log.d/stderr.$(CLUSTER).$(PROCESS)
+log = TAGMtraw.log
+notification = never
+universe = vanilla
+arguments = $(PROCESS)
+should_transfer_files = yes
+x509userproxy=/tmp/x509up_u7896
+transfer_input_files = setup.sh,TAGMtraw_runs.list
+WhenToTransferOutput = ON_EXIT
+on_exit_hold = false
+on_exit_remove = true
+RequestCPUs = 4
++JobType = "Urgent"
+queue 5
