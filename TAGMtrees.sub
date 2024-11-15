@@ -13,7 +13,4 @@ on_exit_hold = false
 on_exit_remove = true
 RequestCPUs = 4
 +JobType = "Urgent"
-#queue 15
-#
-arguments = 15
-queue 1
+queue 15
