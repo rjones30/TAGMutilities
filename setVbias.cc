@@ -84,8 +84,8 @@
 #define DEFAULT_PEAK_PC 0.00
 #define DEFAULT_HEALTH_V 13.0
 #define TAGM_PC_PER_ADCPEAK (0.011 * 18)
-#define MAX_VBIAS_OVER_THRESHOLD 2.4
-#define MIN_VBIAS_OVER_THRESHOLD 1.0
+#define MAX_VBIAS_OVER_THRESHOLD +3.0
+#define MIN_VBIAS_OVER_THRESHOLD -1.0
 
 #include <iostream>
 #include <iomanip>
