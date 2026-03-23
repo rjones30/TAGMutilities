@@ -78,8 +78,8 @@
 //    ... more lines like the above ...
 //    >>>>>>>>> cut here
 
-#define MAX_ROWS 5
-#define MAX_COLUMNS 102
+#define MAX_ROWS 11
+#define MAX_COLUMNS 108
 #define DEFAULT_GAIN_PC 0.50
 #define DEFAULT_PEAK_PC 0.00
 #define DEFAULT_HEALTH_V 13.0
