@@ -563,8 +563,8 @@ int main(int argc, char *argv[])
    
    for (;;) {
       printf("waiting for a client to connect...\n");
-      socklen_t clientaddr_len;
       struct sockaddr_in clientaddr;
+      socklen_t clientaddr_len = sizeof(clientaddr);
       while ((listener_fd = accept(listener_socket, 
                                    (sockaddr*)&clientaddr, 
                                    &clientaddr_len)) < 0)

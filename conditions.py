@@ -17,9 +17,9 @@ frendaddress = "gluon28.jlab.org:5692::"
 readVbias = os.environ["HOME"] + "/online/TAGMutilities/bin/readVbias"
 
 def usage():
-   print "Usage: python conditions.py [options]"
-   print " where options may include the following,"
-   print "  -s : save the readback values to EPICS"
+   print("Usage: python conditions.py [options]")
+   print(" where options may include the following,")
+   print("  -s : save the readback values to EPICS")
    sys.exit(1)
 
 epics = False
@@ -31,10 +31,10 @@ for i in range(1,len(sys.argv)):
 
 def read_frontend():
    readings = {}
-   for gid in range(0x8e, 0x9f):
+   for gid in range(0x8e, 0xa0):
       readings[gid] = {}
       proc = subprocess.Popen([readVbias, hex(gid) + "@" + frendaddress], stdout=subprocess.PIPE)
-      resp = proc.communicate()[0]
+      resp = proc.communicate()[0].decode('utf-8')
       for line in resp.split("\n"):
          m0 = re.match(r"^ *([^ ][^=]*) = (.*)$", line)
          if m0:
@@ -44,28 +44,28 @@ def read_frontend():
 def print_table1():
    table_heads = ["+5V power", "-5V power", "+3.3V power", "+1.2V power"]
    epics_names = ["power:1", "power:2", "power:3", "power:4"]
-   print "{0:12s}".format(" "),
+   print("{0:12s}".format(" "),end='')
    for head in table_heads:
-      print "{0:12s}".format(head),
-   print
-   print "{0:11s}".format(" "),
+      print("{0:12s}".format(head),end='')
+   print()
+   print("{0:11s}".format(" "),end='')
    for head in table_heads:
-      print "{0:12s}".format("------------"),
-   print
-   for gid in range(0x8e, 0x9f):
-      print "{0:12s}".format(hex(gid)),
+      print("{0:12s}".format("------------"),end='')
+   print()
+   for gid in range(0x8e, 0xa0):
+      print("{0:12s}".format(hex(gid)),end='')
       i = 0
       for head in table_heads:
         try:
-         print "{0:12s}".format(readings[gid][head]),
+         print("{0:12s}".format(readings[gid][head]),end='')
          if epics:
             evar = "TAGM:cb:{0}:{1}".format(gid - 0x8d, epics_names[i])
             evalue = float(readings[gid][head].split()[0])
             epics.caput(evar, evalue)
             i += 1
         except:
-         print "{0:12s}".format("0"),
-      print
+         print("{0:12s}".format("0"),end='')
+      print()
 
 def print_table2():
    table_heads = {"gainmode": "gainmode",
@@ -76,26 +76,26 @@ def print_table2():
                   "sumref[1]": "status:2",
                   "sumref[2]": "status:3",
                   "DAC health": "status:4"}
-   print "{0:12s}".format(" "),
+   print("{0:12s}".format(" "),end='')
    for head in table_heads:
-      print "{0:12s}".format(head),
-   print
-   print "{0:11s}".format(" "),
+      print("{0:12s}".format(head),end='')
+   print()
+   print("{0:11s}".format(" "),end='')
    for head in table_heads:
-      print "{0:12s}".format("------------"),
-   print
-   for gid in range(0x8e, 0x9f):
-      print "{0:12s}".format(hex(gid)),
+      print("{0:12s}".format("------------"),end='')
+   print()
+   for gid in range(0x8e, 0xa0):
+      print("{0:12s}".format(hex(gid)),end='')
       for head in table_heads:
         try:
-         print "{0:12s}".format(" ".join(readings[gid][table_heads[head]].split()[0:2])),
+         print("{0:12s}".format(" ".join(readings[gid][table_heads[head]].split()[0:2])),end='')
          if epics:
             evar = "TAGM:cb:{0}:{1}".format(gid - 0x8d, epics_names[head])
             evalue = float(readings[gid][table_heads[head]].split()[0])
             epics.caput(evar, evalue)
         except:
-         print "{0:12s}".format("0"),
-      print
+         print("{0:12s}".format("0"),end='')
+      print()
 
 def print_table3():
    table_heads = {"ADC temp": "chip temperature",
@@ -106,31 +106,31 @@ def print_table3():
                   "DAC temp": "temp:2",
                   "preamp[1]": "temp:3",
                   "preamp[2]": "temp:4"}
-   print "{0:12s}".format(" "),
+   print("{0:12s}".format(" "),end='')
    for head in sorted(table_heads):
-      print "{0:12s}".format(head),
-   print
-   print "{0:11s}".format(" "),
+      print("{0:12s}".format(head),end='')
+   print()
+   print("{0:11s}".format(" "),end='')
    for head in sorted(table_heads):
-      print "{0:12s}".format("------------"),
-   print
-   for gid in range(0x8e, 0x9f):
-      print "{0:12s}".format(hex(gid)),
+      print("{0:12s}".format("------------"),end='')
+   print()
+   for gid in range(0x8e, 0xa0):
+      print("{0:12s}".format(hex(gid)),end='')
       for head in sorted(table_heads):
         try:
-         print "{0:12s}".format(" ".join(readings[gid][table_heads[head]].split()[0:2])),
+         print("{0:12s}".format(" ".join(readings[gid][table_heads[head]].split()[0:2])),end='')
          if epics:
             evar = "TAGM:cb:{0}:{1}".format(gid - 0x8d, epics_names[head])
             evalue = float(readings[gid][table_heads[head]].split()[0])
             epics.caput(evar, evalue)
         except:
-         print "{0:12s}".format("0"),
-      print
+         print("{0:12s}".format("0"),end='')
+      print()
 
 readings = read_frontend()
-print
+print()
 print_table1()
-print
+print()
 print_table2()
-print
+print()
 print_table3()

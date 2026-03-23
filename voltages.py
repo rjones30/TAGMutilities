@@ -16,9 +16,9 @@ frendaddress = "gluon28.jlab.org:5692::"
 readVbias = re.sub(r"voltages.py", r"bin/readVbias", sys.argv[0])
 
 def usage():
-   print "Usage: python voltages.py [options]"
-   print " where options may include the following,"
-   print "  -s : save the readback values to EPICS"
+   print("Usage: python voltages.py [options]")
+   print(" where options may include the following,")
+   print("  -s : save the readback values to EPICS")
    sys.exit(1)
 
 fiber_row = {
@@ -70,10 +70,10 @@ for i in range(1,len(sys.argv)):
 
 def read_frontend():
    Vbias = {}
-   for gid in range(0x8e, 0x9f):
+   for gid in range(0x8e, 0xa0):
       Vbias[gid] = [0 for i in range(0, 30)]
       proc = subprocess.Popen([readVbias, hex(gid) + "@" + frendaddress], stdout=subprocess.PIPE)
-      resp = proc.communicate()[0]
+      resp = proc.communicate()[0].decode('utf-8')
       for line in resp.split("\n"):
          m0 = re.match(r" *([0-9]+): *([0-9.]+)" * 5, line)
          if m0:
@@ -81,25 +81,25 @@ def read_frontend():
               try:
                  Vbias[gid][int(m0.group(i))] = float(m0.group(i+1))
               except:
-                 print "bad index", i, m0.group(i)
+                 print("bad index", i, m0.group(i))
                  sys.exit(1)
    return Vbias
 
 def print_table1():
-   for gid in range(0x8e, 0x9f):
+   for gid in range(0x8e, 0xa0):
       for col in range(0,6):
          if col == 0:
-            print "  {0}  ".format(hex(gid)),
+            print("  {0}  ".format(hex(gid)),end='')
          else:
-            print "        ",
+            print("        ",end='')
          for row in range(0,5):
-            print "  {0:6.3f}".format(Vbias[gid][col * 5 + row]),
+            print("  {0:6.3f}".format(Vbias[gid][col * 5 + row]),end='')
             if epics:
                r = fiber_row[gid][col * 5 + row]
                c = fiber_column[gid][col * 5 + row]
                evar = "TAGM:bias:{0}:{1}:v_set:rb".format(r,c)
                epics.caput(evar, Vbias[gid][col * 5 + row])
-         print
+         print()
 
 Vbias = read_frontend()
 print_table1()
