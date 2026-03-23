@@ -116,6 +116,13 @@ gset = [['120187', '120190', '120193', '120196', '120199'],
         ['120189', '120192', '120195', '120198', '120201']]
 conffile = 'setVbias_fulldetector-1-8-2023.conf'
 
+# Row-by-row scan data taken in March, 2023 [rtj]
+gval = [0.25, 0.35, 0.45]
+gset = [['120895', '120898', '120901', '120904', '120907'],
+        ['120896', '120899', '120902', '120905', '120908'],
+        ['120897', '120900', '120903', '120906', '120909']]
+conffile = 'setVbias_fulldetector-1-16-2023.conf'
+
 confref = conffile
 
 peak_fit_query = False

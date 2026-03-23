@@ -1,18 +1,8 @@
 #!/bin/bash
 
-SETVBIAS="$bin/setVbias -L -C setVbias_fulldetector-12-2-2019.conf -c 1-102"
+bin=bin
+SETVBIAS="$bin/setVbias -H -C setVbias_fulldetector-3-12-2025_calib.conf -c 1-102"
 CTRLHOST="gluon28.jlab.org:5692"
-
-platform=$(uname -m)
-if echo $patform | grep -q x86; then
-    bin=$(echo $0 | sed -s'/do_sequence.sh/bin/')
-else
-    bin=$(echo $0 | sed -s"/do_sequence.sh/bin.$platform/")
-fi
-if [ ! -d $bin ]; then
-    echo "do_sequence.sh error - unknown platform type" $(uname -m)
-    exit 1
-fi
 
 function put {
 	echo $SETVBIAS -r 1-5 -V 50 $CTRLHOST
@@ -28,7 +18,8 @@ function fin {
 }
 
 for row in 1 2 3 4 5; do
-	for gval in 25 35 45; do
+	#for gval in 25 30 35 40 45; do
+	for gval in 0 05 10 15 20; do
 		put $row 0.$gval
 		echo -n "ready for scan row${row}g${gval},"
 		echo -n "press enter when done, q to quit: "

@@ -128,12 +128,19 @@ gset = [['110456', '110460', '110463', '110467', '110470'],
         ['110459', '110462', '110465', '110469', '110472']]
 reference_setVbias_conf = 'setVbias_fulldetector-8-30-2022_calib.conf'
 
-# Row-by-row scan data taken in August, 2022 [rtj]
+# Row-by-row scan data taken in January, 2023 [rtj]
 gval = [0.25, 0.35, 0.45]
 gset = [['120187', '120190', '120193', '120196', '120199'],
         ['120188', '120191', '120194', '120197', '120200'],
         ['120189', '120192', '120195', '120198', '120201']]
 reference_setVbias_conf = 'setVbias_fulldetector-1-8-2023.conf'
+
+# Row-by-row scan data taken in March, 2023 [rtj]
+gval = [0.25, 0.35, 0.45]
+gset = [['120895', '120898', '120901', '120904', '120907'],
+        ['120896', '120899', '120902', '120905', '120908'],
+        ['120897', '120900', '120903', '120906', '120909']]
+reference_setVbias_conf = 'setVbias_fulldetector-1-16-2023.conf'
 
 # ttab_roctagm1 is taken from the ccdb record /Translation/DAQ2detector
 # TAGM section. It is a sequence map ordered by increasing fadc250

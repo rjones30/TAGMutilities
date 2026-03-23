@@ -4,13 +4,15 @@ error = log.d/stderr.$(CLUSTER).$(PROCESS)
 log = PStags.log
 notification = never
 universe = vanilla
-arguments = $(PROCESS)
 should_transfer_files = yes
-x509userproxy=/tmp/x509up_u7896
-transfer_input_files = setup.sh,PStags_runs.list
+#x509userproxy=/tmp/x509up_u7896
+#+SingularityImage = "/cvmfs/singularity.opensciencegrid.org/rjones30/gluextest:latest"
+transfer_input_files = setup.sh,PStags_files.list,/tmp/vt_u7896,/home/jonesrt/.config/htgettoken/credkey-jlab-gluex,epoch_time_limits
 WhenToTransferOutput = ON_EXIT
-on_exit_hold = false
-on_exit_remove = true
+on_exit_hold = (ExitBySignal==False)&&(ExitCode!=0)&&(JobRunCount > 3)
+on_exit_remove = (ExitBySignal==False)&&(ExitCode==0)
+RequestMemory = 3600
 RequestCPUs = 4
 +JobType = "Urgent"
-queue 15
+arguments = $(PROCESS)
+queue 66
