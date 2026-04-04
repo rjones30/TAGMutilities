@@ -6,11 +6,11 @@ notification = never
 universe = vanilla
 arguments = $(PROCESS)
 should_transfer_files = yes
-x509userproxy=/tmp/x509up_u7896
-transfer_input_files = setup.sh,TAGMtrees_runs.list
+#x509userproxy=/tmp/x509up_u7896
+transfer_input_files = setup_centos7.sh,TAGMtrees_runs.list
 WhenToTransferOutput = ON_EXIT
-on_exit_hold = false
-on_exit_remove = true
+on_exit_hold = (ExitBySignal==False)&&(ExitCode!=0)
+on_exit_remove = (ExitBySignal==False)&&(ExitCode==0)
 RequestCPUs = 4
 +JobType = "Urgent"
-queue 15
+queue 40

@@ -14,13 +14,13 @@ batch=0
 
 echo Running on `hostname`
 
-source setup.sh
+source setup_alma9.sh
 export JANA_CALIB_CONTEXT="variation=default"
 echo $LD_LIBRARY_PATH
 ldd `which hd_root`
 
 #inputURL="root://nod25.phys.uconn.edu"
-inputURL="root://cn445.storrs.hpc.uconn.edu"
+inputURL="root://nod65.phys.uconn.edu"
 outputURL="root://stat25.phys.uconn.edu"
 remotepath="/Gluex/beamline/PStags-1-2023"
 
@@ -31,6 +31,7 @@ export XDG_RUNTIME_DIR=$(pwd)
 
 function clean_exit() {
     ls -l 
+    rm -f Auto*
     if [ "$1" = "" -o "$1" = "0" ]; then
         echo "Successful exit from PStags.bash"
         exit 0
@@ -53,8 +54,8 @@ function save_output() {
     while [[ $retry -le $maxretry ]]; do
         echo $htgettoken --credkey=$credkey --vaulttokeninfile=$vtoken -a htvault.jlab.org -i jlab -r gluex || clean_exit $? "error fetching bearer token from htvault.jlab.org"
         $htgettoken --credkey=$credkey --vaulttokeninfile=$vtoken -a htvault.jlab.org -i jlab -r gluex || clean_exit $? "error fetching bearer token from htvault.jlab.org"
-        echo "alma9-container xrdcp -f $1 $outputURL/$remotepath/$2 2>xrdcp.err"
-        alma9-container xrdcp -f $1 $outputURL/$remotepath/$2 2>xrdcp.err
+        echo "xrdcp -f $1 $outputURL/$remotepath/$2 2>xrdcp.err"
+        xrdcp -f $1 $outputURL/$remotepath/$2 2>xrdcp.err
         retcode=$?
         if [[ $retcode != 0 ]]; then
             cat xrdcp.err
@@ -97,9 +98,10 @@ else
     exit 1
 fi
 
-echo run is $runno, sequence number is $seqno, infile is $infile
+echo run is $runno, sequence number is $seqno, infile is $inputURL/$infile
 hd_root \
   -PPRINT_PLUGIN_PATHS=1 \
+  -PPSTAGSTUDY_BEAM_CURRENT_RECORD=HallD_beam_current_record-11-15-2024.root \
   -PJANA:BATCH_MODE=$batch \
   -PPLUGINS=PStagstudy \
   -PTAGMHit:CUT_FACTOR=0 \
@@ -110,7 +112,8 @@ hd_root \
   -PTHREAD_TIMEOUT=300 \
   -PNTHREADS=$nthreads \
   --nthreads=$nthreads \
-  $inputURL/$infile || clean_exit $? "hd_root crashed during data processing"
+  $(basename $inputURL/$infile) || clean_exit $? "hd_root crashed during data processing"
+#gdb hd_root
 
 outfile="PStagstudy2_${runno}_${seqno}.root"
 mv hd_root.root $outfile
