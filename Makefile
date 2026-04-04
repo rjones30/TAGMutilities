@@ -1,5 +1,6 @@
 #EPICS_BASE = /cs/certified/apps/epics/v3.13.10-j1
-EPICS_BASE = /gluex/controls/epics/R3-14-12-3-1/base
+#EPICS_BASE = /gluex/controls/epics/R3-14-12-3-1/base
+EPICS_BASE = /gluex/controls/epics/R7-0-8-RHEL9/base
 #EPICS_BUILD = rhel-6-x86_64
 EPICS_BUILD = linux-x86_64
 BIN = bin
@@ -15,10 +16,11 @@ LIBS = /usr/lib64/libpcap.so.1
 CFLAGS = -g -I. -I./include -O0 
 
 # comment out this section if epics is not available on the build host
-#EPICS_CFLAGS = -DUPDATE_STATUS_IN_EPICS=1 \
-#               -I$(EPICS_BASE)/include -I$(EPICS_BASE)/include/os/Linux \
-#               -L$(EPICS_BASE)/lib/$(EPICS_BUILD) -lca \
-#               -Wl,-rpath,$(EPICS_BASE)/lib/$(EPICS_BUILD)
+#	       -DUPDATE_STATUS_IN_EPICS=1 \
+EPICS_CFLAGS = \
+               -I$(EPICS_BASE)/include -I$(EPICS_BASE)/include/os/Linux -I$(EPICS_BASE)/include/compiler/gcc \
+               -L$(EPICS_BASE)/lib/$(EPICS_BUILD) -lca \
+               -Wl,-rpath,$(EPICS_BASE)/lib/$(EPICS_BUILD)
 
 # replace "ssh" with "true" below if root access is not available on the build host
 SSH := true
