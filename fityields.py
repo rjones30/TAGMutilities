@@ -8,7 +8,7 @@
 # author: richard.t.jones at uconn.edu
 # version: april 1, 2016
 
-from ROOT import *
+import ROOT
 import numpy
 import math
 import array
@@ -142,6 +142,18 @@ gset = [['120895', '120898', '120901', '120904', '120907'],
         ['120897', '120900', '120903', '120906', '120909']]
 reference_setVbias_conf = 'setVbias_fulldetector-1-16-2023.conf'
 
+# Row-by-row scan data taken on April 10, 2025 [rtj]
+gval = [0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80]
+gset = [['130780', '130787', '130792', '130797', '130803'],
+        ['130781', '130788', '130793', '130798', '130804'],
+        ['130784', '130789', '130794', '130799', '130805'],
+        ['130785', '130790', '130795', '130801', '130806'],
+        ['130786', '130791', '130796', '130802', '130808'],
+        ['130809', '130812', '130814', '130816', '130818'],
+        ['130811', '130813', '130815', '130817', '130819'],
+        ['130822', '130823', '130824', '130825', '130826']]
+reference_setVbias_conf = 'setVbias_fulldetector-4-6-2025_calib.conf'
+
 # ttab_roctagm1 is taken from the ccdb record /Translation/DAQ2detector
 # TAGM section. It is a sequence map ordered by increasing fadc250
 # slot, channel in the roctagm1 crate to fiber column. Individual
@@ -226,19 +238,19 @@ def fit(run, nadcbins=300, adcmax=1500):
    global fit_end
    global bg_start
    global bg_end
-   ftree = TFile("TAGMtrees_" + str(run) + ".root")
+   ftree = ROOT.TFile("TAGMtrees_" + str(run) + ".root")
    fadc = ftree.Get("fadc")
-   f = TFile("TAGMspectra_" + str(run) + ".root", "update")
-   fitter = TF1("fitter", fitfunc, fit_start, fit_end, 6)
-   fitter0 = TF1("fitter0", fitfunc, fit_start, fit_end, 6)
+   f = ROOT.TFile("TAGMspectra_" + str(run) + ".root", "update")
+   fitter = ROOT.TF1("fitter", fitfunc, fit_start, fit_end, 6)
+   fitter0 = ROOT.TF1("fitter0", fitfunc, fit_start, fit_end, 6)
    global c1
-   c1 = gROOT.FindObject("c1")
+   c1 = ROOT.gROOT.FindObject("c1")
    if c1:
       c1.Delete()
-   c1 = TCanvas("c1","c1",0,0,800,400)
+   c1 = ROOT.TCanvas("c1","c1",0,0,800,400)
    c1.Divide(2)
    c1.cd(1)
-   c1_1 = gROOT.FindObject("c1_1")
+   c1_1 = ROOT.gROOT.FindObject("c1_1")
    c1_1.SetLogy()
    parfix = None
    colbase = 1
@@ -248,13 +260,13 @@ def fit(run, nadcbins=300, adcmax=1500):
       column = col + colbase
       if column > 102:
          break;
-      h = gROOT.FindObject("col" + str(column))
+      h = ROOT.gROOT.FindObject("col" + str(column))
       if not h:
          print("no histogram found for column", column, " so regenerating...")
-         hpeak = TH1D("hpeak", "column " + str(column), nadcbins, 0, adcmax)
+         hpeak = ROOT.TH1D("hpeak", "column " + str(column), nadcbins, 0, adcmax)
          try:
             fadc.Draw("peak-ped/4>>hpeak", "qf==0&&row==0&&col==" + str(column))
-            h = gROOT.FindObject("hpeak").Clone("col" + str(column))
+            h = ROOT.gROOT.FindObject("hpeak").Clone("col" + str(column))
          except:
             print("unable to generate histogram for column", column,
                   ", moving on...")
@@ -270,7 +282,7 @@ def fit(run, nadcbins=300, adcmax=1500):
       global f_tilt
       print("f_rebin, f_tilt=", f_rebin, f_tilt)
       rebname = h.GetName() + "reb"
-      hreb = gROOT.FindObject(rebname)
+      hreb = ROOT.gROOT.FindObject(rebname)
       if hreb:
          hreb.Delete()
       if f_rebin > 1:
@@ -427,7 +439,7 @@ def fit(run, nadcbins=300, adcmax=1500):
                   colbase -= 1
                else:
                   h.Delete()
-                  h = gROOT.FindObject("col" + str(column))
+                  h = ROOT.gROOT.FindObject("col" + str(column))
                   colbase -= 1
                continue
             elif re.match(r"p", resp):
@@ -465,14 +477,14 @@ def countall(cond="qf==0&&pi>1000"):
    in a color map.
    """
    global c1
-   c1 = gROOT.FindObject("c1")
+   c1 = ROOT.gROOT.FindObject("c1")
    if c1:
       c1.Delete()
-   c1 = TCanvas("c1","c1",0,0,800,400)
+   c1 = ROOT.TCanvas("c1","c1",0,0,800,400)
    global hitmap
    hitmap = [0]*3
    for ig in range(0, len(gval)):
-      hitmap[ig] = TH2D("hitmap" + str(ig),
+      hitmap[ig] = ROOT.TH2D("hitmap" + str(ig),
                         "TAGM count map for row scans with g=" + str(gval[ig]),
                         102, 1, 103, 5, 1, 6)
       hitmap[ig].SetDirectory(0)
@@ -480,12 +492,12 @@ def countall(cond="qf==0&&pi>1000"):
       for irow in range(0, len(gset[ig])):
          row = irow + 1
          run = gset[ig][irow]
-         f = TFile("TAGMspectra_" + str(run) + ".root")
-         fadc = gROOT.FindObject("fadc")
-         h = gROOT.FindObject("hcol")
+         f = ROOT.TFile("TAGMspectra_" + str(run) + ".root")
+         fadc = ROOT.gROOT.FindObject("fadc")
+         h = ROOT.gROOT.FindObject("hcol")
          if h:
              h.Delete()
-         h = TH1D("hcol", "", 102, 1, 103)
+         h = ROOT.TH1D("hcol", "", 102, 1, 103)
          fadc.Draw("col>>hcol", cond)
          for col in range(1, 103):
             hitmap[ig].SetBinContent(col, row, h.GetBinContent(col))
@@ -569,10 +581,10 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
    e_qrms = array.array("d", [0])
    e_run = array.array("i", [0])
 
-   outfile = gROOT.FindObject(rootfile)
+   outfile = ROOT.gROOT.FindObject(rootfile)
    if not outfile:
-      outfile = TFile(rootfile, "update")
-   tre = gROOT.FindObject("yields")
+      outfile = ROOT.TFile(rootfile, "update")
+   tre = ROOT.gROOT.FindObject("yields")
    if tre:
       tre.SetBranchAddress("row", e_row)
       tre.SetBranchAddress("col", e_col)
@@ -587,7 +599,7 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
       tre.SetBranchAddress("qrms", e_qrms)
       tre.SetBranchAddress("run", e_run)
    else:
-      tre = TTree("yields", "fityields output tree")
+      tre = ROOT.TTree("yields", "fityields output tree")
       tre.Branch("row", e_row, "row/I")
       tre.Branch("col", e_col, "col/I")
       tre.Branch("Vbd0", e_Vbd0, "Vbd0/D")
@@ -662,15 +674,15 @@ def maketree(rootfile, setVbias_conf, textfile=0):
             textline[run][col] = line
       for run in textline:
          ig,row = run2igrow(run)
-         name = "row" + str(row) + "g" + str(gval[ig])[2:] + ".out"
+         name = f"row{row}g{int(gval[ig]*100)}.out"
          with open(name, "w") as fout:
             for col in sorted(textline[run]):
                fout.write(textline[run][col])
-   f = TFile(rootfile, "recreate")
+   f = ROOT.TFile(rootfile, "recreate")
    f = 0
    for ig in range(0, len(gval)):
       for row in range(1, 6):
-         name = "row" + str(row) + "g" + str(gval[ig])[2:] + ".out"
+         name = f"row{row}g{int(gval[ig]*100)}.out"
          add2tree(name, row, gval[ig], setVbias_conf, rootfile)
 
 def bias2spectra(runno=0):
@@ -694,8 +706,8 @@ def bias2spectra(runno=0):
          if runno > 0 and int(run) != runno:
             print("skipping", run, runno)
             continue
-         f1 = TFile("TAGMbias_" + str(run) + ".root")
-         f2 = TFile("TAGMspectra_" + str(run) + ".root", "recreate")
+         f1 = ROOT.TFile("TAGMbias_" + str(run) + ".root")
+         f2 = ROOT.TFile("TAGMspectra_" + str(run) + ".root", "recreate")
          for col in range(1, 103):
             h1 = f1.Get("h_spectra_{}".format(col))
             f2.cd()
@@ -725,9 +737,9 @@ def fityields(new_setVbias_conf, rootfile):
    saved in a new tree called "fit".
    """
    loadVbias(new_setVbias_conf)
-   f = gROOT.FindObject(rootfile)
+   f = ROOT.gROOT.FindObject(rootfile)
    if not f:
-      f = TFile(rootfile, "update")
+      f = ROOT.TFile(rootfile, "update")
    tre = f.Get("yields")
    if not tre:
       print("Cannot find yields tree in", rootfile, ", giving up")
@@ -741,7 +753,7 @@ def fityields(new_setVbias_conf, rootfile):
    e_G = array.array("d", [0])
    e_Y0 = array.array("d", [0])
    e_Y = array.array("d", [0])
-   ftre = TTree("fit", "fityields results")
+   ftre = ROOT.TTree("fit", "fityields results")
    ftre.Branch("row", e_row, "row/I")
    ftre.Branch("col", e_col, "col/I")
    ftre.Branch("Vbd0", e_Vbd0, "Vbd0/D")
@@ -751,49 +763,56 @@ def fityields(new_setVbias_conf, rootfile):
    ftre.Branch("Y", e_Y0, "Y0/D")
    ftre.Branch("Y", e_Y, "Y/D")
 
-   f1 = TF1("f1", "[0]*(x-[1])*(x-[1])", 70, 75)
+   f1 = ROOT.TF1("f1", "[0]*(x-[1])+[2]*(x-[1])*(x-[1])", 70, 75)
 
    pause_on_chisqr = 0
    for row in range(1,6):
       for col in range(1,103):
          hname = "fit_{0}_{1}".format(row, col)
          htitle = "quadratic fit for row {0} column {1}".format(row, col)
-         h1 = TH1D(hname, htitle, 100, 70, 75)
+         h1 = ROOT.TH1D(hname, htitle, 100, 70, 75)
          h1.GetXaxis().SetTitle("Vbias (V)")
          h1.GetYaxis().SetTitle("mean yield (pC)")
          tre.Draw("gQ/G+Vbd>>" + hname, "qmean*" +
                   "(row==" + str(row) + "&&" + "col==" + str(col) + ")")
          ymax = h1.GetMaximum()
          errorbar = 10
-         imaxbin = 0
+         imaxbin = []
          for b in range(1, h1.GetNbinsX()):
             if h1.GetBinContent(b) > 0:
                h1.SetBinError(b, errorbar)
                errorbar = 3
-               imaxbin = b
+               imaxbin.append(b)
          ithresh = h1.FindBin(setVbias_threshold[row][col])
-         h1.GetXaxis().SetRange(ithresh - 5, imaxbin + 5)
+         if len(imaxbin) > 3:
+            h1.SetBinError(imaxbin[-1], 30)
+            #h1.SetBinError(imaxbin[-2], 100)
+            #h1.SetBinError(imaxbin[-3], 100)
+            h1.GetXaxis().SetRange(ithresh - 5, imaxbin[-1] + 5)
          h1.SetBinContent(ithresh, 0)
-         h1.SetBinError(ithresh, 0.5)
+         h1.SetBinError(ithresh, 30)
          h1.SetMarkerStyle(20)
          h1.SetMaximum(ymax * 1.2)
          print("fitting row", row, "column", col)
          h1.SetStats(0)
          if h1.Integral() > 0:
             h1.SetStats(0)
-            f1.SetParameter(0, 50)
-            f1.FixParameter(1, setVbias_threshold[row][col])
+            f1.FixParameter(0, 0)
+            f1.SetParameter(1, setVbias_threshold[row][col])
+            f1.SetParameter(2, 10)
             if h1.Fit(f1, "s").Get().IsValid():
                h1.Draw("E1")
-               YG = f1.GetParameter(0)
+               Vbd = f1.GetParameter(1)
+               YG = f1.GetParameter(2)
                chisqr = f1.GetChisquare()
             else:
+               Vbd = setVbias_threshold[row][col]
                YG = 0
                chisqr = 1e99
          else:
             YG = 0
             chisqr = 1e99
-         c1 = gROOT.FindObject("c1")
+         c1 = ROOT.gROOT.FindObject("c1")
          c1.Update()
          if chisqr > pause_on_chisqr:
             print("p to save plot, q to abort, enter to continue: ", end='')
@@ -823,7 +842,7 @@ def fityields(new_setVbias_conf, rootfile):
          e_row[0] = row
          e_col[0] = col
          e_Vbd0[0] = tre.Vbd0
-         e_Vbd[0] = setVbias_threshold[row][col]
+         e_Vbd[0] = Vbd
          e_G0[0] = tre.G
          e_G[0] = setVbias_gain[row][col]
          e_Y0[0] = tre.Y
@@ -851,9 +870,9 @@ def fityields_old_method(rootfile):
    and Vbd, but not for G which must be taken from the setVbias.conf file.
    The new values for Y and G are saved in a new tree called "fit".
    """
-   f = gROOT.FindObject(rootfile)
+   f = ROOT.gROOT.FindObject(rootfile)
    if not f:
-      f = TFile(rootfile, "update")
+      f = ROOT.TFile(rootfile, "update")
    tre = f.Get("yields")
    if not tre:
       print("Cannot find yields tree in", rootfile, ", giving up")
@@ -865,7 +884,7 @@ def fityields_old_method(rootfile):
    e_Vbd = array.array("d", [0])
    e_G = array.array("d", [0])
    e_Y = array.array("d", [0])
-   ftre = TTree("fit", "fityields results")
+   ftre = ROOT.TTree("fit", "fityields results")
    ftre.Branch("row", e_row, "row/I")
    ftre.Branch("col", e_col, "col/I")
    ftre.Branch("Vbd0", e_Vbd0, "Vbd0/D")
@@ -880,7 +899,7 @@ def fityields_old_method(rootfile):
          htitle = "linear fit for row {0} column {1}".format(row, col)
          # The following binning was chosen assuming calibration data
          # were taken at g=0.25, g=0.35, and g=0.45, adjust as needed.
-         h1 = TH1D(hname, htitle, 21, -0.0125, 0.5125)
+         h1 = ROOT.TH1D(hname, htitle, 21, -0.0125, 0.5125)
          h1.GetXaxis().SetTitle("g value (pF)")
          h1.GetYaxis().SetTitle("sqrt(mean yield) (pC^0.5)")
          tre.Draw("gQ>>" + hname, "sqrt(qmean)*(qmean>0)*" +
@@ -909,7 +928,7 @@ def fityields_old_method(rootfile):
             yicept = 0
             slope = 1e-99
             chisqr = 1e99
-         c1 = gROOT.FindObject("c1")
+         c1 = ROOT.gROOT.FindObject("c1")
          c1.Update()
          if chisqr > pause_on_chisqr:
             print("p to save plot, q to abort, enter to continue: ", end='')
@@ -933,7 +952,7 @@ def fityields_old_method(rootfile):
             elif len(ans) > 0 and ans[0] == "s":
                while len(ans) > 0 and ans[0] == "s":
                   slope = float(ans.split()[1])
-                  sfix = TF1("sfix", "[0]+" + str(slope) + "*x", 60, 80)
+                  sfix = ROOT.TF1("sfix", "[0]+" + str(slope) + "*x", 60, 80)
                   sfix.SetParameter(0, 1)
                   if h1.Fit(sfix, "s").Get().IsValid():
                      yicept = sfix.GetParameter(0)
@@ -983,10 +1002,10 @@ def visualize_threshold(new_setVbias_conf, threshold=0.5, select_gval=0.45,
    I wrote a special function just to generate these plots.
    """
    global c1
-   c1 = gROOT.FindObject("c1")
+   c1 = ROOT.gROOT.FindObject("c1")
    if c1:
       c1.Delete()
-   c1 = TCanvas("c1","c1",0,0,550,500)
+   c1 = ROOT.TCanvas("c1","c1",0,0,550,500)
 
    loadVbias(reference_setVbias_conf)
 
@@ -1014,14 +1033,14 @@ def visualize_threshold(new_setVbias_conf, threshold=0.5, select_gval=0.45,
             return
          if thisrun != run:
              run = thisrun
-             f = TFile("TAGMspectra_" + str(run) + ".root")
-         h = gROOT.FindObject("col" + str(column))
+             f = ROOT.TFile("TAGMspectra_" + str(run) + ".root")
+         h = ROOT.gROOT.FindObject("col" + str(column))
          if not h:
             print("no histogram found for column", column, " so regenerating...")
-            hpeak = TH1D("hpeak", "column " + str(column), nadcbins, 0, adcmax)
+            hpeak = ROOT.TH1D("hpeak", "column " + str(column), nadcbins, 0, adcmax)
             fadc.Draw("peak-ped/4>>hpeak", "qf==0&&row==0&&col==" + str(column))
             try:
-               h = gROOT.FindObject("hpeak").Clone("col" + str(column))
+               h = ROOT.gROOT.FindObject("hpeak").Clone("col" + str(column))
             except:
                print("unable to generate histogram for column", column,
                      ", moving on...")
@@ -1044,14 +1063,14 @@ def visualize_threshold(new_setVbias_conf, threshold=0.5, select_gval=0.45,
          xthresh = numpy.array([xdip, xdip])
          #xthresh = (xthresh - fADC_pedestal) * fADC_gain;
          ythresh = numpy.array([0, h.GetMaximum()])
-         gthresh = TGraph(2, xthresh, ythresh)
+         gthresh = ROOT.TGraph(2, xthresh, ythresh)
          gthresh.SetLineColor(kBlue)
          gthresh.SetLineWidth(5)
          gthresh.Draw("same")
          xsumit = numpy.array([xpeak, xpeak])
          #xsumit = (xsumit - fADC_pedestal) * fADC_gain;
          ysumit = numpy.array([0, h.GetMaximum()])
-         gsumit = TGraph(2, xsumit, ysumit)
+         gsumit = ROOT.TGraph(2, xsumit, ysumit)
          gsumit.SetLineColor(kYellow)
          gsumit.SetLineWidth(5)
          gsumit.Draw("same")
@@ -1136,12 +1155,16 @@ def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
    I now retain the Vthresh values from the input file, so that the only
    update to the input file that is performed is to overwrite the last
    column (Yields) with the results from the current light-yield fits.
+   --- change introduced on 4-14-2025, rtj ---
+   I decided to back out the change I made on 10-4-2018 because it gives 
+   significantly worse fits to the light pulse yield curves than if I let
+   the Vbd float in the fit, and overwrite the prior Vbd values.
    """
    confin = open(old_setVbias_conf)
    confout = open(new_setVbias_conf, "w")
    confout.write(confin.readline())
    confout.write(confin.readline())
-   f = TFile(rootfile)
+   f = ROOT.TFile(rootfile)
    ftre = f.Get("fit")
    if not ftre:
       print("Error - cannot find fit tree in", rootfile)
@@ -1176,7 +1199,7 @@ def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
          return
 
 def write_fadc250_thresholds(outfile, new_setVbias_conf,
-                             threshold=0.5, select_gval=0.5, minthresh=120):
+                             threshold=0.5, select_gval=0.5, minthresh=108):
    """
    Write out a new fadc250 readout thresholds file based on the calibration
    contained in the new_setVbias_conf file and fit results in rootfile.
@@ -1210,7 +1233,7 @@ def write_fadc250_thresholds(outfile, new_setVbias_conf,
    fout.close()
 
 def write_discrim_thresholds(outfile, new_setVbias_conf,
-                             threshold=0.25, select_gval=0.5, minthresh=10):
+                             threshold=0.25, select_gval=0.5, minthresh=6):
    """
    Write out a new discriminator thresholds file based on the calibration
    contained in the new_setVbias_conf file and fit results in rootfile.
@@ -1250,10 +1273,10 @@ def write_thresholds_old_method(new_setVbias_conf, old_setVbias_conf, outfile,
    contained in the new_setVbias_conf file based on old_setVbias_conf.
    """
    global c1
-   c1 = gROOT.FindObject("c1")
+   c1 = ROOT.gROOT.FindObject("c1")
    if c1:
       c1.Delete()
-   c1 = TCanvas("c1","c1",0,0,550,500)
+   c1 = ROOT.TCanvas("c1","c1",0,0,550,500)
 
    loadVbias(old_setVbias_conf)
 
@@ -1282,14 +1305,14 @@ def write_thresholds_old_method(new_setVbias_conf, old_setVbias_conf, outfile,
             return
          if thisrun != run:
              run = thisrun
-             f = TFile("TAGMspectra_" + str(run) + ".root")
-         h = gROOT.FindObject("col" + str(column))
+             f = ROOT.TFile("TAGMspectra_" + str(run) + ".root")
+         h = ROOT.gROOT.FindObject("col" + str(column))
          if not h:
             print("no histogram found for column", column, " so regenerating...")
-            hpeak = TH1D("hpeak", "column " + str(column), 300, 0, 1500)
+            hpeak = ROOT.TH1D("hpeak", "column " + str(column), 300, 0, 1500)
             fadc.Draw("peak-ped/4>>hpeak", "qf==0&&row==0&&col==" + str(column))
             try:
-               h = gROOT.FindObject("hpeak").Clone("col" + str(column))
+               h = ROOT.gROOT.FindObject("hpeak").Clone("col" + str(column))
             except:
                print("unable to generate histogram for column", column,
                      ", moving on...")
@@ -1312,14 +1335,14 @@ def write_thresholds_old_method(new_setVbias_conf, old_setVbias_conf, outfile,
          xthresh = numpy.array([xdip, xdip])
          xthresh = (xthresh - fADC_pedestal) * fADC_gain;
          ythresh = numpy.array([0, h.GetMaximum()])
-         gthresh = TGraph(2, xthresh, ythresh)
+         gthresh = ROOT.TGraph(2, xthresh, ythresh)
          gthresh.SetLineColor(kBlue)
          gthresh.SetLineWidth(5)
          gthresh.Draw("same")
          xsumit = numpy.array([xpeak, xpeak])
          xsumit = (xsumit - fADC_pedestal) * fADC_gain;
          ysumit = numpy.array([0, h.GetMaximum()])
-         gsumit = TGraph(2, xsumit, ysumit)
+         gsumit = ROOT.TGraph(2, xsumit, ysumit)
          gsumit.SetLineColor(kYellow)
          gsumit.SetLineWidth(5)
          gsumit.Draw("same")
