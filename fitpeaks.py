@@ -11,7 +11,11 @@
 
 import os
 import re
-from ROOT import *
+import ROOT
+
+# Enforce serial operation of the fit engine, avoids segfaults!!
+ROOT.EnableImplicitMT(1)
+
 from array import array
 import numpy
 import time
@@ -161,37 +165,73 @@ gset = [['130780', '130787', '130792', '130797', '130803'],
         ['130822', '130823', '130824', '130825', '130826']]
 conffile = 'setVbias_fulldetector-4-6-2025_calib.conf'
 
+# dark pulse runs taken on April 16, 2026 [ma,rtj]
+gval = [0.30, 0.40, 0.50, 0.60, 0.70]
+gset = [['000328', '000332', '000336', '000340', '000344'],
+        ['000356', '000358', '000360', '000363', '000365'],
+        ['000329', '000333', '000337', '000341', '000345'],
+        ['000357', '000359', '000361', '000364', '000366'],
+        ['000330', '000334', '000338', '000342', '000346']]
+gset_proto = {106: ['130372', '130373', '130374', '130375', '130376'],
+              107: ['130377', '130378', '130379', '130380', '130381'],
+              108: ['130382', '130383', '130384', '130385', '130386'],
+             }
+proto_to_rowcol = {(103,1):(99,1), (103,2):(99,1), (103,3):(99,1), (103,4):(99,1), (103,5):(99,1), 
+                   (104,1):(99,2), (104,2):(99,2), (104,3):(99,2), (104,4):(99,2), (104,5):(99,2),
+                   (105,1):(99,3), (105,2):(99,3), (105,3):(99,3), (105,4):(99,3), (105,5):(99,3),
+                   (106,11):(99,4), (107,11):(99,4), (108,11):(99,4), (109,11):(99,4), (110,11):(99,4),
+                   (106,10):(99,5), (107,10):(99,5), (108,10):(99,5), (109,10):(99,5), (110,10):(99,5),
+                   (108,1):(81,1), (108,2):(81,1), (108,3):(81,1), (108,4):(81,1), (108,5):(81,1),
+                  }
+conffile = 'setVbias_fulldetector-3-20-2026_calib.conf'
+
 confref = conffile
 
-peak_fit_query = True
+peak_fit_query = False
 
 latest_results = {}
+
 
 def Fit1(row, col, interact=1):
    """
    Fit a the single-pixel dark pulse spectra for a single fiber and
    save a new set of calibration constants in an in-memory array.
    """
-   graph = TGraphErrors(len(gset))
+   graph = ROOT.TGraphErrors(len(gset))
    p = [0] * len(gset)
    V = [0] * len(gset)
    for ig in range(len(gset)):
-      fbias = "TAGMbias_{0}.root".format(gset[ig][row-1])
-      if os.path.exists(fbias):
-         fin = TFile(fbias)
-         hin = fin.Get("h_spectra_" + str(col))
+      if col < 103:
+         rowno = 0
+         colno = col
+         runno = gset[ig][row-1]
+      elif col in gset_proto and row > 5:
+         rowno = proto_to_rowcol[(col,row)][1]
+         colno = proto_to_rowcol[(col,row)][0]
+         runno = gset_proto[col][ig]
       else:
-         ftrees = "TAGMtrees_{0}.root".format(gset[ig][row-1])
-         fin = TFile(ftrees)
-         hin = TH1D(f"h_spectra_{col}", 
+         rowno = proto_to_rowcol[(col,row)][1]
+         colno = proto_to_rowcol[(col,row)][0]
+         runno = gset[ig][row-1]
+      fbias = f"TAGMbias_{runno}.root"
+      if os.path.exists(fbias):
+         fin = ROOT.TFile(fbias)
+         hin = fin.Get(f"h_spectra_{col}")
+      else:
+         ftrees = f"TAGMtrees_{runno}.root"
+         fin = ROOT.TFile(ftrees)
+         hin = ROOT.TH1D(f"h_spectra_{col}", 
                     f"fadc spectrum for column {col}, row {row}, g={gval[ig]}",
                     300, 0, 300)
          fadc = fin.Get("fadc")
+         pedestal = 100.0
          #fadc.Draw("peak-ped/4>>h_spectra_" + str(col),
-         pedestal = 102.5
          fadc.Draw(f"peak-{pedestal}>>h_spectra_" + str(col),
-                   "pt>300&&qf==0&&row==0&&col==" + str(col))
-         print(hin)
+                   f"pt>300&&qf==0&&row=={rowno}&&col=={colno}")
+      if hin.GetEntries() < 100:
+         print("no entries")
+         return None
+      print(hin)
 
       # Check for bad electronic channels
       # if GetNumberPeaks(h25) < 2: continue
@@ -200,12 +240,12 @@ def Fit1(row, col, interact=1):
       # Add some kind of error recording
 
       # Get peaks from each histogram
-      #p[ig] = GetPeak_multiple(hin)
-      gROOT.FindObject("c1").Update()
-      p[ig] = hin.GetMean()
+      p[ig] = GetPeak2(hin)
+      ROOT.gROOT.FindObject("c1").Update()
+      #p[ig] = hin.GetMean()
       if p[ig] < 0:
          print('Fit failed for row', row, ' col ', col, end='')
-         print('gain setting', gval[ig], 'entries', hin.GetEntries())
+         print(', gain setting', gval[ig], 'entries', hin.GetEntries())
          p[ig] = 0
 
       # Get voltages
@@ -272,7 +312,7 @@ def Fit1(row, col, interact=1):
    fit_to_thesin = False
    fit_to_theexp = True
    if fit_to_hyperbola:
-      fun1 = TF1("fun1", Hyperfit, 50, 100, 3)
+      fun1 = ROOT.TF1("fun1", Hyperfit, 50, 100, 3)
       global peak_fit_query
       fun1.SetParameter(0, 71.0)
       fun1.SetParameter(1, 15)
@@ -304,16 +344,16 @@ def Fit1(row, col, interact=1):
       graph.Draw("A*")
       xasym = numpy.array([Vref - 2, Vref + 2], dtype=float)
       yasym = numpy.array([gref - 2*slope, gref + 2*slope], dtype=float)
-      gasym = TGraph(2, xasym, yasym)
-      gasym.SetLineColor(kRed)
+      gasym = ROOT.TGraph(2, xasym, yasym)
+      gasym.SetLineColor(ROOT.kRed)
       gasym.SetLineStyle(9)
       gasym.Draw("l")
       gasym.GetYaxis().SetRangeUser(10,40)
       gline = Draw_gvsV(row, col, confref)
-      gROOT.FindObject("c1").Update()
+      ROOT.gROOT.FindObject("c1").Update()
 
    elif fit_to_thesin:
-      fun1 = TF1("fun1", Thesinfit, 50, 100, 4)
+      fun1 = ROOT.TF1("fun1", Thesinfit, 50, 100, 4)
       fun1.SetParameter(0, 71.0)
       fun1.SetParameter(1, 15)
       fun1.SetParameter(2, 16)
@@ -343,26 +383,40 @@ def Fit1(row, col, interact=1):
       graph.Draw("A*")
       xfit = numpy.array([Vbd, Vbd + 3], dtype=float)
       yfit = numpy.array([0, slope * 3], dtype=float)
-      gasym = TGraph(2, xfit, yfit)
-      gasym.SetLineColor(kRed)
+      gasym = ROOT.TGraph(2, xfit, yfit)
+      gasym.SetLineColor(ROOT.kRed)
       gasym.SetLineStyle(9)
       gasym.Draw("l")
       gasym.GetYaxis().SetRangeUser(10,40)
       gline = Draw_gvsV(row, col, confref)
-      gROOT.FindObject("c1").Update()
+      ROOT.gROOT.FindObject("c1").Update()
 
    elif fit_to_theexp:
-      fun1 = TF1("fun1", Theexp, 50, 100, 4)
+      fun1 = ROOT.TF1("fun1", Theexp, 50, 100, 4)
       fun1.SetParameter(0, 71.0)
       fun1.SetParameter(1, 15)
       fun1.SetParameter(2, 8)
       fun1.SetParameter(3, 1)
 
       # sculpt the errors to make the fit behave
-      yerrs = [5, 4, 3, 2, 1, 1, 2, 3, 4, 5]
+      #yerrs = [5, 4, 3, 2, 1, 1, 2, 3, 4, 5]
+      yerrs = [1, 1, 1, 1, 1, 2, 2, 3, 4, 5]
       for i in range(len(gval)):
          ex = graph.GetErrorX(0)
          ey = yerrs[i]
+         graph.GetPoint(i, x, y)
+         if i < 3 and y / gval[i] < 30:
+            print(gval[i], y / gval[i])
+            ey = 5
+         elif i < 3 and y / gval[i] > 70:
+            print(gval[i], y / gval[i])
+            ey = 3
+         elif i < 3:
+            xnext = numpy.array([0], dtype=float)
+            ynext = numpy.array([0], dtype=float)
+            graph.GetPoint(i+1, xnext, ynext)
+            if y > ynext:
+               ey = 5
          graph.SetPointError(i, ex, ey)
       while True:
          ptr = graph.Fit(fun1, "s")
@@ -393,13 +447,13 @@ def Fit1(row, col, interact=1):
       graph.Draw("A*")
       xfit = numpy.array([Vbd, Vbd + 3], dtype=float)
       yfit = numpy.array([0, slope * 3], dtype=float)
-      gasym = TGraph(2, xfit, yfit)
-      gasym.SetLineColor(kRed)
+      gasym = ROOT.TGraph(2, xfit, yfit)
+      gasym.SetLineColor(ROOT.kRed)
       gasym.SetLineStyle(9)
       gasym.Draw("l")
       gasym.GetYaxis().SetRangeUser(10,40)
       gline = Draw_gvsV(row, col, confref)
-      gROOT.FindObject("c1").Update()
+      ROOT.gROOT.FindObject("c1").Update()
 
    else:
       print("no gain curve model is active, cannot continue")
@@ -408,13 +462,13 @@ def Fit1(row, col, interact=1):
    if interact:
       ans = input("r to redo, enter to accept? ")
    else:
-      sleep(2)
+      time.sleep(2)
       ans = ''
    if len(ans) > 0 and ans[0] == 'r':
       peak_fit_query = 1
       return Fit1(row, col)
    elif len(ans) > 0 and ans[0] == 'p':
-      gROOT.FindObject("c1").Print("fitpeaks_{0}_{1}.png".format(row,col))
+      ROOT.gROOT.FindObject("c1").Print("fitpeaks_{0}_{1}.png".format(row,col))
    #else:
    #   peak_fit_query = 0
 
@@ -498,7 +552,7 @@ def GetPeak_simple(h):
    #    mean = -1
    if peak_fit_query:
       h.Draw()
-      gROOT.FindObject("c1").Update()
+      ROOT.gROOT.FindObject("c1").Update()
       ans = input("x to reject, enter to accept? ")
       if len(ans) > 0 and ans[0] == 'x':
          return 0
@@ -553,28 +607,28 @@ def GetPeak_multiple(h):
       return f
 
    xfirst = h.GetBinLowEdge(imin1)
-   fmp = TF1("tf1_multipeak", tf1_multipeak, xfirst, 300, 7)
+   fmp = ROOT.TF1("tf1_multipeak", tf1_multipeak, xfirst, 300, 7)
    fmp.SetParameters(imax1, 4,
-                     h.GetBinContent(imax1)**0.5,
-                     h.GetBinContent(2 * imax1)**0.5,
-                     h.GetBinContent(3 * imax1)**0.5,
-                     h.GetBinContent(4 * imax1)**0.5,
-                     h.GetBinContent(5 * imax1)**0.5)
-   if True: #try:
+                     (h.GetBinContent(imax1) + 1)**0.5,
+                     (h.GetBinContent(2 * imax1) + 1)**0.5,
+                     (h.GetBinContent(3 * imax1) + 1)**0.5,
+                     (h.GetBinContent(4 * imax1) + 1)**0.5,
+                     (h.GetBinContent(5 * imax1) + 1)**0.5)
+   try:
       ptr = h.Fit(fmp, "R")
       mean = fmp.GetParameter(0)
       sigma = fmp.GetParameter(1)
-   else: #except:
+   except:
       mean = -1
       sigma = -1
    print("starting mean was", imax1)
    print("final value of mean is", mean)
-   #if (sigma > 6):
-   #    mean = -1
+   if (sigma > 6):
+       mean = -1
    h.GetXaxis().SetTitle("fadc channels")
    h.GetYaxis().SetTitle("counts")
    h.Draw()
-   gROOT.FindObject("c1").Update()
+   ROOT.gROOT.FindObject("c1").Update()
    if peak_fit_query:
       ans = input("x to reject, enter to accept? ")
       if len(ans) > 0 and ans[0] == 'x':
@@ -600,6 +654,8 @@ def GetPeak2(h):
    # the maximum is not the first non-zero bin in the spectrum,
    # otherwise find the second maximum and divide by two.
    imax1 = h.GetMaximumBin()
+   if imax1 > 50:
+      imax1 = imax1 // 2
    for i in range(1, h.GetNbinsX()):
       if h.GetBinContent(i) > 0:
          ifirst = i
@@ -614,7 +670,6 @@ def GetPeak2(h):
             h.GetBinContent(i) <= h.GetBinContent(i+4) and \
             h.GetBinContent(i) <= h.GetBinContent(i+5):
             break
-   print("imin1 starts off", imin1)
    imax2 = imin1
    for i in range(imin1 + 1, h.GetNbinsX()):
       if h.GetBinContent(i) > h.GetBinContent(imax2):
@@ -622,6 +677,8 @@ def GetPeak2(h):
    for i in range(imax1, imax2):
       if h.GetBinContent(i) < h.GetBinContent(imin1):
          imin1 = i
+   imin1 = min(imin1, (imax1 + imax2) // 2)
+
    print("found ifirst,imax1,imin1,imax2=",ifirst,imax1,imin1,imax2)
 
    def tf1_multipeak(var, par):
@@ -636,19 +693,21 @@ def GetPeak2(h):
             f += par[ipeak+2]**2 * numpy.exp(-0.5 * x**2)
       return f
 
-   xfirst = h.GetBinLowEdge(imin1)
-   fmp = TF1("tf1_multipeak", tf1_multipeak, xfirst, 300, 7)
-   fmp.SetParameters(imax2 / 2, 4,
-                     h.GetBinContent(imax1)**0.5,
-                     h.GetBinContent(imax2)**0.5,
-                     h.GetBinContent(3 * imax1)**0.5,
-                     h.GetBinContent(4 * imax1)**0.5,
-                     h.GetBinContent(5 * imax1)**0.5)
-   if True: #try:
+   i1 = imax1 + 4
+   xfirst = h.GetBinLowEdge(i1)
+   fmp = ROOT.TF1("tf1_multipeak", tf1_multipeak, xfirst, 300, 7)
+   fmp.SetParameters(imax1, 4,
+                     (h.GetBinContent(imax1) + 1)**0.5,
+                     (h.GetBinContent(imax2) + 1)**0.5,
+                     (h.GetBinContent(3 * imax1) + 1)**0.5,
+                     (h.GetBinContent(4 * imax1) + 1)**0.5,
+                     (h.GetBinContent(5 * imax1) + 1)**0.5)
+
+   try:
       ptr = h.Fit(fmp, "R")
       mean = fmp.GetParameter(0)
       sigma = fmp.GetParameter(1)
-   else: #except:
+   except:
       mean = -1
       sigma = -1
    print("starting mean was", imax2 / 2)
@@ -658,7 +717,7 @@ def GetPeak2(h):
    h.GetXaxis().SetTitle("fadc channels")
    h.GetYaxis().SetTitle("counts")
    h.Draw()
-   gROOT.FindObject("c1").Update()
+   ROOT.gROOT.FindObject("c1").Update()
    if peak_fit_query:
       ans = input("x to reject, enter to accept? ")
       if len(ans) > 0 and ans[0] == 'x':
@@ -731,7 +790,7 @@ def Draw_gvsV(row, col, conf=0):
    Draw the linear function g(V) as an overlay on the graph
    presently displayed on c1.
    """
-   gline = TF1("gline", Linearfit, 50, 100, 2)
+   gline = ROOT.TF1("gline", Linearfit, 50, 100, 2)
    if conf == 0 and (row,col) in latest_results:
       Vbd = float(latest_results[(row,col)].split()[0])
       slope = float(latest_results[(row,col)].split()[1])
@@ -743,10 +802,10 @@ def Draw_gvsV(row, col, conf=0):
       slope = 1 / (GetVoltage(1, row, col, conf) - Vbd + 1e-99)
    gline.SetParameter(0, Vbd)
    gline.SetParameter(1, slope / fit_slope_to_gain_pF)
-   gline.SetLineColor(kBlue)
+   gline.SetLineColor(ROOT.kBlue)
    gline.SetLineStyle(9)
    gline.Draw("same")
-   gROOT.FindObject("c1").Update()
+   ROOT.gROOT.FindObject("c1").Update()
    return gline
 
 def Write():
@@ -793,12 +852,15 @@ def trees2spectra(ig=-1, row=-1, nfadcbins=300, maxfadc=300):
    for ig in range(igrange[0], igrange[1]):
       for row in range(rowrange[0], rowrange[1]):
          ftrees = "TAGMtrees_{0}.root".format(gset[ig][row-1])
-         fin = TFile(ftrees)
+         fin = ROOT.TFile(ftrees)
          fadc = fin.Get("fadc")
          fbias = "TAGMbias_{0}.root".format(gset[ig][row-1])
-         fout = TFile(fbias, "create")
-         h2d = TH2D("h_spectra", "fadc vs column", nfadcbins, 0, maxfadc,
-                                                   102, 1, 103)
+         fout = ROOT.TFile(fbias, "update")
+         h2d = ROOT.TH2D("h_spectra", "fadc vs column", 
+                         nfadcbins, 0, maxfadc, 110, 1, 111)
+         fadc.Draw("col:peak-ped/4>>h_spectra", "pt>300&&qf==0&&row==0")
+         h2d = ROOT.TH2D("h_spectra", "fadc vs column", 
+                         nfadcbins, 0, maxfadc, 110, 1, 111)
          fadc.Draw("col:peak-ped/4>>h_spectra", "pt>300&&qf==0&&row==0")
          for col in range(1,103):
             hin = h2d.ProjectionX("h_spectra_" + str(col), col, col)
@@ -806,7 +868,7 @@ def trees2spectra(ig=-1, row=-1, nfadcbins=300, maxfadc=300):
             hin.GetXaxis().SetTitle("fadc peak minus pedestal")
             hin.GetYaxis().SetTitle("counts")
             hin.Draw()
-            gROOT.FindObject("c1").SetLogy()
-            gROOT.FindObject("c1").Update()
+            ROOT.gROOT.FindObject("c1").SetLogy()
+            ROOT.gROOT.FindObject("c1").Update()
             hin.Write()
             print(hin)
