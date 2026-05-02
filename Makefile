@@ -16,8 +16,8 @@ LIBS = /usr/lib64/libpcap.so.1
 CFLAGS = -g -I. -I./include -O0 
 
 # comment out this section if epics is not available on the build host
-#	       -DUPDATE_STATUS_IN_EPICS=1 \
 EPICS_CFLAGS = \
+	       -DUPDATE_STATUS_IN_EPICS=1 \
                -I$(EPICS_BASE)/include -I$(EPICS_BASE)/include/os/Linux -I$(EPICS_BASE)/include/compiler/gcc \
                -L$(EPICS_BASE)/lib/$(EPICS_BUILD) -lca \
                -Wl,-rpath,$(EPICS_BASE)/lib/$(EPICS_BUILD)

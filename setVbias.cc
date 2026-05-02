@@ -79,7 +79,7 @@
 //    >>>>>>>>> cut here
 
 #define MAX_ROWS 11
-#define MAX_COLUMNS 108
+#define MAX_COLUMNS 110
 #define DEFAULT_GAIN_PC 0.50
 #define DEFAULT_PEAK_PC 0.00
 #define DEFAULT_HEALTH_V 13.0
@@ -483,7 +483,8 @@ int main(int argc, char *argv[])
       for (int r = 0; r < MAX_ROWS; ++r) {
          for (int c = 0; c < MAX_COLUMNS; ++c) {
             if (Vsetpoint.find(c+1) != Vsetpoint.end() &&
-                Vsetpoint[c+1].find(r+1) != Vsetpoint[c+1].end())
+                Vsetpoint[c+1].find(r+1) != Vsetpoint[c+1].end() &&
+                r < 5 && c < 102)
             {
                std::stringstream buf;
                buf << "TAGM:bias:" << r + 1 << ":" << c + 1 << ":v_set";
@@ -908,6 +909,7 @@ int epics_stop_communication()
       ca_clear_channel(iter->second);
    }
    ca_task_exit();
+   return 0;
 }
 
 #endif
