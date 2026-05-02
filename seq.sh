@@ -1,11 +1,11 @@
 #!/bin/bash
 
 bin=bin
-SETVBIAS="$bin/setVbias -H -C setVbias_fulldetector-3-12-2025_calib.conf -c 1-102"
+SETVBIAS="$bin/setVbias -L -C setVbias_fulldetector-4-27-2026_calib.conf -c 1-110"
 CTRLHOST="gluon28.jlab.org:5692"
 
 function put {
-	echo $SETVBIAS -r 1-5 -V 50 $CTRLHOST
+	echo $SETVBIAS -r 1-11 -V 50 $CTRLHOST
 	$SETVBIAS -r 1-5 -V 50 $CTRLHOST
 	echo $SETVBIAS -r $1 -g $2 $CTRLHOST
 	$SETVBIAS -r $1 -g $2 $3 $4 $5 $6 $CTRLHOST
@@ -17,9 +17,8 @@ function fin {
 	exit 0
 }
 
-for row in 1 2 3 4 5; do
-	#for gval in 25 30 35 40 45; do
-	for gval in 0 05 10 15 20; do
+for row in 1 2 3 4 5 10 11; do
+   for gval in 30 40 50 60 70 80; do
 		put $row 0.$gval
 		echo -n "ready for scan row${row}g${gval},"
 		echo -n "press enter when done, q to quit: "
