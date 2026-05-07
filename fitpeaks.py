@@ -174,9 +174,8 @@ gset = [['000328', '000332', '000336', '000340', '000344'],
         ['000330', '000334', '000338', '000342', '000346']]
 gset_proto = {106: ['130372', '130373', '130374', '130375', '130376'],
               107: ['130377', '130378', '130379', '130380', '130381'],
-              108: ['130382', '130383', '130384', '130385', '130386'],
-             }
-proto_to_rowcol = {(103,1):(99,1), (103,2):(99,1), (103,3):(99,1), (103,4):(99,1), (103,5):(99,1), 
+              108: ['130382', '130383', '130384', '130385', '130386']}
+proto_to_colrow = {(103,1):(99,1), (103,2):(99,1), (103,3):(99,1), (103,4):(99,1), (103,5):(99,1), 
                    (104,1):(99,2), (104,2):(99,2), (104,3):(99,2), (104,4):(99,2), (104,5):(99,2),
                    (105,1):(99,3), (105,2):(99,3), (105,3):(99,3), (105,4):(99,3), (105,5):(99,3),
                    (106,11):(99,4), (107,11):(99,4), (108,11):(99,4), (109,11):(99,4), (110,11):(99,4),
@@ -184,6 +183,27 @@ proto_to_rowcol = {(103,1):(99,1), (103,2):(99,1), (103,3):(99,1), (103,4):(99,1
                    (108,1):(81,1), (108,2):(81,1), (108,3):(81,1), (108,4):(81,1), (108,5):(81,1),
                   }
 conffile = 'setVbias_fulldetector-3-20-2026_calib.conf'
+
+# light pulse runs taken on May 2, 2026 [rtj]
+"""
+gval = [0.25, 0.35, 0.45, 0.55, 0.65]
+gset = [['140213', '140219', '140224', '140231', '140238'],
+        ['140214', '140220', '140226', '140232', '140239'],
+        ['140215', '140221', '140227', '140233', '140240'],
+        ['140216', '140222', '140229', '140234', '140242'],
+        ['140217', '140223', '140230', '140235', '140243']]
+gset_proto = {106: ['140248', '140249', '140252', '140253', '140254'],
+              107: ['140255', '140256', '140257', '140258', '140259'],
+              108: ['140260', '140261', '140262', '140263', '140264']}
+proto_to_colrow = {(103,1):(99,1), (103,2):(99,1), (103,3):(99,1), (103,4):(99,1), (103,5):(99,1), 
+                   (104,1):(99,2), (104,2):(99,2), (104,3):(99,2), (104,4):(99,2), (104,5):(99,2),
+                   (105,1):(99,3), (105,2):(99,3), (105,3):(99,3), (105,4):(99,3), (105,5):(99,3),
+                   (106,11):(99,4), (107,11):(99,4), (108,11):(99,4), (109,11):(99,4), (110,11):(99,4),
+                   (106,10):(99,5), (107,10):(99,5), (108,10):(99,5), (109,10):(99,5), (110,10):(99,5),
+                   (108,1):(81,1), (108,2):(81,1), (108,3):(81,1), (108,4):(81,1), (108,5):(81,1),
+                  }
+conffile = 'setVbias_fulldetector-4-27-2026_calib.conf'
+"""
 
 confref = conffile
 
@@ -206,12 +226,12 @@ def Fit1(row, col, interact=1):
          colno = col
          runno = gset[ig][row-1]
       elif col in gset_proto and row > 5:
-         rowno = proto_to_rowcol[(col,row)][1]
-         colno = proto_to_rowcol[(col,row)][0]
+         rowno = proto_to_colrow[(col,row)][1]
+         colno = proto_to_colrow[(col,row)][0]
          runno = gset_proto[col][ig]
       else:
-         rowno = proto_to_rowcol[(col,row)][1]
-         colno = proto_to_rowcol[(col,row)][0]
+         rowno = proto_to_colrow[(col,row)][1]
+         colno = proto_to_colrow[(col,row)][0]
          runno = gset[ig][row-1]
       fbias = f"TAGMbias_{runno}.root"
       if os.path.exists(fbias):
@@ -872,3 +892,63 @@ def trees2spectra(ig=-1, row=-1, nfadcbins=300, maxfadc=300):
             ROOT.gROOT.FindObject("c1").Update()
             hin.Write()
             print(hin)
+
+def trees2spectra_proto(ig=-1, row=-1, nfadcbins=300, maxfadc=300):
+   """
+   Clone of trees2specta, except that it uses special tables to look
+   up the run numbers and readout channels for the test prototypes
+   that were installed in the microscope for the 2026 run period.
+   """
+   if ig < 0:
+      igrange = [0,len(gval)]
+   else:
+      igrange = [ig, ig+1]
+   if row < 0:
+      rows = [1, 2, 3, 4, 5, 10, 11]
+   else:
+      rows = [row]
+   for ig in range(igrange[0], igrange[1]):
+      for row in rows:
+         h2d = ROOT.gDirectory.FindObject("h_spectra")
+         if h2d:
+            h2d.Clear()
+         else:
+            h2d = ROOT.TH2D("h_spectra", "fadc vs column", 
+                            nfadcbins, 0, maxfadc, 110, 1, 111)
+         for col in range(103,109):
+            if row < 10:
+               run = gset[ig][row-1]
+            elif col in gset_proto:
+               run = gset_proto[col][ig]
+            else:
+               continue
+            ftrees = f"TAGMtrees_{run}.root"
+            fin = ROOT.TFile(ftrees)
+            fadc = fin.Get("fadc")
+            if (col,row) in proto_to_colrow:
+               colrow = proto_to_colrow[(col,row)]
+               h2d.SetDirectory(ROOT.gDirectory)
+               fadc.Draw(f"{col}:peak-ped/4 >> +h_spectra",
+                         f"pt>300&&qf==0&&col=={colrow[0]}&&row=={colrow[1]}")
+               h2d.SetDirectory(0)
+         for col in range(103,109):
+            if row < 10:
+               run = gset[ig][row-1]
+            elif col in gset_proto:
+               run = gset_proto[col][ig]
+            else:
+               continue
+            fbias = f"TAGMbias_{run}.root"
+            fout = ROOT.TFile(fbias, "update")
+            hin = h2d.ProjectionX("h_spectra_" + str(col), col, col)
+            hin.SetTitle(f"row {row}, column {col}, g={gval[ig]}")
+            hin.GetXaxis().SetTitle("fadc peak minus pedestal")
+            hin.GetYaxis().SetTitle("counts")
+            hin.Draw()
+            ROOT.gROOT.FindObject("c1").SetLogy()
+            ROOT.gROOT.FindObject("c1").Update()
+            hin.Write()
+            print(hin)
+            fout.Write()
+            fout.Close()
+            del fout
