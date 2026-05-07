@@ -14,6 +14,9 @@ import math
 import array
 import re
 
+# Enforce serial operation of the fit engine, avoids segfaults!!
+ROOT.EnableImplicitMT(1)
+
 interact = 1
 
 pedestal = 900.
@@ -153,6 +156,18 @@ gset = [['130780', '130787', '130792', '130797', '130803'],
         ['130811', '130813', '130815', '130817', '130819'],
         ['130822', '130823', '130824', '130825', '130826']]
 reference_setVbias_conf = 'setVbias_fulldetector-4-6-2025_calib.conf'
+
+# Row-by-row scan data taken on May 2, 2026 [rtj]
+gval = [0.25, 0.35, 0.45, 0.55, 0.65]
+gset = [['140213', '140219', '140224', '140231', '140238'],
+        ['140214', '140220', '140226', '140232', '140239'],
+        ['140215', '140221', '140227', '140233', '140240'],
+        ['140216', '140222', '140229', '140234', '140242'],
+        ['140217', '140223', '140230', '140235', '140243']]
+gset_proto = {106: ['140248', '140249', '140252', '140253', '140254'],
+              107: ['140255', '140256', '140257', '140258', '140259'],
+              108: ['140260', '140261', '140262', '140263', '140264']}
+reference_setVbias_conf = 'setVbias_fulldetector-4-27-2026_calib.conf'
 
 # ttab_roctagm1 is taken from the ccdb record /Translation/DAQ2detector
 # TAGM section. It is a sequence map ordered by increasing fadc250
@@ -369,6 +384,9 @@ def fit(run, nadcbins=300, adcmax=1500):
             fitter.ReleaseParameter(5)
          nhitinfit = h.Integral(h.FindBin(x0bg), h.FindBin(xmax))
          if nhitinfit > 10:
+            print("calling the fit with:")
+            for n in range(6):
+               print(f"   parameter {n} is", fitter.GetParameter(n))
             h.Fit(fitter, "", "", x0bg, xmax)
             bgheight = fitter.GetParameter(0)
             bgmin = fitter.GetParameter(1)
@@ -385,6 +403,12 @@ def fit(run, nadcbins=300, adcmax=1500):
             fitsigma = 0
          if bgheight > 0 and fitheight > 0:
             h.GetXaxis().SetRangeUser(x0bg, fitmean + 5*fitsigma)
+            imax = h.GetNbinsX()
+            h.SetBinContent(imax + 1, 0)
+            imax = h.GetMaximumBin()
+            ymax = h.GetBinContent(imax)
+            print("setting hmax to", ymax, imax)
+            h.SetMaximum(ymax * 1.1)
       else:
          c1.cd(1)
          hreb.Draw()
@@ -397,8 +421,9 @@ def fit(run, nadcbins=300, adcmax=1500):
                "# for column#,",
                "p<ped> to set bg_start limit,",
                "r<rb> to set rebin factor,",
-               "t<rb> to set tilt factor,",
+               "t<tf> to set tilt factor,",
                "e<eb> to set bg_end limit,",
+               "<npar>,<pval> to set parameter npar to pval,",
                "g to regen,", end='')
          resp = input("or q to quit: ")
          if len(resp) > 0:
@@ -634,7 +659,7 @@ def add2tree(textfile, row, gCoulombs, setVbias_conf, rootfile="fityields.root")
             e_gQ[0] = gCoulombs
          except:
             print("non-existent fiber reported in fityields file?")
-            print("row=", row, ",col=", col, "textfile=", textfile)
+            print(f"row={row}, col={col}, textfile={textfile}")
             continue
          if mean > fADC_pedestal:
             e_qmean[0] = (mean - fADC_pedestal) * fADC_gain
@@ -708,6 +733,7 @@ def bias2spectra(runno=0):
             continue
          f1 = ROOT.TFile("TAGMbias_" + str(run) + ".root")
          f2 = ROOT.TFile("TAGMspectra_" + str(run) + ".root", "recreate")
+         f1.ls()
          for col in range(1, 103):
             h1 = f1.Get("h_spectra_{}".format(col))
             f2.cd()
@@ -1016,12 +1042,15 @@ def visualize_threshold(new_setVbias_conf, threshold=0.5, select_gval=0.45,
       newconf = read_setVbias_conf(new_setVbias_conf)
    run = 0
    skip = 0
+   print("here I am at the start of the loop")
    for ig in range(0, len(gval)):
       if gval[ig] != select_gval:
          continue
       for ichan in range(0, len(newconf['board'])):
          row = newconf['row'][ichan]
          column = newconf['column'][ichan]
+         if column > 102:
+            continue
          Vbd = newconf['Vthresh'][ichan]
          Gain = newconf['Gain'][ichan]
          Yield = newconf['Yield'][ichan]
@@ -1064,14 +1093,14 @@ def visualize_threshold(new_setVbias_conf, threshold=0.5, select_gval=0.45,
          #xthresh = (xthresh - fADC_pedestal) * fADC_gain;
          ythresh = numpy.array([0, h.GetMaximum()])
          gthresh = ROOT.TGraph(2, xthresh, ythresh)
-         gthresh.SetLineColor(kBlue)
+         gthresh.SetLineColor(ROOT.kBlue)
          gthresh.SetLineWidth(5)
          gthresh.Draw("same")
          xsumit = numpy.array([xpeak, xpeak])
          #xsumit = (xsumit - fADC_pedestal) * fADC_gain;
          ysumit = numpy.array([0, h.GetMaximum()])
          gsumit = ROOT.TGraph(2, xsumit, ysumit)
-         gsumit.SetLineColor(kYellow)
+         gsumit.SetLineColor(ROOT.kYellow)
          gsumit.SetLineWidth(5)
          gsumit.Draw("same")
          c1.Update()
@@ -1181,17 +1210,20 @@ def write_setVbias_conf(new_setVbias_conf, old_setVbias_conf, rootfile):
             if ftre.row == row and ftre.col == col:
                found = 1
                break
-         if not found:
-            print("row", row, "column", col, "not found in fit tree, ",
-                  "giving up")
-            return
          out = "{0:5x}{1:12d}{2:13d}{3:12d}".format(int(grep.group(1), 16),
                                                     int(grep.group(2)),
                                                     int(grep.group(3)),
                                                     int(grep.group(4)))
-         out += "{0:13.3f}{1:12.3f}{2:16.2f}".format(ftre.Vbd,
-                                                     ftre.G,
-                                                     ftre.Y)
+         if not found:
+            print("row", row, "column", col, "not found in fit tree, ",
+                  "preserving old calibration for that fiber")
+            out += "{0:13.3f}{1:12.3f}{2:16.2f}".format(float(grep.group(5)),
+                                                        float(grep.group(6)),
+                                                        float(grep.group(7)))
+         else:
+            out += "{0:13.3f}{1:12.3f}{2:16.2f}".format(ftre.Vbd,
+                                                        ftre.G,
+                                                        ftre.Y)
          confout.write(out + "\n")
       elif re.match(r"^ ", line):
          print("unrecognized format in", old_setVbias_conf,
@@ -1336,14 +1368,14 @@ def write_thresholds_old_method(new_setVbias_conf, old_setVbias_conf, outfile,
          xthresh = (xthresh - fADC_pedestal) * fADC_gain;
          ythresh = numpy.array([0, h.GetMaximum()])
          gthresh = ROOT.TGraph(2, xthresh, ythresh)
-         gthresh.SetLineColor(kBlue)
+         gthresh.SetLineColor(ROOT.kBlue)
          gthresh.SetLineWidth(5)
          gthresh.Draw("same")
          xsumit = numpy.array([xpeak, xpeak])
          xsumit = (xsumit - fADC_pedestal) * fADC_gain;
          ysumit = numpy.array([0, h.GetMaximum()])
          gsumit = ROOT.TGraph(2, xsumit, ysumit)
-         gsumit.SetLineColor(kYellow)
+         gsumit.SetLineColor(ROOT.kYellow)
          gsumit.SetLineWidth(5)
          gsumit.Draw("same")
          c1.Update()

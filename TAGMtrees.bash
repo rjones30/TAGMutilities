@@ -98,6 +98,6 @@ else
     exit $retcode
 fi
 
-htgettoken
+#htgettoken
 
 exit $retcode

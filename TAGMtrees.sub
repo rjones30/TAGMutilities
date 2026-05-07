@@ -14,4 +14,4 @@ on_exit_remove = (ExitBySignal==False)&&(ExitCode==0)
 RequestCPUs = 4
 Requirements = (TARGET.OpSysName=="AlmaLinux")
 +JobType = "Urgent"
-queue 15
+queue 80
